@@ -22,6 +22,6 @@ class ParseCPP():
         tokens = []
         for tok in iter(self.pp.token, None):
             if tok.type == 'CPP_STRING':
-                if tok.value.rfind('{') > 0 and tok.value.rfind('}') > 0:
+                if tok.value.rfind('{') > 0 or tok.value.rfind('}') > 0:
                     tokens.append(tok)
         return tokens

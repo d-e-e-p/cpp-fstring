@@ -25,31 +25,36 @@ class FormatFstring():
         changes = []
         for tok in tokens:
             fstr = 'f' + tok.value
-            p = ast.parse(fstr)
-            _logger.debug(f"t2 = {tok} p={p}")
-            for body in p.body:
+            # replace {{ and }} for easier matching
+            # TODO: make sure these tags don't already exist in string
+            ast_parse = ast.parse(fstr)
+            _logger.debug(f"t2 = {tok} p={ast_parse}")
+            print(ast.dump(ast_parse, indent=4))
+            for body in ast_parse.body:
                 typ = type(body.value)
                 if typ is ast.Constant:
                     continue
                 #breakpoint()
                 _logger.debug(f" body.value = {body.value}")
                 parts = body.value.values
-                replstr = "std::format(\""
+                replstr = "\""
                 varlist = []
                 for part in parts:
                     typ = type(part)
                     _logger.debug(f" {part} typ={typ} val={part.value}  ")
                     if typ is ast.Constant:
                         # don't interprit backslash
-                        replstr += repr(part.value)[1:-1]
+                        strvalue = repr(part.value)[1:-1]
+                        strvalue = strvalue.replace('}','}}')
+                        strvalue = strvalue.replace('{','{{')
+                        replstr += strvalue
                     if typ is ast.FormattedValue:
-                        col_start = part.value.col_offset
-                        col_end = part.value.end_col_offset
-                        string = tok.value[col_start:col_end]
-                        # _logger.debug(f"{part.conversion}, fs={part.format_spec}, l={part.lineno}, v={part.value} cons={string}")
-                        # varlist.append(string)
+                        # either value=Name(id='foo', ctx=Load()),
+                        # or value=Constant(value=42),
                         replstr += "{"
-                        if hasattr(part.value, "id"):
+                        #breakpoint()
+                        vtyp = type(part.value)
+                        if vtyp is ast.Name:
                             _logger.debug(f"var id = {part.value.id}")
                             varlist.append(part.value.id)
                             if part.format_spec:
@@ -57,12 +62,26 @@ class FormatFstring():
                                     # 'col_offset', 'end_col_offset', 'end_lineno', 'lineno'
                                     _logger.debug(f"format = {part.format_spec} spec= {val.value}")
                                     replstr += ":" + val.value
+                        
+                        if vtyp is ast.Constant:
+                            _logger.debug(f"var value = {part.value.value}")
+                            breakpoint()
+                            # can't use part.value.value because 0xa -> 65 etc
+                            strconst = tok.value[part.value.col_offset:part.value.end_col_offset]
+                            varlist.append(strconst)
+                            if part.format_spec:
+                                for val in part.format_spec.values:
+                                    # 'col_offset', 'end_col_offset', 'end_lineno', 'lineno'
+                                    _logger.debug(f"format = {part.format_spec} spec= {val.value}")
+                                    replstr += ":" + val.value
+                        
                         replstr += "}"
                     if typ is ast.Str:
                         _logger.debug(f" str {part} typ={type(part)} val={part.value} kind={part.kind} ")
-                replstr += "\", "
-                replstr += ", ".join(varlist)
-                replstr += ");"
+                replstr += "\""
+                if varlist:
+                    varstr = ", ".join(varlist)
+                    replstr = f"std::format({replstr}, {varstr})"
                 _logger.debug(f"res = {replstr}")
                 changes.append([tok, replstr])
 

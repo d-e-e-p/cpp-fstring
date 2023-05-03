@@ -28,5 +28,5 @@ class GenerateOutput():
         """
         pos_start = pos + self.offset
         pos_end = pos_start + len(before)
-        self.offset = len(after) - len(before)
+        self.offset += len(after) - len(before)
         self.code = after.join([self.code[:pos_start], self.code[pos_end:]])
