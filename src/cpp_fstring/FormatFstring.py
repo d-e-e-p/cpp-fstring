@@ -1,8 +1,9 @@
 
-import ast
+import re
 import logging
 
 _logger = logging.getLogger(__name__)
+
 
 class FormatFstring():
     """
@@ -19,70 +20,58 @@ class FormatFstring():
     """
 
     def __init__(self, args=None, **kwargs):
-        pass
+        # https://regex101.com/r/lurKSR/1
+        self.pattern = r"(?<=\{)([^}:]+)(?=(:[^}]+)?\})"
+        self.lbracket = '__LEFT_CURLY_BRACKET__'
+        self.rbracket = '__RIGHT_CURLY_BRACKET__'
+
+    def get_bracket_replacements(self, in_str):
+        """
+        find something to replace double brackets that isn't in the in_str
+        """
+        lbracket = '⟪'
+        while in_str.find(lbracket) > 0:
+            lbracket += lbracket
+
+        rbracket = '⟫'
+        while in_str.find(rbracket) > 0:
+            rbracket += rbracket
+        return lbracket, rbracket
 
     def get_changes(self, tokens):
         changes = []
         for tok in tokens:
-            fstr = 'f' + tok.value
-            # replace {{ and }} for easier matching
-            # TODO: make sure these tags don't already exist in string
-            ast_parse = ast.parse(fstr)
-            _logger.debug(f"t2 = {tok} p={ast_parse}")
-            print(ast.dump(ast_parse, indent=4))
-            for body in ast_parse.body:
-                typ = type(body.value)
-                if typ is ast.Constant:
-                    continue
-                #breakpoint()
-                _logger.debug(f" body.value = {body.value}")
-                parts = body.value.values
-                replstr = "\""
-                varlist = []
-                for part in parts:
-                    typ = type(part)
-                    _logger.debug(f" {part} typ={typ} val={part.value}  ")
-                    if typ is ast.Constant:
-                        # don't interprit backslash
-                        strvalue = repr(part.value)[1:-1]
-                        strvalue = strvalue.replace('}','}}')
-                        strvalue = strvalue.replace('{','{{')
-                        replstr += strvalue
-                    if typ is ast.FormattedValue:
-                        # either value=Name(id='foo', ctx=Load()),
-                        # or value=Constant(value=42),
-                        replstr += "{"
-                        #breakpoint()
-                        vtyp = type(part.value)
-                        if vtyp is ast.Name:
-                            _logger.debug(f"var id = {part.value.id}")
-                            varlist.append(part.value.id)
-                            if part.format_spec:
-                                for val in part.format_spec.values:
-                                    # 'col_offset', 'end_col_offset', 'end_lineno', 'lineno'
-                                    _logger.debug(f"format = {part.format_spec} spec= {val.value}")
-                                    replstr += ":" + val.value
-                        
-                        if vtyp is ast.Constant:
-                            _logger.debug(f"var value = {part.value.value}")
-                            breakpoint()
-                            # can't use part.value.value because 0xa -> 65 etc
-                            strconst = tok.value[part.value.col_offset:part.value.end_col_offset]
-                            varlist.append(strconst)
-                            if part.format_spec:
-                                for val in part.format_spec.values:
-                                    # 'col_offset', 'end_col_offset', 'end_lineno', 'lineno'
-                                    _logger.debug(f"format = {part.format_spec} spec= {val.value}")
-                                    replstr += ":" + val.value
-                        
-                        replstr += "}"
-                    if typ is ast.Str:
-                        _logger.debug(f" str {part} typ={type(part)} val={part.value} kind={part.kind} ")
-                replstr += "\""
-                if varlist:
-                    varstr = ", ".join(varlist)
-                    replstr = f"std::format({replstr}, {varstr})"
-                _logger.debug(f"res = {replstr}")
-                changes.append([tok, replstr])
+            """
+            convert:
+                "this is a {foo_bar} test"
+            to:
+                fmt::format("this is a {} test", foo_bar)
+                            ------ f_str ------  -v_str-
+            """
+            in_str = repr(tok.value)[1:-1]  # escape backslash
+
+            (lbracket, rbracket) = self.get_bracket_replacements(in_str)
+            rbacket_rev = rbracket[::-1]
+
+            in_str = in_str.replace('{{', lbracket)
+            # right-to-left replace
+            in_str = in_str[::-1].replace('}}', rbacket_rev)[::-1]
+            _logger.debug(f"t2 = {tok} i={in_str}")
+            matches = re.findall(self.pattern, in_str)
+            f_str = re.sub(self.pattern, "", in_str)
+
+            # are there any vars or const inside brackets?
+            if matches:
+                v_str = ", ".join(map(lambda x: x[0], matches))
+                f_str = f_str.replace(lbracket, '{{')
+                f_str = f_str.replace(rbracket, '}}')
+                replacement_str = f"fmt::format({f_str}, {v_str})"
+            else:
+                f_str = f_str.replace(lbracket, '{')
+                f_str = f_str.replace(rbracket, '}')
+                replacement_str = f_str
+
+            _logger.debug(f"t={tok} after={replacement_str}")
+            changes.append([tok, replacement_str])
 
         return changes
