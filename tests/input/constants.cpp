@@ -6,4 +6,3 @@ int main() {
 	str = "{42ull}";
   str = "{0x42}";
 }
-
