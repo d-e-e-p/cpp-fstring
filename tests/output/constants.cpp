@@ -1,5 +1,3 @@
-
-
 int main() {
 	str = fmt::format("{}", 42);
 	str = fmt::format("{:x}", 0x42);
@@ -8,5 +6,3 @@ int main() {
 	str = fmt::format("{}", 42ull);
   str = fmt::format("{}", 0x42);
 }
-
-

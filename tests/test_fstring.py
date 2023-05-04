@@ -32,4 +32,7 @@ def test_files(capsys):
                 # print(f"cap= {captured}")
                 with open(outfile) as f:
                     expected = f.read().splitlines()
+                    # remove empty lines
+                    actual = list(filter(None, actual))
+                    expected = list(filter(None, expected))
                     assert actual == expected

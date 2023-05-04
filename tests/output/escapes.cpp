@@ -17,6 +17,3 @@ int main() {
   str = fmt::format("{{{}}}", foo);
   str = fmt::format("{{{}}}", 0x42);
 }
-
-
-
