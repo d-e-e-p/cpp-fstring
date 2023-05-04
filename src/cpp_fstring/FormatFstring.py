@@ -1,11 +1,10 @@
-
-import re
 import logging
+import re
 
 _logger = logging.getLogger(__name__)
 
 
-class FormatFstring():
+class FormatFstring:
     """
     from: https://docs.python.org/3.11/reference/lexical_analysis.html#formatted-string-literals
 
@@ -22,18 +21,18 @@ class FormatFstring():
     def __init__(self, args=None, **kwargs):
         # https://regex101.com/r/lurKSR/1
         self.pattern = r"(?<=\{)([^}:]+)(?=(:[^}]+)?\})"
-        self.lbracket = '__LEFT_CURLY_BRACKET__'
-        self.rbracket = '__RIGHT_CURLY_BRACKET__'
+        self.lbracket = "__LEFT_CURLY_BRACKET__"
+        self.rbracket = "__RIGHT_CURLY_BRACKET__"
 
     def get_bracket_replacements(self, in_str):
         """
         find something to replace double brackets that isn't in the in_str
         """
-        lbracket = '⟪'
+        lbracket = "⟪"
         while in_str.find(lbracket) > 0:
             lbracket += lbracket
 
-        rbracket = '⟫'
+        rbracket = "⟫"
         while in_str.find(rbracket) > 0:
             rbracket += rbracket
         return lbracket, rbracket
@@ -53,9 +52,9 @@ class FormatFstring():
             (lbracket, rbracket) = self.get_bracket_replacements(in_str)
             rbacket_rev = rbracket[::-1]
 
-            in_str = in_str.replace('{{', lbracket)
+            in_str = in_str.replace("{{", lbracket)
             # right-to-left replace
-            in_str = in_str[::-1].replace('}}', rbacket_rev)[::-1]
+            in_str = in_str[::-1].replace("}}", rbacket_rev)[::-1]
             _logger.debug(f"t2 = {tok} i={in_str}")
             matches = re.findall(self.pattern, in_str)
             f_str = re.sub(self.pattern, "", in_str)
@@ -63,12 +62,12 @@ class FormatFstring():
             # are there any vars or const inside brackets?
             if matches:
                 v_str = ", ".join(map(lambda x: x[0], matches))
-                f_str = f_str.replace(lbracket, '{{')
-                f_str = f_str.replace(rbracket, '}}')
+                f_str = f_str.replace(lbracket, "{{")
+                f_str = f_str.replace(rbracket, "}}")
                 replacement_str = f"fmt::format({f_str}, {v_str})"
             else:
-                f_str = f_str.replace(lbracket, '{')
-                f_str = f_str.replace(rbracket, '}')
+                f_str = f_str.replace(lbracket, "{")
+                f_str = f_str.replace(rbracket, "}")
                 replacement_str = f_str
 
             _logger.debug(f"t={tok} after={replacement_str}")

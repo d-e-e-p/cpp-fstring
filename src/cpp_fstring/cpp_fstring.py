@@ -6,9 +6,9 @@ import logging
 import sys
 
 from cpp_fstring import __version__
-from cpp_fstring.ParseCPP import ParseCPP
 from cpp_fstring.FormatFstring import FormatFstring
 from cpp_fstring.GenerateOutput import GenerateOutput
+from cpp_fstring.ParseCPP import ParseCPP
 
 __author__ = "d-e-e-p"
 __copyright__ = "d-e-e-p"
@@ -48,8 +48,8 @@ def parse_args(args):
         const=logging.DEBUG,
     )
     parser.add_argument(
-        'filename',
-        help='name of file to process',
+        "filename",
+        help="name of file to process",
     )
 
     return parser.parse_args(args)
@@ -62,9 +62,7 @@ def setup_logging(loglevel):
       loglevel (int): minimum loglevel for emitting messages
     """
     logformat = "[%(asctime)s] %(levelname)s:%(name)s:%(message)s"
-    logging.basicConfig(
-        level=loglevel, stream=sys.stderr, format=logformat, datefmt="%Y-%m-%d %H:%M:%S"
-    )
+    logging.basicConfig(level=loglevel, stream=sys.stderr, format=logformat, datefmt="%Y-%m-%d %H:%M:%S")
 
 
 def main(args):

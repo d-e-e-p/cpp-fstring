@@ -11,18 +11,20 @@ repos:
   - id: check-merge-conflict
   - id: check-xml
   - id: check-yaml
-  - id: debug-statements
+  #- id: debug-statements
   - id: end-of-file-fixer
   - id: requirements-txt-fixer
   - id: mixed-line-ending
     args: ['--fix=auto']  # replace 'auto' with 'lf' to enforce Linux/Mac line endings or 'crlf' for Windows
 
-## If you want to automatically "modernize" your Python code:
-# - repo: https://github.com/asottile/pyupgrade
-#   rev: v3.3.1
-#   hooks:
-#   - id: pyupgrade
-#     args: ['--py37-plus']
+# If you want to automatically "modernize" your Python code:
+- repo: https://github.com/asottile/pyupgrade
+  rev: v3.3.1
+  hooks:
+  - id: pyupgrade
+    args: ['--py39-plus']
+    exclude: 'src/cpp_fstring/ply/|src/cpp_fstring/Preprocessor.py'
+
 
 ## If you want to avoid flake8 errors due to unused vars or imports:
 # - repo: https://github.com/PyCQA/autoflake
@@ -39,12 +41,14 @@ repos:
   rev: 5.12.0
   hooks:
   - id: isort
+    exclude: 'src/cpp_fstring/ply/|src/cpp_fstring/Preprocessor.py'
 
 - repo: https://github.com/psf/black
   rev: 23.3.0
   hooks:
   - id: black
     language_version: python3
+    exclude: 'src/cpp_fstring/ply/|src/cpp_fstring/Preprocessor.py'
 
 ## If like to embrace black styles even in the docs:
 # - repo: https://github.com/asottile/blacken-docs
@@ -57,6 +61,7 @@ repos:
   rev: 6.0.0
   hooks:
   - id: flake8
+    exclude: 'src/cpp_fstring/ply/|src/cpp_fstring/Preprocessor.py'
   ## You can add flake8 plugins via `additional_dependencies`:
   #  additional_dependencies: [flake8-bugbear]
 

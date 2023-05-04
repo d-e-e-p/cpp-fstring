@@ -1,11 +1,10 @@
-
-import pdb
 import logging
+import pdb  # noqa: F401
+
 _logger = logging.getLogger(__name__)
 
 
-class GenerateOutput():
-
+class GenerateOutput:
     def __init__(self, args=None, **kwargs):
         self.code = None
         self.offset = 0
