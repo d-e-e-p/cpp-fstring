@@ -28,4 +28,14 @@ class GenerateOutput:
         pos_start = pos + self.offset
         pos_end = pos_start + len(before)
         self.offset += len(after) - len(before)
-        self.code = after.join([self.code[:pos_start], self.code[pos_end:]])
+        code = after.join([self.code[:pos_start], self.code[pos_end:]])
+        print("-----------------------------------------")
+        print(f"LEFT   part = '{self.code[pos_start-2:pos_start]}'")
+        print(f"MID    part = '{self.code[pos_start:pos_end]}' len={len(before)}")
+        print(f"MID    part = '{before}' len={len(before)}")
+        print(f"RIGHT  part = '{self.code[pos_end:pos_end+2]}'")
+        ll = 0
+        for i in range(len(before)):
+            match = before[i] == self.code[pos_start+i]
+            print(f" i={i} l={len(before)} b={before[i]} m={self.code[pos_start+i]} MATCH={match} b={ord(before[i])} m={ord(self.code[pos_start+i])}")
+        self.code = code
