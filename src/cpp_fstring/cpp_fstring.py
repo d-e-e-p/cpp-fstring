@@ -5,11 +5,12 @@ import argparse
 import logging
 import sys
 
-from cpp_fstring import __version__
+#from cpp_fstring import __version__
 from cpp_fstring.FormatFstring import FormatFstring
 from cpp_fstring.GenerateOutput import GenerateOutput
 from cpp_fstring.ParseCPP import ParseCPP
 
+__version__ = "0.1.1"
 __author__ = "d-e-e-p"
 __copyright__ = "d-e-e-p"
 __license__ = "MIT"

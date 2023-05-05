@@ -35,12 +35,13 @@
 
 # This module implements an ANSI-C style lexical preprocessor for PLY.
 # -----------------------------------------------------------------------------
-from __future__ import generators
-
 import sys
 import pdb
+import logging
 
 import cpp_fstring.ply.lex as lex
+
+log = logging.getLogger(__name__)
 
 # Some Python 3 compatibility shims
 if sys.version_info.major < 3:
@@ -55,7 +56,9 @@ else:
 # -----------------------------------------------------------------------------
 
 tokens = (
-   'CPP_ID','CPP_INTEGER', 'CPP_FLOAT', 'CPP_STRING', 'CPP_CHAR', 'CPP_WS', 'CPP_COMMENT1', 'CPP_COMMENT2', 'CPP_POUND','CPP_DPOUND'
+   'CPP_ID','CPP_INTEGER', 'CPP_FLOAT', 
+   'CPP_STRING', 'CPP_RAWSTRING',
+   'CPP_CHAR', 'CPP_WS', 'CPP_COMMENT1', 'CPP_COMMENT2', 'CPP_POUND','CPP_DPOUND'
 )
 
 literals = "+-*/%|&~^<>=!?()[]{}.,;:\\\'\""
@@ -69,8 +72,6 @@ def t_CPP_WS(t):
 t_CPP_POUND = r'\#'
 t_CPP_DPOUND = r'\#\#'
 
-# Identifier
-t_CPP_ID = r'[A-Za-z_][\w_]*'
 
 # Integer literal
 def CPP_INTEGER(t):
@@ -82,9 +83,32 @@ t_CPP_INTEGER = CPP_INTEGER
 # Floating literal
 t_CPP_FLOAT = r'((\d+)(\.\d+)(e(\+|-)?(\d+))? | (\d+)e(\+|-)?(\d+))([lL]|[fF])?'
 
+#
+# Order is important! rawstring before string
+#
+
+
+# Raw String literal
+#   prefix<optional>R"d-char-sequence<optional>(r-char-sequence<optional>)d-char-sequence<optional>"
+# eq:
+#   u8R"("foo")" LR"(bar)" uR"("a")"s UR"(test)"s
+#   R"(common usage)"
+#   d-char-sequence is at most 16 characters of basic chars except except parentheses, backslash and spaces
+#   basic chars: https://en.cppreference.com/w/cpp/language/charset#Basic_character_set
+#   https://regex101.com/r/h0fCi8/1
+def t_CPP_RAWSTRING(t):
+    r'((u8?|[LUf])?R\"(?P<d_char_sequence>[^(){}\[\]\\\s]*)\((.|\n)*?\)(?P=d_char_sequence)\"(?:s)?)'
+    ncr = t.value.count("\n")
+    t.lexer.lineno += ncr
+    return t
+
 # String literal
+# u8"" L"" u"" U"" R"(" ")"
+# u8""s L""s u""s U""s
+# https://regex101.com/r/ButlEP/1
+# r'((u8?|[LURf].?\()\"([^\\\n]|(\\(.|\n)))*?\")'
 def t_CPP_STRING(t):
-    r'\"([^\\\n]|(\\(.|\n)))*?\"'
+    r'((u8?|[LUf])?\"([^\\\n]|(\\(.|\n)))*?(\4\))?\"(?:s)?)'
     t.lexer.lineno += t.value.count("\n")
     return t
 
@@ -109,6 +133,14 @@ def t_CPP_COMMENT2(t):
     # replace with '/n'
     t.type = 'CPP_WS'; t.value = '\n'
     return t
+
+# Identifier
+#t_CPP_ID = r'[A-Za-z_][\w_]*'
+def t_CPP_ID(t):
+    r'[A-Za-z_][\w_]*'
+    t.lexer.lineno += t.value.count("\n")
+    return t
+
 
 def t_error(t):
     t.type = t.value[0]
@@ -190,6 +222,7 @@ class Macro(object):
 
 class Preprocessor():
     def __init__(self):
+        #self.lexer = lex.lex(debug=1)
         self.lexer = lex.lex()
         self.macros = {}
         self.path = []
@@ -224,7 +257,7 @@ class Preprocessor():
     # Report a preprocessor error/warning of some kind
     # ----------------------------------------------------------------------
     def error(self,file,line,msg):
-        print("%s:%d %s" % (file,line,msg))
+        log.error("%s:%d %s" % (file,line,msg))
 
     # ----------------------------------------------------------------------
     # lexprobe()
@@ -241,7 +274,7 @@ class Preprocessor():
         self.lexer.input("identifier")
         tok = self.lexer.token()
         if not tok or tok.value != "identifier":
-            print("Couldn't determine identifier type")
+            log.error("Couldn't determine identifier type")
         else:
             self.t_ID = tok.type
 
@@ -249,7 +282,7 @@ class Preprocessor():
         self.lexer.input("12345")
         tok = self.lexer.token()
         if not tok or int(tok.value) != 12345:
-            print("Couldn't determine integer type")
+            log.error("Couldn't determine integer type")
         else:
             self.t_INTEGER = tok.type
             self.t_INTEGER_TYPE = type(tok.value)
@@ -258,9 +291,17 @@ class Preprocessor():
         self.lexer.input("\"filename\"")
         tok = self.lexer.token()
         if not tok or tok.value != "\"filename\"":
-            print("Couldn't determine string type")
+            log.error("Couldn't determine string type")
         else:
             self.t_STRING = tok.type
+
+        # Determine the token type for raw strings
+        self.lexer.input("R\"(filename)\"")
+        tok = self.lexer.token()
+        if not tok or tok.value != "R\"(filename)\"":
+            log.error(f"Couldn't determine raw string type: {tok}")
+        else:
+            self.t_RAWSTRING = tok.type
 
         # Determine the token type for whitespace--if any
         self.lexer.input("  ")
@@ -275,7 +316,7 @@ class Preprocessor():
         tok = self.lexer.token()
         if not tok or tok.value != "\n":
             self.t_NEWLINE = None
-            print("Couldn't determine token for newlines")
+            log.error("Couldn't determine token for newlines")
         else:
             self.t_NEWLINE = tok.type
 
@@ -287,7 +328,7 @@ class Preprocessor():
             self.lexer.input(c)
             tok = self.lexer.token()
             if not tok or tok.value != c:
-                print("Unable to lex '%s' required for preprocessor" % c)
+                log.error("Unable to lex '%s' required for preprocessor" % c)
 
     # ----------------------------------------------------------------------
     # add_path()
@@ -309,7 +350,8 @@ class Preprocessor():
 
     def group_lines(self,input):
         lex = self.lexer.clone()
-        lines = [x.rstrip() for x in input.splitlines()]
+        #lines = [x.rstrip() for x in input.splitlines()]
+        lines = input.splitlines()
         for i in xrange(len(lines)):
             j = i+1
             while lines[i].endswith('\\') and (j < len(lines)):
@@ -668,6 +710,7 @@ class Preprocessor():
     def parsegen(self,input,source=None):
 
         # Replace trigraph sequences
+        # TODO: only for non-raw strings
         t = trigraph(input)
         lines = self.group_lines(t)
 
@@ -678,7 +721,7 @@ class Preprocessor():
 
         self.source = source
         chunk = []
-        enable = True
+        enable = False
         iftrigger = False
         ifstack = []
 
@@ -783,8 +826,8 @@ class Preprocessor():
 
             else:
                 # Normal text
-                if enable:
-                    chunk.extend(x)
+                #if enable:
+                chunk.extend(x)
 
         for tok in self.expand_macros(chunk):
             yield tok
@@ -812,7 +855,7 @@ class Preprocessor():
                         break
                     i += 1
                 else:
-                    print("Malformed #include <...>")
+                    log.error("Malformed #include <...>")
                     return
                 filename = "".join([x.value for x in tokens[1:i]])
                 path = self.path + [""] + self.temp_path
@@ -820,7 +863,7 @@ class Preprocessor():
                 filename = tokens[0].value[1:-1]
                 path = self.temp_path + [""] + self.path
             else:
-                print("Malformed #include statement")
+                log.error("Malformed #include statement")
                 return
         for p in path:
             iname = os.path.join(p,filename)
@@ -837,7 +880,7 @@ class Preprocessor():
             except IOError:
                 pass
         else:
-            print("Couldn't find '%s'" % filename)
+            log.error("Couldn't find '%s'" % filename)
 
     # ----------------------------------------------------------------------
     # read_include_file()
@@ -882,7 +925,7 @@ class Preprocessor():
                 variadic = False
                 for a in args:
                     if variadic:
-                        print("No more arguments may follow a variadic argument")
+                        log.error("No more arguments may follow a variadic argument")
                         break
                     astr = "".join([str(_i.value) for _i in a])
                     if astr == "...":
@@ -901,7 +944,7 @@ class Preprocessor():
                             a[0].value = a[0].value[:-3]
                         continue
                     if len(a) > 1 or a[0].type != self.t_ID:
-                        print("Invalid macro argument")
+                        log.error("Invalid macro argument")
                         break
                 else:
                     mvalue = self.tokenstrip(linetok[1+tokcount:])
@@ -918,9 +961,9 @@ class Preprocessor():
                     self.macro_prescan(m)
                     self.macros[name.value] = m
             else:
-                print("Bad macro definition")
+                log.error("Bad macro definition")
         except LookupError:
-            print("Bad macro definition")
+            log.error("Bad macro definition")
 
     # ----------------------------------------------------------------------
     # undef()
@@ -965,7 +1008,7 @@ if __name__ == '__main__':
     with open(sys.argv[1]) as f:
         input = f.read()
 
-    p = Preprocessor(lexer)
+    p = Preprocessor()
     p.parse(input,sys.argv[1])
     while True:
         tok = p.token()

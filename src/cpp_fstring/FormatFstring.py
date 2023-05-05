@@ -37,6 +37,20 @@ class FormatFstring:
             rbracket += rbracket
         return lbracket, rbracket
 
+    def get_literals(self, tok):
+        """
+        see https://clang.llvm.org/doxygen/LiteralSupport_8cpp_source.html
+        """
+        lpos = tok.lexpos
+        rpos = lpos + len(tok.value)
+
+        (lliteral, rliteral) = ("", "")
+        #ldelim = self.code[lpos-1]
+        #rdelim = self.code[rpos+1]
+        print(f" {tok} ld={ldelim} rd={rdelim}")
+
+
+
     def get_changes(self, tokens):
         changes = []
         for tok in tokens:
@@ -47,7 +61,9 @@ class FormatFstring:
                 fmt::format("this is a {} test", foo_bar)
                             ------ f_str ------  -v_str-
             """
-            in_str = repr(tok.value)[1:-1]  # escape backslash
+            #in_str = repr(tok.value)[1:-1]  # escape backslash
+            in_str = tok.value
+            # (lliteral, rliteral) = self.get_literals(tok)
 
             (lbracket, rbracket) = self.get_bracket_replacements(in_str)
             rbacket_rev = rbracket[::-1]
