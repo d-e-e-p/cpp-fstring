@@ -1,7 +1,8 @@
 import logging
 import re
+import pudb
 
-_logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class FormatFstring:
@@ -62,7 +63,7 @@ class FormatFstring:
                             ------ f_str ------  -v_str-
             """
             #in_str = repr(tok.value)[1:-1]  # escape backslash
-            in_str = tok.value
+            in_str = tok.spelling
             # (lliteral, rliteral) = self.get_literals(tok)
 
             (lbracket, rbracket) = self.get_bracket_replacements(in_str)
@@ -71,7 +72,7 @@ class FormatFstring:
             in_str = in_str.replace("{{", lbracket)
             # right-to-left replace
             in_str = in_str[::-1].replace("}}", rbacket_rev)[::-1]
-            _logger.debug(f"t2 = {tok} i={in_str}")
+            log.debug(f"t2 = {tok} i={in_str}")
             matches = re.findall(self.pattern, in_str)
             f_str = re.sub(self.pattern, "", in_str)
 
@@ -86,7 +87,7 @@ class FormatFstring:
                 f_str = f_str.replace(rbracket, "}")
                 replacement_str = f_str
 
-            _logger.debug(f"t={tok} after={replacement_str}")
+            log.debug(f"t={tok} after={replacement_str}")
             changes.append([tok, replacement_str])
 
         return changes

@@ -15,7 +15,7 @@ __author__ = "d-e-e-p"
 __copyright__ = "d-e-e-p"
 __license__ = "MIT"
 
-_logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 def parse_args(args):
@@ -62,28 +62,26 @@ def setup_logging(loglevel):
     Args:
       loglevel (int): minimum loglevel for emitting messages
     """
-    logformat = "[%(asctime)s] %(levelname)s:%(name)s:%(message)s"
+    logformat = "%(levelname)s:%(name)s:%(message)s"
     logging.basicConfig(level=loglevel, stream=sys.stderr, format=logformat, datefmt="%Y-%m-%d %H:%M:%S")
 
 
 def main(args):
     """
     Args:
-      args (List[str]): command line parameters as list of strings
-          (for example  ``["--verbose", "42"]``).
     """
     args = parse_args(args)
     setup_logging(args.loglevel)
-    _logger.debug(f"args = {args}")
+    log.debug(f"args = {args}")
 
     with open(args.filename) as f:
         code = f.read()
 
-    tokens = ParseCPP().find_fstrings(code, args.filename)
+    tokens = ParseCPP().find_fstrings(args.filename)
     changes = FormatFstring().get_changes(tokens)
     GenerateOutput().write_changes(code, changes)
 
-    _logger.info("end")
+    log.info("end")
 
 
 def run():
