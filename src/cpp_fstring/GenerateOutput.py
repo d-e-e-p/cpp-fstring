@@ -6,8 +6,8 @@ log = logging.getLogger(__name__)
 
 
 class GenerateOutput:
-    def __init__(self, args=None, **kwargs):
-        self.code = None
+    def __init__(self, code, args=None, **kwargs):
+        self.code = code
         self.offset = 0
 
     def get_absolute_position(self, line_number, column_number):
@@ -19,12 +19,11 @@ class GenerateOutput:
         absolute_position = sum(characters_per_line[:line_number]) + column_number - 1
         return absolute_position
 
-    def write_changes(self, code, changes):
+    def write_changes(self, changes):
         """
         write code changes to stdout
         changes is a list of [token, replacement_string]
         """
-        self.code = code
         pos_changes = []
         for [tok, replstr] in changes:
             log.debug(f" tok={tok} r={replstr}")
@@ -32,7 +31,7 @@ class GenerateOutput:
             pos_end = self.get_absolute_position(tok.extent.end.line, tok.extent.end.column)
             if (len(tok.spelling) != pos_end - pos_start):
                 log.error(f"""
-                tok : {tok.spelling} 
+                tok : {tok.spelling}
                 extent: {tok.extent}
                 len: {len(tok.spelling)}
                 pos: {pos_start} -> {pos_end} = {pos_end - pos_start}
@@ -47,6 +46,7 @@ class GenerateOutput:
             self.replace_str(pos_start, before, after)
 
         print(self.code)
+        return self.code
 
     def replace_str(self, pos, before, after):
         """
@@ -56,3 +56,11 @@ class GenerateOutput:
         pos_end = pos_start + len(before)
         self.offset += len(after) - len(before)
         self.code = after.join([self.code[:pos_start], self.code[pos_end:]])
+
+    def gen_enum_format(self, changes):
+        """
+        append changes to code for now
+        """
+        self.code += changes
+        print(changes)
+        

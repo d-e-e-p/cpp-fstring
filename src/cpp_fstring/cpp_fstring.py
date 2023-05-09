@@ -77,9 +77,15 @@ def main(args):
     with open(args.filename) as f:
         code = f.read()
 
-    tokens = ParseCPP().find_fstrings(args.filename)
-    changes = FormatFstring().get_changes(tokens)
-    GenerateOutput().write_changes(code, changes)
+    string_tokens, enum_tokens = ParseCPP().find_tokens(args.filename)
+
+    pc = FormatFstring()
+    string_changes = pc.get_changes(string_tokens)
+    enum_changes = pc.gen_enum_format(enum_tokens)
+
+    go = GenerateOutput(code)
+    go.write_changes(string_changes)
+    go.gen_enum_format(enum_changes)
 
     log.info("end")
 
