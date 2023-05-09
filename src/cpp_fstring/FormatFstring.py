@@ -137,26 +137,52 @@ class FormatFstring:
     };
 
         """
+
+        # skip enum with no entries
+        if len(tok.values) == 0:
+            return ""
+
+        # skip if anon
+        if tok.is_anonymous:
+            return ""
+
         decl = tok.name
         out = f"""
-// Generated formatter for enum {decl} of type {tok.enum_type.spelling}
+// Generated formatter for enum {decl} of type {tok.enum_type.spelling} scoped {tok.is_scoped}
 template <> struct fmt::formatter<{decl}>: formatter<string_view> {{
   template <typename FormatContext>
-  auto format({decl} e, FormatContext& ctx) const {{
+  auto format({decl} val, FormatContext& ctx) const {{
     string_view name = "<unknown>";
-    switch (e) {{
+    switch (val) {{
 """
         # pu.db()
         # bpdb.set_trace()
-        width = max([len(x.name) for x in tok.values])
-        for elem in tok.values:
-            prefix = f"{decl}::" if tok.is_scoped else ""
-            name_in_quotes = f'"{elem.name}"'
-            out += f"""        case {prefix}{elem.name:<{width}}: name = {name_in_quotes:<{width+2}}; break; // index={elem.index}\n"""
+        # if scoped and name of enum decl is foo::bar::my_enum then inherit the whole name
+        # if not scoped, leave out the my_enum part
+        if tok.is_scoped:
+            prefix = f"{decl}::"
+        else:
+            separator = "::"
+            prefix = separator.join(decl.rsplit(separator, 1)[:-1]) + separator
+            if prefix == separator:
+                prefix = ""
 
-        out += """    };
+        seen_index = []
+        for elem in tok.values:
+            is_duplicate = (elem.index in seen_index)
+            seen_index.append(elem.index)
+
+            width = max([len(x.name) for x in tok.values])
+            name_in_quotes = f'"{elem.name}"'
+            line = f"""case {prefix}{elem.name:<{width}}: name = {name_in_quotes:<{width+2}}; break;  // index={elem.index}"""
+            if not is_duplicate:
+                out += f"        {line}\n"
+            else:
+                out += f"    //  {line} <-- index is duplicate\n"
+
+        out += """    }
     return formatter<string_view>::format(name, ctx);
-  };
+  }
 };"""
 
         return out
