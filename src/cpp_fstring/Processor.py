@@ -6,7 +6,7 @@ import bpdb
 log = logging.getLogger(__name__)
 
 
-class FormatFstring:
+class Processor:
     """
     from: https://docs.python.org/3.11/reference/lexical_analysis.html#formatted-string-literals
 
@@ -57,7 +57,7 @@ class FormatFstring:
 
 
 
-    def get_changes(self, tokens):
+    def gen_fstring_changes(self, tokens):
         changes = []
         for tok in tokens:
             """
@@ -105,6 +105,24 @@ class FormatFstring:
 
         return changes
 
+    def gen_class_changes(self, tokens):
+        """
+        add a friend format statement to classes with private vars
+             OK: PUBLIC 
+             NOT OK: INVALID PROTECTED PRIVATE NONE?
+        """
+        changes = []
+        for tok in tokens:
+            public_vars = [var for var in tok.vars if var.access_specifier=='PUBLIC']
+            if len(tok.vars) > len(public_vars):
+                replacement_str = f"  friend struct fmt::formatter<{tok.name}>;\n"
+                replacement_str += tok.last_tok.spelling;
+                changes.append([tok.last_tok, replacement_str])
+                # bpdb.set_trace()
+        
+        return changes
+
+
     def gen_enum_format(self, tokens):
         """
         given list of enum generate fmt: statements
@@ -115,26 +133,20 @@ class FormatFstring:
             changes += self.gen_one_enum(tok)
         return changes
 
-    def gen_one_enum(self, tok):
+    def gen_one_enum_format_as(self, tok):
         """
         follow example in fmt:: documentation, ie:
 
-            https://fmt.dev/latest/api.html#udt
-     //enum class color {red, green, blue};
-
-    template <> struct fmt::formatter<color>: formatter<string_view> {
-      // parse is inherited from formatter<string_view>.
-      template <typename FormatContext>
-      auto format(color c, FormatContext& ctx) const {
-        string_view name = "unknown";
+      enum class color {red, green, blue};
+      auto format_as(const color c) {
+        fmt::string_view name = "unknown";
         switch (c) {
             case color::red:   name = "red";   break;
             case color::green: name = "green"; break;
             case color::blue:  name = "blue";  break;
         }
-        return formatter<string_view>::format(name, ctx);
-      }
-    };
+        return name;
+      };
 
         """
 
@@ -149,14 +161,75 @@ class FormatFstring:
         decl = tok.name
         out = f"""
 // Generated formatter for enum {decl} of type {tok.enum_type.spelling} scoped {tok.is_scoped}
-template <> struct fmt::formatter<{decl}>: formatter<string_view> {{
+  auto format_as(const {decl} obj) {{
+    fmt::string_view name = "<unknown>";
+    switch (obj) {{
+"""
+        # pu.db()
+        # if scoped and name of enum decl is foo::bar::my_enum then inherit the whole name
+        # if not scoped, leave out the my_enum part
+        if tok.is_scoped:
+            prefix = f"{decl}::"
+        else:
+            separator = "::"
+            prefix = separator.join(decl.rsplit(separator, 1)[:-1]) + separator
+            if prefix == separator:
+                prefix = ""
+
+        seen_index = []
+        for elem in tok.values:
+            is_duplicate = (elem.index in seen_index)
+            seen_index.append(elem.index)
+
+            width = max([len(x.name) for x in tok.values])
+            name_in_quotes = f'"{elem.name}"'
+            line = f"""case {prefix}{elem.name:<{width}}: name = {name_in_quotes:<{width+2}}; break;  // index={elem.index}"""
+            if not is_duplicate:
+                out += f"        {line}\n"
+            else:
+                out += f"    //  {line} <-- index is duplicate\n"
+
+        out += """    }
+    return name;
+    };"""
+
+        return out
+
+    def gen_one_enum(self, tok):
+        """
+        follow example in fmt:: documentation, ie:
+
+      enum class color {red, green, blue};
+      auto format_as(const color c) {
+        fmt::string_view name = "unknown";
+        switch (c) {
+            case color::red:   name = "red";   break;
+            case color::green: name = "green"; break;
+            case color::blue:  name = "blue";  break;
+        }
+        return name;
+      };
+
+        """
+
+        # skip enum with no entries
+        if len(tok.values) == 0:
+            return ""
+
+        # skip if anon
+        if tok.is_anonymous:
+            return ""
+
+        decl = tok.name
+        out = f"""
+// Generated formatter for enum {decl} of type {tok.enum_type.spelling} scoped {tok.is_scoped}
+template <> 
+struct fmt::formatter<{decl}>: formatter<string_view> {{
   template <typename FormatContext>
   auto format({decl} val, FormatContext& ctx) const {{
     string_view name = "<unknown>";
     switch (val) {{
 """
-        # pu.db()
-        # bpdb.set_trace()
         # if scoped and name of enum decl is foo::bar::my_enum then inherit the whole name
         # if not scoped, leave out the my_enum part
         if tok.is_scoped:
@@ -187,3 +260,64 @@ template <> struct fmt::formatter<{decl}>: formatter<string_view> {{
 
         return out
 
+    def gen_class_format(self, tokens):
+        """
+        look at simple struct and produce debug format to_string version
+        """
+        changes = ""
+        for tok in tokens:
+            changes += self.gen_one_class(tok)
+        return changes
+
+    def get_template_decl(self, tok):
+        """
+        look thru definitions and produce list that goes inside template <>, eg
+                template <typename T, T Min, T Max>
+        """
+        if tok.class_kind != 'CLASS_TEMPLATE':
+            return ""
+
+        tvarlist = []
+        for tvar in tok.tvars:
+            if tvar.is_template_type:
+                tvarlist.append(f"typename {tvar.name}")
+            else:
+                tvarlist.append(f"{tvar.vartype} {tvar.name}")
+
+        return ", ".join(tvarlist)
+
+    def gen_one_class(self, tok):
+        """
+        follow example in fmt:: documentation
+        """
+        template_decl_str = self.get_template_decl(tok) 
+
+        decl = tok.name if tok.name else tok.displayname
+        
+        out = f"""// Generated formatter for {tok.class_kind} {decl}
+template <{template_decl_str}>
+struct fmt::formatter<{decl}> {{
+    constexpr auto parse(format_parse_context& ctx) {{
+        return ctx.begin();
+    }}
+
+    template <typename FormatContext>
+    auto format(const {decl}& obj, FormatContext& ctx) {{
+        return format_to(ctx.out(),
+R"({tok.class_kind} {decl}:
+"""
+        for var in tok.vars:
+            out += f"   {var.access_specifier} {var.vartype} {var.name}: {{}} \n"
+
+        out += ')"'
+
+        # bpdb.set_trace()
+        varlist = [f"obj.{var.name}" for var in tok.vars]
+        if varlist:
+            out += ", " + ", ".join(varlist)
+
+        out += """);
+    }
+};
+"""
+        return out

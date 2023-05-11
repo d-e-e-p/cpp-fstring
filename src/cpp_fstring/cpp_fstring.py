@@ -6,9 +6,9 @@ import logging
 import sys
 
 #from cpp_fstring import __version__
-from cpp_fstring.FormatFstring import FormatFstring
-from cpp_fstring.GenerateOutput import GenerateOutput
 from cpp_fstring.ParseCPP import ParseCPP
+from cpp_fstring.Processor import Processor
+from cpp_fstring.GenerateOutput import GenerateOutput
 
 __version__ = "0.1.1"
 __author__ = "d-e-e-p"
@@ -77,15 +77,19 @@ def main(args):
     with open(args.filename) as f:
         code = f.read()
 
-    string_tokens, enum_tokens = ParseCPP().find_tokens(args.filename)
+    parser = ParseCPP(args.filename, code)
+    string_tokens, enum_tokens, class_tokens = parser.find_tokens()
 
-    pc = FormatFstring()
-    string_changes = pc.get_changes(string_tokens)
-    enum_changes = pc.gen_enum_format(enum_tokens)
+    processor = Processor()
+    string_changes = processor.gen_fstring_changes(string_tokens)
+    class_changes = processor.gen_class_changes(class_tokens)
+    enum_addition = processor.gen_enum_format(enum_tokens)
+    class_addition = processor.gen_class_format(class_tokens)
 
     go = GenerateOutput(code)
-    go.write_changes(string_changes)
-    go.gen_enum_format(enum_changes)
+    go.write_changes(string_changes, class_changes)
+    go.append(enum_addition)
+    go.append(class_addition)
 
     log.info("end")
 

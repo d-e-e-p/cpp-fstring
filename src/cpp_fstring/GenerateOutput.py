@@ -1,6 +1,5 @@
 import logging
-import pdb   # noqa: F401
-import pudb  # noqa: F401
+import bpdb  # noqa: F401
 
 log = logging.getLogger(__name__)
 
@@ -19,11 +18,16 @@ class GenerateOutput:
         absolute_position = sum(characters_per_line[:line_number]) + column_number - 1
         return absolute_position
 
-    def write_changes(self, changes):
+    def write_changes(self, *args):
         """
         write code changes to stdout
         changes is a list of [token, replacement_string]
         """
+        changes = []
+        for arg in args:
+            if isinstance(arg, list):
+                changes += arg
+
         pos_changes = []
         for [tok, replstr] in changes:
             log.debug(f" tok={tok} r={replstr}")
@@ -42,6 +46,7 @@ class GenerateOutput:
                     j += 1
             pos_changes.append([pos_start, tok.spelling, replstr])
 
+        pos_changes.sort()  # sort by pos_start
         for [pos_start, before, after] in pos_changes:
             self.replace_str(pos_start, before, after)
 
@@ -57,10 +62,10 @@ class GenerateOutput:
         self.offset += len(after) - len(before)
         self.code = after.join([self.code[:pos_start], self.code[pos_end:]])
 
-    def gen_enum_format(self, changes):
+    def append(self, addition):
         """
-        append changes to code for now
+        just append changes to code for now
         """
-        self.code += changes
-        print(changes)
+        self.code += addition
+        print(addition)
         
