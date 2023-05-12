@@ -48,20 +48,10 @@ class ClassVarToken:
     store class/struct variables
     """
     name: str
-    vartype: str
-    objc_type_encoding: str
-    access_specifier: str = "PUBLIC"
-
-@dataclass
-class ClassTemplateVarToken:
-    """
-    store template params for class
-    """
-    name: str
     displayname: str
     vartype: str
-    is_template_type: bool
-
+    access_specifier: str = "PUBLIC"
+    is_template_type: bool = False
 
 
 @dataclass
@@ -71,10 +61,12 @@ class ClassToken:
     """
     name: str
     displayname: str
+    hash: int
     class_kind: str = "STRUCT_DECL"
     last_tok: Token = Token()
+    bases: list[int] = field(default_factory=list)
     vars: list[ClassVarToken] = field(default_factory=list)
-    tvars: list[ClassTemplateVarToken] = field(default_factory=list)
+    tvars: list[ClassVarToken] = field(default_factory=list)
 
 
 @dataclass
@@ -116,7 +108,9 @@ class ParseCPP():
         self.enum_decl_nodes = []
         self.comp_stmt_nodes = []
         self.class_decl_nodes = []
+
         self.enum_token = None
+        self.class_token = None
 
         self.filename = filename
         self.code = code
@@ -166,10 +160,8 @@ class ParseCPP():
         """
         remove copies of visited nodes
         """
-
-        self.class_decl_nodes = self.dup_remover(self.class_decl_nodes)
-        self.comp_stmt_nodes = self.dup_remover(self.comp_stmt_nodes)
-        self.enum_decl_nodes = self.dup_remover(self.enum_decl_nodes)
+        for type, nodes in self.nodelist.items():
+            self.nodelist[type] = self.dup_remover(self.nodelist[type])
 
     # from https://gist.github.com/scturtle/a7b5349028c249f2e9eeb5688d3e0c5e
     def visit(self, node: Cursor, indent: int, saw: set, callback: Callable[[], str]):
@@ -196,14 +188,6 @@ class ParseCPP():
                 line += f" t: {node.type.spelling}"
         log.debug(line)
 
-    def cb_extract_enum_tokens(self, node, indent):
-        """
-        for each visited note, look for constant declarations
-        """
-        if node.kind == CursorKind.ENUM_CONSTANT_DECL:
-            enum_constant_decl = EnumConstantDecl(node.displayname, str(node.enum_value))
-            self.enum_token.values.append(enum_constant_decl)
-
     def extract_enum_tokens(self):
         """
         look at nodes for enum decl and definitions
@@ -221,24 +205,34 @@ class ParseCPP():
             self.enum_token.is_scoped = node.is_scoped_enum()
             self.enum_token.enum_type = node.type.get_declaration().enum_type.kind.name
             
-            # bpdb.set_trace()
             self.visit(node, 0, set(), self.cb_extract_enum_tokens)
             self.enum_tokens.append(self.enum_token)
 
+    def cb_extract_enum_tokens(self, node, indent):
+        """
+        for each visited note, look for constant declarations
+        """
+        if node.kind == CursorKind.ENUM_CONSTANT_DECL:
+            enum_constant_decl = EnumConstantDecl(node.displayname, str(node.enum_value))
+            self.enum_token.values.append(enum_constant_decl)
+
     def extract_string_tokens(self):
-        for node in self.comp_stmt_nodes:
+        """
+        just create a list of string object tokens
+        """
+        for node in self.nodelist[CursorKind.COMPOUND_STMT]:
             for token in node.get_tokens():
                 if token.kind == TokenKind.LITERAL:
                     in_str = token.spelling
-                    log.debug(f"{token.cursor.kind}  str: {token.spelling}")
+                    log.debug(f"{token.cursor.kind.name}  str: {token.spelling}")
                     if in_str.find('{') > 0 or in_str.find('}') > 0:
                         self.string_tokens.append(token)
 
-    def extract_class_tokens(self):
+    def extract_class_tokens_old(self):
         for node in self.class_decl_nodes:
             if node.is_anonymous():
                 continue
-            class_token = ClassToken(node.type.spelling, node.displayname)
+            class_token = ClassToken(node.type.spelling, node.displayname, node.hash)
             # now find closing brace
             *_, last_tok = node.get_tokens()
             class_token.last_tok = last_tok
@@ -254,21 +248,20 @@ class ParseCPP():
                     is_template_type_param = (child.kind == CursorKind.TEMPLATE_TYPE_PARAMETER)
                     is_template_non_type_param = (child.kind == CursorKind.TEMPLATE_NON_TYPE_PARAMETER)
                     if is_template_type_param or is_template_non_type_param:
-                        tvar_token = ClassTemplateVarToken(child.spelling, child.displayname, child.type.spelling, is_template_type_param)
+                        tvar_token = ClassVarToken(child.spelling, child.displayname, child.type.spelling, is_template_type_param)
                         class_token.tvars.append(tvar_token)
 
                     if child.kind == CursorKind.FIELD_DECL:
                         var_token = ClassVarToken(child.spelling, child.type.spelling, child.type.spelling)
                         class_token.vars.append(var_token)
                     if child.kind == CursorKind.VAR_DECL:
-                        var_token = ClassVarToken(child.spelling, child.type.spelling, child.objc_type_encoding)
+                        var_token = ClassVarToken(child.spelling, child.type.spelling, )
                         var_token.access_specifier = child.access_specifier.name
                         class_token.vars.append(var_token)
 
-                #bpdb.set_trace()
 
 
-            log.debug(f" nts={node.type.spelling} {node.spelling} of {node.kind} : {node.objc_type_encoding}")
+            log.debug(f" nts={node.type.spelling} {node.spelling} of {node.kind} : ")
             # also works for get_children()
             for child in node.get_children():
                 if child.kind == CursorKind.CXX_BASE_SPECIFIER:
@@ -276,9 +269,92 @@ class ParseCPP():
                     bpdb.set_trace()
             for fd in node.type.get_fields():
                 if fd.is_definition():
-                    var_token = ClassVarToken(fd.spelling, fd.type.spelling, fd.objc_type_encoding)
+                    var_token = ClassVarToken(fd.spelling, fd.type.spelling)
                     var_token.access_specifier = fd.access_specifier.name
                     class_token.vars.append(var_token)
             log.debug(f"class_token = {class_token}")
             if len(class_token.vars) > 0:
                 self.class_tokens.append(class_token)
+
+    def cb_extract_class_tokens(self, node, indent):
+        """
+        for each node expand tree looking for variables
+        """
+        prefix = ' ' * indent
+        # print(f" {prefix} {node.kind.name} {node.spelling} {node.access_specifier.name} {node.displayname} {node.hash}")
+        is_template_type_param = (node.kind == CursorKind.TEMPLATE_TYPE_PARAMETER)
+        is_template_non_type_param = (node.kind == CursorKind.TEMPLATE_NON_TYPE_PARAMETER)
+        if is_template_type_param or is_template_non_type_param:
+            tvar_token = ClassVarToken(
+                node.spelling, node.displayname, node.type.spelling, is_template_type_param)
+            tvar_token.access_specifier = node.access_specifier.name
+            self.class_token.tvars.append(tvar_token)
+        if node.kind == CursorKind.FIELD_DECL:
+            var_token = ClassVarToken(node.spelling, node.type.spelling)
+            var_token.access_specifier = node.access_specifier.name
+            self.class_token.vars.append(var_token)
+        if node.kind == CursorKind.VAR_DECL:
+            var_token = ClassVarToken(node.spelling, node.type.spelling)
+            var_token.access_specifier = node.access_specifier.name
+            self.class_token.vars.append(var_token)
+
+
+    def extract_class_tokens(self):
+        """
+        look at nodes for enum decl and definitions
+        """
+        for kind in [CursorKind.CLASS_DECL, CursorKind.CLASS_TEMPLATE, CursorKind.STRUCT_DECL,]:
+            for node in self.nodelist[kind]:
+                # skip anon classes for now
+                if node.is_anonymous():
+                    continue
+                # create token
+                class_token = ClassToken(node.type.spelling, node.displayname, node.hash, node.kind.name)
+                # now find closing brace so we can inject 'friend' type statements
+                *_, last_tok = node.get_tokens()
+                class_token.last_tok = last_tok
+                if last_tok.kind != TokenKind.PUNCTUATION or last_tok.spelling != "}":
+                    log.warning(f" can't find closing brace of {class_token}")
+
+                if node.kind == CursorKind.CLASS_DECL or node.kind == CursorKind.STRUCT_DECL:
+                    for fd in node.type.get_fields():
+                        if fd.is_definition():
+                            var_token = ClassVarToken(
+                                    fd.spelling, fd.displayname, fd.type.spelling, fd.access_specifier.name)
+                            class_token.vars.append(var_token)
+
+
+                if node.kind == CursorKind.CLASS_TEMPLATE:
+                    for fd in node.walk_preorder():
+                        is_template_type_param =        (fd.kind == CursorKind.TEMPLATE_TYPE_PARAMETER)
+                        is_template_non_type_param =    (fd.kind == CursorKind.TEMPLATE_NON_TYPE_PARAMETER)
+                        is_dield_declaration =          (fd.kind == CursorKind.FIELD_DECL)
+                        # print(f" {fd.kind} {fd.spelling} type:{fd.type.spelling} is_def:{fd.is_definition()} as:{fd.access_specifier.name} dn:{fd.displayname} ")
+                        if is_template_type_param or is_template_non_type_param:
+                            tvar_token = ClassVarToken(
+                                    fd.spelling, fd.displayname, fd.type.spelling, fd.access_specifier.name)
+                            tvar_token.is_template_type = is_template_type_param;
+                            class_token.tvars.append(tvar_token)
+                        if fd.kind == CursorKind.FIELD_DECL or fd.kind == CursorKind.VAR_DECL:
+                            var_token = ClassVarToken(
+                                    fd.spelling, fd.displayname, fd.type.spelling, fd.access_specifier.name)
+                            class_token.vars.append(var_token)
+
+                # both cases need to deal with inheritance
+                for fd in node.walk_preorder():
+                    if fd.kind == CursorKind.CXX_BASE_SPECIFIER:
+                        class_token.bases.append(fd.hash)
+
+
+                log.debug(f"class_token = {class_token}")
+                if len(class_token.vars) > 0 or len(class_token.tvars) > 0:
+                    self.class_tokens.append(class_token)
+
+
+                #self.class_token = class_token
+                #self.class_token.vars = []
+                #self.class_token.tvars = []
+                #self.visit(node, 0, set(), self.cb_extract_class_tokens)
+                #self.class_tokens.append(self.class_token)
+
+

@@ -79,9 +79,6 @@ class Processor:
             # right-to-left replace
             in_str = in_str[::-1].replace("}}", rbacket_rev)[::-1]
 
-
-            log.debug(f"t2 = {tok} i={in_str}")
-
             matches = re.findall(self.pattern, in_str)
             f_str = re.sub(self.pattern, "", in_str)
 
@@ -100,7 +97,6 @@ class Processor:
                 f_str = f_str.replace(doublecolon, "::")
                 replacement_str = f_str
 
-            log.debug(f"t={tok} after={replacement_str}")
             changes.append([tok, replacement_str])
 
         return changes
@@ -118,7 +114,6 @@ class Processor:
                 replacement_str = f"  friend struct fmt::formatter<{tok.name}>;\n"
                 replacement_str += tok.last_tok.spelling;
                 changes.append([tok.last_tok, replacement_str])
-                # bpdb.set_trace()
         
         return changes
 
@@ -286,13 +281,21 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
 
         return ", ".join(tvarlist)
 
+    def get_all_class_vars(self, tok):
+        """
+        deal with inherited classes
+        """
+        vars = tok.vars
+        return vars
+
+
     def gen_one_class(self, tok):
         """
         follow example in fmt:: documentation
         """
         template_decl_str = self.get_template_decl(tok) 
 
-        decl = tok.name if tok.name else tok.displayname
+        decl = tok.displayname
         
         out = f"""// Generated formatter for {tok.class_kind} {decl}
 template <{template_decl_str}>
@@ -306,12 +309,14 @@ struct fmt::formatter<{decl}> {{
         return format_to(ctx.out(),
 R"({tok.class_kind} {decl}:
 """
-        for var in tok.vars:
+
+        vars = self.get_all_class_vars(tok)
+
+        for var in vars:
             out += f"   {var.access_specifier} {var.vartype} {var.name}: {{}} \n"
 
         out += ')"'
 
-        # bpdb.set_trace()
         varlist = [f"obj.{var.name}" for var in tok.vars]
         if varlist:
             out += ", " + ", ".join(varlist)
