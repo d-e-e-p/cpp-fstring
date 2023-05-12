@@ -222,7 +222,7 @@ class Processor:
 
         decl = tok.name
         out = f"""
-// Generated formatter for enum {decl} of type {tok.enum_type.spelling} scoped {tok.is_scoped}
+// Generated formatter for enum {decl} of type {tok.enum_type} scoped {tok.is_scoped}
 template <> 
 struct fmt::formatter<{decl}>: formatter<string_view> {{
   template <typename FormatContext>

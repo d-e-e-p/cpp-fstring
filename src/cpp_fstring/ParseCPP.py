@@ -4,10 +4,12 @@
 import bpdb  # noqa: F401
 import logging
 import types
+from dataclasses import dataclass, field
+from typing import Callable
+
 
 from cpp_fstring.clang.cindex import Index, Config, Cursor, Token, TranslationUnit
 from cpp_fstring.clang.cindex import CursorKind, TokenKind, TypeKind
-from dataclasses import dataclass, field
 
 log = logging.getLogger(__name__)
 
@@ -34,9 +36,9 @@ class EnumToken:
     store enum definition
     """
     name: str
+    enum_type: str = ""
     is_scoped: bool = False
     is_anonymous: bool = False
-    enum_type: TypeKind = TypeKind.INT
     values: list[EnumConstantDecl] = field(default_factory=list)
 
 
@@ -114,9 +116,16 @@ class ParseCPP():
         self.enum_decl_nodes = []
         self.comp_stmt_nodes = []
         self.class_decl_nodes = []
+        self.enum_token = None
 
         self.filename = filename
         self.code = code
+        self.interesting_kinds = [
+            CursorKind.COMPOUND_STMT,   # for strings
+            CursorKind.ENUM_DECL,       # for enum
+            CursorKind.CLASS_DECL, CursorKind.CLASS_TEMPLATE, CursorKind.STRUCT_DECL, # for structs+classes
+        ]
+        self.nodelist = {key: [] for key in self.interesting_kinds}
 
         self.INDENT = 4
 
@@ -136,7 +145,7 @@ class ParseCPP():
 
         # self.find_string_tokens(tu.cursor)
         # self.get_info(tu.cursor)
-        self.visit(tu.cursor, 0, set())
+        self.visit(tu.cursor, 0, set(), self.cb_store_if_interesting)
         self.remove_duplicate_tokens()
         self.extract_string_tokens()
         self.extract_enum_tokens()
@@ -163,61 +172,58 @@ class ParseCPP():
         self.enum_decl_nodes = self.dup_remover(self.enum_decl_nodes)
 
     # from https://gist.github.com/scturtle/a7b5349028c249f2e9eeb5688d3e0c5e
-    def visit(self, node: Cursor, indent: int, saw):
-        prefix = ' ' * indent
+    def visit(self, node: Cursor, indent: int, saw: set, callback: Callable[[], str]):
         kind = node.kind
         # skip printting UNEXPOSED_*
         if not kind.is_unexposed():
-            line = f"{prefix}{kind.name} "
-            if kind == CursorKind.ENUM_DECL:
-                self.enum_decl_nodes.append(node)
-            if kind == CursorKind.COMPOUND_STMT:
-                self.comp_stmt_nodes.append(node)
-            if kind == CursorKind.STRUCT_DECL:
-                self.class_decl_nodes.append(node)
-            if kind == CursorKind.CLASS_DECL:
-                self.class_decl_nodes.append(node)
-            if kind == CursorKind.CLASS_TEMPLATE:
-                self.class_decl_nodes.append(node)
-            if node.spelling:
-                line += f"s: {node.spelling} "
-                if node.type.spelling:
-                    line += f" t: {node.type.spelling}  "
-            log.debug(line)
+            callback(node, indent)
         saw.add(node.hash)
         if node.referenced is not None and node.referenced.hash not in saw:
-            self.visit(node.referenced, indent + self.INDENT, saw)
+            self.visit(node.referenced, indent + self.INDENT, saw, callback)
         for c in node.get_children():
-            self.visit(c, indent + self.INDENT, saw)
-        saw.remove(node.hash)
+            self.visit(c, indent + self.INDENT, saw, callback)
+        # saw.remove(node.hash) # <-- to see expanded tree
+
+    def cb_store_if_interesting(self, node, indent):
+        kind = node.kind
+        prefix = ' ' * indent
+        line = f"{prefix}{kind.name} "
+        if kind in self.interesting_kinds:
+            self.nodelist[kind].append(node)
+        if node.spelling:
+            line += f"s: {node.spelling} "
+            if node.type.spelling:
+                line += f" t: {node.type.spelling}"
+        log.debug(line)
+
+    def cb_extract_enum_tokens(self, node, indent):
+        """
+        for each visited note, look for constant declarations
+        """
+        if node.kind == CursorKind.ENUM_CONSTANT_DECL:
+            enum_constant_decl = EnumConstantDecl(node.displayname, str(node.enum_value))
+            self.enum_token.values.append(enum_constant_decl)
 
     def extract_enum_tokens(self):
         """
         look at nodes for enum decl and definitions
         """
-        for node in self.enum_decl_nodes:
+        for node in self.nodelist[CursorKind.ENUM_DECL]:
 
             # TODO: find a more robust solution for anon namespace
 
             if "(anonymous namespace)::" in node.type.spelling:
-                enum_token = EnumToken(node.spelling)
+                self.enum_token = EnumToken(node.spelling)
             else:
-                enum_token = EnumToken(node.type.spelling)
-                enum_token.is_anonymous = node.is_anonymous()
-            for token in node.get_tokens():
-                # either in decl or const_decl
-                match (token.cursor.kind, token.kind):
-                    case (CursorKind.ENUM_DECL, TokenKind.KEYWORD):
-                        # if token.spelling == "class":
-                        if token.cursor.is_scoped_enum():
-                            enum_token.is_scoped = True
-                    case (CursorKind.ENUM_DECL, TokenKind.IDENTIFIER):
-                        enum_token.index_type = token.cursor.type.get_declaration().enum_type.kind
-                    case (CursorKind.ENUM_CONSTANT_DECL, TokenKind.IDENTIFIER):
-                        enum_constant_decl = EnumConstantDecl(token.cursor.displayname, str(token.cursor.enum_value))
-                        enum_token.values.append(enum_constant_decl)
-            log.debug(f" enum {enum_token}")
-            self.enum_tokens.append(enum_token)
+                self.enum_token = EnumToken(node.type.spelling)
+                self.enum_token.is_anonymous = node.is_anonymous()
+
+            self.enum_token.is_scoped = node.is_scoped_enum()
+            self.enum_token.enum_type = node.type.get_declaration().enum_type.kind.name
+            
+            # bpdb.set_trace()
+            self.visit(node, 0, set(), self.cb_extract_enum_tokens)
+            self.enum_tokens.append(self.enum_token)
 
     def extract_string_tokens(self):
         for node in self.comp_stmt_nodes:
