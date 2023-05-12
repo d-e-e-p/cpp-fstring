@@ -109,8 +109,10 @@ class ParseCPP():
         self.comp_stmt_nodes = []
         self.class_decl_nodes = []
 
+        # used by callback
         self.enum_token = None
         self.class_token = None
+        self.cxx_base_specifier = {}
 
         self.filename = filename
         self.code = code
@@ -281,23 +283,11 @@ class ParseCPP():
         for each node expand tree looking for variables
         """
         prefix = ' ' * indent
-        # print(f" {prefix} {node.kind.name} {node.spelling} {node.access_specifier.name} {node.displayname} {node.hash}")
-        is_template_type_param = (node.kind == CursorKind.TEMPLATE_TYPE_PARAMETER)
-        is_template_non_type_param = (node.kind == CursorKind.TEMPLATE_NON_TYPE_PARAMETER)
-        if is_template_type_param or is_template_non_type_param:
-            tvar_token = ClassVarToken(
-                node.spelling, node.displayname, node.type.spelling, is_template_type_param)
-            tvar_token.access_specifier = node.access_specifier.name
-            self.class_token.tvars.append(tvar_token)
-        if node.kind == CursorKind.FIELD_DECL:
-            var_token = ClassVarToken(node.spelling, node.type.spelling)
-            var_token.access_specifier = node.access_specifier.name
+        if node.kind == CursorKind.FIELD_DECL or node.kind == CursorKind.VAR_DECL:
+            #print(f" {prefix} {indent} {node.kind.name} {node.spelling} {node.access_specifier.name} {node.displayname} {self.cxx_base_specifier}")
+            var_token = ClassVarToken(
+                node.spelling, node.displayname, node.type.spelling, node.access_specifier.name)
             self.class_token.vars.append(var_token)
-        if node.kind == CursorKind.VAR_DECL:
-            var_token = ClassVarToken(node.spelling, node.type.spelling)
-            var_token.access_specifier = node.access_specifier.name
-            self.class_token.vars.append(var_token)
-
 
     def extract_class_tokens(self):
         """
@@ -341,10 +331,10 @@ class ParseCPP():
                             class_token.vars.append(var_token)
 
                 # both cases need to deal with inheritance
-                for fd in node.walk_preorder():
-                    if fd.kind == CursorKind.CXX_BASE_SPECIFIER:
-                        class_token.bases.append(fd.hash)
-
+                self.class_token = class_token
+                self.INDENT = 1
+                self.cxx_base_specifier = {}
+                self.visit(node, 0, set(), self.cb_extract_class_tokens)
 
                 log.debug(f"class_token = {class_token}")
                 if len(class_token.vars) > 0 or len(class_token.tvars) > 0:

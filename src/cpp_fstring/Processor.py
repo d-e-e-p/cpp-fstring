@@ -283,20 +283,24 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
 
     def get_all_class_vars(self, tok):
         """
-        deal with inherited classes
+        deal with inherited classes having multiple echos of same var
         """
-        vars = tok.vars
+        seen = set()
+        vars = []
+        for var in tok.vars:
+            if var.name not in seen:
+                vars.append(var)
+                seen.add(var.name)
         return vars
-
 
     def gen_one_class(self, tok):
         """
         follow example in fmt:: documentation
         """
-        template_decl_str = self.get_template_decl(tok) 
+        template_decl_str = self.get_template_decl(tok)
 
-        decl = tok.displayname
-        
+        decl = tok.name if tok.name else tok.displayname
+
         out = f"""// Generated formatter for {tok.class_kind} {decl}
 template <{template_decl_str}>
 struct fmt::formatter<{decl}> {{
@@ -317,7 +321,7 @@ R"({tok.class_kind} {decl}:
 
         out += ')"'
 
-        varlist = [f"obj.{var.name}" for var in tok.vars]
+        varlist = [f"obj.{var.name}" for var in vars]
         if varlist:
             out += ", " + ", ".join(varlist)
 
