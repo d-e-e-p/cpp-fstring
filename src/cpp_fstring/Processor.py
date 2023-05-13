@@ -268,18 +268,46 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
         """
         look thru definitions and produce list that goes inside template <>, eg
                 template <typename T, T Min, T Max>
+
+        for template typename arguments, emit extra statement showing type of template param, 
+        eg, for example above:
+            typeid(T).name() 
+        """
+        if tok.class_kind != 'CLASS_TEMPLATE':
+            return "", []
+
+        tvarlist = []
+        ttypelist = []
+        for tvar in tok.tvars:
+            if tvar.is_template_type:
+                tvarlist.append(f"typename {tvar.name}")
+                ttypelist.append(tvar.name)
+            else:
+                tvarlist.append(f"{tvar.vartype} {tvar.name}")
+
+        template_decl_str = ", ".join(tvarlist) 
+        return template_decl_str,  ttypelist
+
+    def get_typeid_calls(self, tok):
+        """
+
         """
         if tok.class_kind != 'CLASS_TEMPLATE':
             return ""
 
         tvarlist = []
+        ttypelist = []
         for tvar in tok.tvars:
             if tvar.is_template_type:
                 tvarlist.append(f"typename {tvar.name}")
+                ttypelist.append(tvar.name)
             else:
                 tvarlist.append(f"{tvar.vartype} {tvar.name}")
 
-        return ", ".join(tvarlist)
+        template_decl_str = ", ".join(tvarlist) 
+        print(f" template_decl_str={template_decl_str}, ttypelist={ttypelist}")
+        bpdb.set_trace()
+        return template_decl_str,  ttypelist
 
     def get_all_class_vars(self, tok):
         """
@@ -288,18 +316,18 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
         seen = set()
         vars = []
         for var in tok.vars:
-            if var.name not in seen:
+            if var.displayname not in seen:
                 vars.append(var)
-                seen.add(var.name)
+                seen.add(var.displayname)
         return vars
 
     def gen_one_class(self, tok):
         """
         follow example in fmt:: documentation
         """
-        template_decl_str = self.get_template_decl(tok)
+        template_decl_str, tvars = self.get_template_decl(tok)
 
-        decl = tok.name if tok.name else tok.displayname
+        decl = tok.name
 
         out = f"""// Generated formatter for {tok.class_kind} {decl}
 template <{template_decl_str}>
@@ -313,15 +341,20 @@ struct fmt::formatter<{decl}> {{
         return format_to(ctx.out(),
 R"({tok.class_kind} {decl}:
 """
+        for tvar in tvars:
+            out += f"   type({tvar}): {{}} \n"
 
         vars = self.get_all_class_vars(tok)
-
         for var in vars:
-            out += f"   {var.access_specifier} {var.vartype} {var.name}: {{}} \n"
+            out += f"   {var.access_specifier} {var.vartype} {var.displayname}: {{}} \n"
 
         out += ')"'
 
-        varlist = [f"obj.{var.name}" for var in vars]
+        tvarlist = [f"typeid({tvar}).name() " for tvar in tvars]
+        if tvarlist:
+            out += ", " + ", ".join(tvarlist)
+
+        varlist = [f"obj.{var.displayname}" for var in vars]
         if varlist:
             out += ", " + ", ".join(varlist)
 

@@ -186,8 +186,8 @@ class ParseCPP():
             self.nodelist[kind].append(node)
         if node.spelling:
             line += f"s: {node.spelling} "
-            if node.type.spelling:
-                line += f" t: {node.type.spelling}"
+        if node.type.spelling:
+            line += f" t: {node.type.spelling}"
         log.debug(line)
 
     def extract_enum_tokens(self):
@@ -268,7 +268,6 @@ class ParseCPP():
             for child in node.get_children():
                 if child.kind == CursorKind.CXX_BASE_SPECIFIER:
                     log.debug(f" ck={child.kind} base={child.spelling}") 
-                    bpdb.set_trace()
             for fd in node.type.get_fields():
                 if fd.is_definition():
                     var_token = ClassVarToken(fd.spelling, fd.type.spelling)
@@ -277,6 +276,20 @@ class ParseCPP():
             log.debug(f"class_token = {class_token}")
             if len(class_token.vars) > 0:
                 self.class_tokens.append(class_token)
+
+
+    def get_qualified_name(self, node):
+
+        if node is None:
+            return ''
+        elif node.kind == CursorKind.TRANSLATION_UNIT or node.kind == CursorKind.FILE:
+            return ''
+        else:
+            res = self.get_qualified_name(node.semantic_parent)
+            if res != '':
+                return res + '::' + node.spelling
+        return node.spelling
+
 
     def cb_extract_class_tokens(self, node, indent):
         """
@@ -299,7 +312,18 @@ class ParseCPP():
                 if node.is_anonymous():
                     continue
                 # create token
-                class_token = ClassToken(node.type.spelling, node.displayname, node.hash, node.kind.name)
+                name = node.type.spelling
+                if not name:
+                    qname = self.get_qualified_name(node)
+                    if "::" in qname:
+                        # 'A::Base' + 'Base<T>' => 'A::Base<T>'
+                        path = qname.rsplit("::", 1)[0]
+                        name = path + "::" + node.displayname
+                    else:
+                        name = node.displayname
+                #bpdb.set_trace()
+
+                class_token = ClassToken(name, node.displayname, node.hash, node.kind.name)
                 # now find closing brace so we can inject 'friend' type statements
                 *_, last_tok = node.get_tokens()
                 class_token.last_tok = last_tok
@@ -326,8 +350,10 @@ class ParseCPP():
                             tvar_token.is_template_type = is_template_type_param;
                             class_token.tvars.append(tvar_token)
                         if fd.kind == CursorKind.FIELD_DECL or fd.kind == CursorKind.VAR_DECL:
+                            name = self.get_qualified_name(fd)
+                            # bpdb.set_trace()
                             var_token = ClassVarToken(
-                                    fd.spelling, fd.displayname, fd.type.spelling, fd.access_specifier.name)
+                                    name, fd.displayname, fd.type.spelling, fd.access_specifier.name)
                             class_token.vars.append(var_token)
 
                 # both cases need to deal with inheritance
