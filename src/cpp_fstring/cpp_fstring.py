@@ -53,7 +53,7 @@ def parse_args(args):
         help="name of file to process",
     )
 
-    return parser.parse_args(args)
+    return parser.parse_known_args(args)
 
 
 def setup_logging(loglevel):
@@ -70,14 +70,14 @@ def main(args):
     """
     Args:
     """
-    args = parse_args(args)
+    args, extraargs = parse_args(args)
     setup_logging(args.loglevel)
     log.debug(f"args = {args}")
 
     with open(args.filename) as f:
         code = f.read()
 
-    parser = ParseCPP(args.filename, code)
+    parser = ParseCPP(code, args.filename, extraargs)
     string_tokens, enum_tokens, class_tokens = parser.find_tokens()
 
     processor = Processor()

@@ -51,6 +51,7 @@ class ClassVarToken:
     displayname: str
     vartype: str
     access_specifier: str = "PUBLIC"
+    indent: int = 0
     is_template_type: bool = False
 
 
@@ -101,7 +102,7 @@ class ParseCPP():
     """
     parse cpp file
     """
-    def __init__(self, filename, code, args=None, **kwargs):
+    def __init__(self, code, filename, extraargs, **kwargs):
         self.string_tokens = []
         self.enum_tokens = []
         self.class_tokens = []
@@ -112,22 +113,25 @@ class ParseCPP():
         # used by callback
         self.enum_token = None
         self.class_token = None
-        self.cxx_base_specifier = {}
+        self.cxx_base_specifier = set()
 
-        self.filename = filename
         self.code = code
+        self.filename = filename
+        self.extraargs = extraargs
         self.interesting_kinds = [
             CursorKind.COMPOUND_STMT,   # for strings
             CursorKind.ENUM_DECL,       # for enum
-            CursorKind.CLASS_DECL, CursorKind.CLASS_TEMPLATE, CursorKind.STRUCT_DECL, # for structs+classes
+            # for structs+classes
+            CursorKind.STRUCT_DECL,  CursorKind.CLASS_DECL, CursorKind.CLASS_TEMPLATE, 
         ]
         self.nodelist = {key: [] for key in self.interesting_kinds}
-
         self.INDENT = 4
+
 
     def find_tokens(self):
         args = [self.filename]
         args.extend(['-xc++', '--std=c++17', "-nobuiltininc", "--no-standard-includes",])
+        args.extend(self.extraargs)
         # from https://cwoodall.com/posts/2018-02-24-using-clang-and-python-to-generate-cpp-struct-serde-fns/
         # Add the include files for the standard library.
         # syspath = ccsyspath.system_include_paths('clang++')
@@ -135,6 +139,7 @@ class ParseCPP():
         unsaved_files = [(self.filename, self.code)]
 
         index = Index.create()
+        log.debug(f"clang args = {args}")
         tu = index.parse(path=None, args=args, unsaved_files=unsaved_files, options=TranslationUnit.PARSE_INCOMPLETE)
         if not tu:
             log.error(f"unable to load input using args = {args}")
@@ -187,7 +192,8 @@ class ParseCPP():
         if node.spelling:
             line += f"s: {node.spelling} "
         if node.type.spelling:
-            line += f" t: {node.type.spelling}"
+            #line += f" t: {node.type.spelling}"
+            line += f" t: {node.type.spelling} ta={node.type.get_num_template_arguments()}"
         log.debug(line)
 
     def extract_enum_tokens(self):
@@ -296,11 +302,50 @@ class ParseCPP():
         for each node expand tree looking for variables
         """
         prefix = ' ' * indent
+        if node.kind == CursorKind.CXX_BASE_SPECIFIER:
+            self.cxx_base_specifier.add(node.get_definition().hash)
         if node.kind == CursorKind.FIELD_DECL or node.kind == CursorKind.VAR_DECL:
-            #print(f" {prefix} {indent} {node.kind.name} {node.spelling} {node.access_specifier.name} {node.displayname} {self.cxx_base_specifier}")
+            is_base_class = node.hash in self.cxx_base_specifier
+            print(f" {prefix} {indent} {node.kind.name} {node.spelling} {node.access_specifier.name} {node.displayname} base={is_base_class}")
             var_token = ClassVarToken(
                 node.spelling, node.displayname, node.type.spelling, node.access_specifier.name)
+            var_token.indent = indent
             self.class_token.vars.append(var_token)
+
+    def extract_vars_from_class(self, node, indent):
+        """
+        if the class definition node has base class, then add the vars to list to print
+        """
+        var_tokens = []
+
+        for fd in node.get_children():
+            if fd.kind == CursorKind.FIELD_DECL:
+                name = fd.spelling
+                if node.kind == CursorKind.CLASS_TEMPLATE:
+                    name = self.get_qualified_name(fd)
+                var_token = ClassVarToken(
+                        fd.spelling, fd.displayname, fd.type.spelling, fd.access_specifier.name, indent)
+                var_tokens.append(var_token)
+
+
+        # both cases need to deal with inheritance
+        # see https://stackoverflow.com/questions/42795408/can-libclang-parse-the-crtp-pattern
+        for fd in node.walk_preorder():
+            if fd.kind == CursorKind.CXX_BASE_SPECIFIER:
+                has_template_args = fd.type.get_num_template_arguments() > 0
+                for fm in fd.walk_preorder():
+                    log.debug(f" fm ref = {fm.displayname} {fm.type.spelling} {has_template_args}")
+                    #if fm.kind == CursorKind.TYPE_REF:
+                    #if fm.kind == CursorKind.CLASS_DECL:
+                    #if fm.kind == CursorKind.TEMPLATE_REF:
+
+                # gather more variables from base classes
+                base_node = fd.get_definition()
+                derived_var_tokens = self.extract_vars_from_class(base_node, indent + 1)
+                var_tokens.extend(derived_var_tokens)
+
+        return var_tokens
+
 
     def extract_class_tokens(self):
         """
@@ -311,7 +356,7 @@ class ParseCPP():
                 # skip anon classes for now
                 if node.is_anonymous():
                     continue
-                # create token
+                # create record
                 name = node.type.spelling
                 if not name:
                     qname = self.get_qualified_name(node)
@@ -321,7 +366,6 @@ class ParseCPP():
                         name = path + "::" + node.displayname
                     else:
                         name = node.displayname
-                #bpdb.set_trace()
 
                 class_token = ClassToken(name, node.displayname, node.hash, node.kind.name)
                 # now find closing brace so we can inject 'friend' type statements
@@ -329,14 +373,6 @@ class ParseCPP():
                 class_token.last_tok = last_tok
                 if last_tok.kind != TokenKind.PUNCTUATION or last_tok.spelling != "}":
                     log.warning(f" can't find closing brace of {class_token}")
-
-                if node.kind == CursorKind.CLASS_DECL or node.kind == CursorKind.STRUCT_DECL:
-                    for fd in node.type.get_fields():
-                        if fd.is_definition():
-                            var_token = ClassVarToken(
-                                    fd.spelling, fd.displayname, fd.type.spelling, fd.access_specifier.name)
-                            class_token.vars.append(var_token)
-
 
                 if node.kind == CursorKind.CLASS_TEMPLATE:
                     for fd in node.walk_preorder():
@@ -347,20 +383,12 @@ class ParseCPP():
                         if is_template_type_param or is_template_non_type_param:
                             tvar_token = ClassVarToken(
                                     fd.spelling, fd.displayname, fd.type.spelling, fd.access_specifier.name)
+                            tvar_token.indent = 0
                             tvar_token.is_template_type = is_template_type_param;
                             class_token.tvars.append(tvar_token)
-                        if fd.kind == CursorKind.FIELD_DECL or fd.kind == CursorKind.VAR_DECL:
-                            name = self.get_qualified_name(fd)
-                            # bpdb.set_trace()
-                            var_token = ClassVarToken(
-                                    name, fd.displayname, fd.type.spelling, fd.access_specifier.name)
-                            class_token.vars.append(var_token)
 
-                # both cases need to deal with inheritance
-                self.class_token = class_token
-                self.INDENT = 1
-                self.cxx_base_specifier = {}
-                self.visit(node, 0, set(), self.cb_extract_class_tokens)
+                            
+                class_token.vars = self.extract_vars_from_class(node, indent=0)
 
                 log.debug(f"class_token = {class_token}")
                 if len(class_token.vars) > 0 or len(class_token.tvars) > 0:

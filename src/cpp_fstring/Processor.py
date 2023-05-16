@@ -346,7 +346,8 @@ R"({tok.class_kind} {decl}:
 
         vars = self.get_all_class_vars(tok)
         for var in vars:
-            out += f"   {var.access_specifier} {var.vartype} {var.displayname}: {{}} \n"
+            prefix = ' ' * var.indent
+            out += f" {prefix}   {var.access_specifier} {var.vartype} {var.displayname}: {{}} \n"
 
         out += ')"'
 
