@@ -78,13 +78,13 @@ def main(args):
         code = f.read()
 
     parser = ParseCPP(code, args.filename, extraargs)
-    string_tokens, enum_tokens, class_tokens = parser.find_tokens()
+    string_records, enum_records, class_records = parser.find_records()
 
     processor = Processor()
-    string_changes = processor.gen_fstring_changes(string_tokens)
-    class_changes = processor.gen_class_changes(class_tokens)
-    enum_addition = processor.gen_enum_format(enum_tokens)
-    class_addition = processor.gen_class_format(class_tokens)
+    string_changes = processor.gen_fstring_changes(string_records)
+    class_changes = processor.gen_class_changes(class_records)
+    enum_addition = processor.gen_enum_format(enum_records)
+    class_addition = processor.gen_class_format(class_records)
 
     go = GenerateOutput(code)
     go.write_changes(string_changes, class_changes)

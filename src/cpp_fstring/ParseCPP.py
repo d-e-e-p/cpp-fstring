@@ -1,4 +1,15 @@
 """
+
+translation unit (TU)
+    single file including all #included code.
+    root cursor for traversing the contents of a translation unit
+
+cursor:
+    abstraction that represents some node in the AST (Abstract Syntax Tree) of a TU
+
+token:
+    smallest unit of a program that is meaningful to the compiler
+    keyword, identifier, literal, operator or punctuation symbol
 """
 
 import bpdb  # noqa: F401
@@ -9,18 +20,17 @@ from typing import Callable
 
 
 from cpp_fstring.clang.cindex import Index, Config, Cursor, Token, TranslationUnit
-from cpp_fstring.clang.cindex import CursorKind, TokenKind, TypeKind
+from cpp_fstring.clang.cindex import CursorKind, TokenKind
 
 log = logging.getLogger(__name__)
 
 # TODO: locate and check lib path
-library_path = "/opt/homebrew/Cellar/cling/0.9/libexec/lib"
 library_path = "/opt/homebrew/Cellar/llvm/16.0.1/lib/"
 log.debug(f"using cling library from: {library_path}")
 Config.set_library_path(library_path)
 
 """
-storage for enum/class tokens
+storage for string/enum/class records
 """
 
 
@@ -31,7 +41,7 @@ class EnumConstantDecl:
 
 
 @dataclass
-class EnumToken:
+class EnumRecord:
     """
     store enum definition
     """
@@ -43,7 +53,7 @@ class EnumToken:
 
 
 @dataclass
-class ClassVarToken:
+class ClassVar:
     """
     store class/struct variables
     """
@@ -56,7 +66,7 @@ class ClassVarToken:
 
 
 @dataclass
-class ClassToken:
+class ClassRecord:
     """
     store class/struct definition
     """
@@ -66,17 +76,17 @@ class ClassToken:
     class_kind: str = "STRUCT_DECL"
     last_tok: Token = Token()
     bases: list[int] = field(default_factory=list)
-    vars: list[ClassVarToken] = field(default_factory=list)
-    tvars: list[ClassVarToken] = field(default_factory=list)
+    vars: list[ClassVar] = field(default_factory=list)
+    tvars: list[ClassVar] = field(default_factory=list)
 
 
 @dataclass
-class MarkedTokens:
+class SelectedRecords:
     """
     store lists of str/enum/class tokens
     """
     tstring: list[Token]
-    tenum:   list[EnumToken]
+    tenum:   list[EnumRecord]
     tclass:  list[Token]
 
 
@@ -94,7 +104,7 @@ def dump(obj, name="obj"):
         if val is None:
             print(f"{name}[{attribute}] = ERR")
             continue
-        
+
         print(f"{name}[{attribute}]", end=" ")
         # if isinstance(val, type(lambda: None))
         if type(val) is types.MethodType:   # noqa: E721
@@ -104,7 +114,7 @@ def dump(obj, name="obj"):
             except:  # noqa: E722
                 print("ERR")
         else:
-                print(val)
+            print(val)
 
     attr_list = "lexical_parent type".split()
     for attr in attr_list:
@@ -120,21 +130,22 @@ def dump(obj, name="obj"):
 
     print("------")
 
+
 class ParseCPP():
     """
     parse cpp file
     """
     def __init__(self, code, filename, extraargs, **kwargs):
-        self.string_tokens = []
-        self.enum_tokens = []
-        self.class_tokens = []
+        self.string_records = []
+        self.enum_records = []
+        self.class_records = []
         self.enum_decl_nodes = []
         self.comp_stmt_nodes = []
         self.class_decl_nodes = []
 
         # used by callback
-        self.enum_token = None
-        self.class_token = None
+        self.enum_record = None
+        self.class_record = None
         self.cxx_base_specifier = set()
 
         self.code = code
@@ -144,13 +155,13 @@ class ParseCPP():
             CursorKind.COMPOUND_STMT,   # for strings
             CursorKind.ENUM_DECL,       # for enum
             # for structs+classes
-            CursorKind.STRUCT_DECL,  CursorKind.CLASS_DECL, CursorKind.CLASS_TEMPLATE, 
+            CursorKind.STRUCT_DECL,  CursorKind.CLASS_DECL, CursorKind.CLASS_TEMPLATE,
+            CursorKind.UNION_DECL
         ]
         self.nodelist = {key: [] for key in self.interesting_kinds}
         self.INDENT = 4
 
-
-    def find_tokens(self):
+    def find_records(self):
         args = [self.filename]
         args.extend(['-xc++', '--std=c++17', "-nobuiltininc", "--no-standard-includes",])
         args.extend(self.extraargs)
@@ -166,14 +177,14 @@ class ParseCPP():
         if not tu:
             log.error(f"unable to load input using args = {args}")
 
-        # self.find_string_tokens(tu.cursor)
+        # self.find_string_records(tu.cursor)
         # self.get_info(tu.cursor)
         self.visit(tu.cursor, 0, set(), self.cb_store_if_interesting)
-        self.remove_duplicate_tokens()
-        self.extract_string_tokens()
-        self.extract_enum_tokens()
-        self.extract_class_tokens()
-        return self.string_tokens, self.enum_tokens, self.class_tokens
+        self.remove_duplicate_records()
+        self.extract_string_records()
+        self.extract_enum_records()
+        self.extract_class_records()
+        return self.string_records, self.enum_records, self.class_records
 
     def dup_remover(self, nodes):
         seen = set()
@@ -184,8 +195,7 @@ class ParseCPP():
                 seen.add(node.hash)
         return res
 
-
-    def remove_duplicate_tokens(self):
+    def remove_duplicate_records(self):
         """
         remove copies of visited nodes
         """
@@ -221,7 +231,7 @@ class ParseCPP():
 
         log.debug(line)
 
-    def extract_enum_tokens(self):
+    def extract_enum_records(self):
         """
         look at nodes for enum decl and definitions
         """
@@ -230,26 +240,26 @@ class ParseCPP():
             # TODO: find a more robust solution for anon namespace
 
             if "(anonymous namespace)::" in node.type.spelling:
-                self.enum_token = EnumToken(node.spelling)
+                self.enum_record = EnumRecord(node.spelling)
             else:
-                self.enum_token = EnumToken(node.type.spelling)
-                self.enum_token.is_anonymous = node.is_anonymous()
+                self.enum_record = EnumRecord(node.type.spelling)
+                self.enum_record.is_anonymous = node.is_anonymous()
 
-            self.enum_token.is_scoped = node.is_scoped_enum()
-            self.enum_token.enum_type = node.type.get_declaration().enum_type.kind.name
-            
-            self.visit(node, 0, set(), self.cb_extract_enum_tokens)
-            self.enum_tokens.append(self.enum_token)
+            self.enum_record.is_scoped = node.is_scoped_enum()
+            self.enum_record.enum_type = node.type.get_declaration().enum_type.kind.name
 
-    def cb_extract_enum_tokens(self, node, indent):
+            self.visit(node, 0, set(), self.cb_extract_enum_records)
+            self.enum_records.append(self.enum_record)
+
+    def cb_extract_enum_records(self, node, indent):
         """
         for each visited note, look for constant declarations
         """
         if node.kind == CursorKind.ENUM_CONSTANT_DECL:
             enum_constant_decl = EnumConstantDecl(node.displayname, str(node.enum_value))
-            self.enum_token.values.append(enum_constant_decl)
+            self.enum_record.values.append(enum_constant_decl)
 
-    def extract_string_tokens(self):
+    def extract_string_records(self):
         """
         just create a list of string object tokens
         """
@@ -259,7 +269,7 @@ class ParseCPP():
                     in_str = token.spelling
                     log.debug(f"{token.cursor.kind.name}  str: {token.spelling}")
                     if in_str.find('{') > 0 or in_str.find('}') > 0:
-                        self.string_tokens.append(token)
+                        self.string_records.append(token)
 
     def get_qualified_name(self, node):
 
@@ -273,27 +283,11 @@ class ParseCPP():
                 return res + '::' + node.spelling
         return node.spelling
 
-
-    def cb_extract_class_tokens(self, node, indent):
-        """
-        for each node expand tree looking for variables
-        """
-        prefix = ' ' * indent
-        if node.kind == CursorKind.CXX_BASE_SPECIFIER:
-            self.cxx_base_specifier.add(node.get_definition().hash)
-        if node.kind == CursorKind.FIELD_DECL or node.kind == CursorKind.VAR_DECL:
-            is_base_class = node.hash in self.cxx_base_specifier
-            print(f" {prefix} {indent} {node.kind.name} {node.spelling} {node.access_specifier.name} {node.displayname} base={is_base_class}")
-            var_token = ClassVarToken(
-                node.spelling, node.displayname, node.type.spelling, node.access_specifier.name)
-            var_token.indent = indent
-            self.class_token.vars.append(var_token)
-
     def extract_vars_from_class(self, node, indent):
         """
         if the class definition node has base class, then add the vars to list to print
         """
-        var_tokens = []
+        var_records = []
 
         for fd in node.get_children():
             if fd.kind == CursorKind.FIELD_DECL:
@@ -302,43 +296,43 @@ class ParseCPP():
                 else:
                     name = fd.spelling
 
-                var_token = ClassVarToken(
+                var_record = ClassVar(
                         name, fd.displayname, fd.type.spelling, fd.access_specifier.name, indent)
-                var_tokens.append(var_token)
-
+                var_records.append(var_record)
 
         # both cases need to deal with inheritance
         # see https://stackoverflow.com/questions/42795408/can-libclang-parse-the-crtp-pattern
-        # TODO: decide between visiting all downstream nodes with fd.walk_preorder() or just 
+        # TODO: decide between visiting all downstream nodes with fd.walk_preorder() or just
         # immediate children with fd.get_children()
         for fd in node.walk_preorder():
             if fd.kind == CursorKind.CXX_BASE_SPECIFIER:
-                has_template_args = fd.type.get_num_template_arguments() > 0
-                for fm in fd.walk_preorder():
-                    log.debug(f" fm ref = {fm.displayname} {fm.type.spelling} {has_template_args}")
-                    #if fm.kind == CursorKind.TYPE_REF:
-                    #if fm.kind == CursorKind.CLASS_DECL:
-                    #if fm.kind == CursorKind.TEMPLATE_REF:
+                # has_template_args = fd.type.get_num_template_arguments() > 0
+                # for fm in fd.walk_preorder():
+                #   log.debug(f" fm ref = {fm.displayname} {fm.type.spelling} {has_template_args}")
+                #   if fm.kind == CursorKind.TYPE_REF:
+                #   if fm.kind == CursorKind.CLASS_DECL:
+                #   if fm.kind == CursorKind.TEMPLATE_REF:
 
                 # gather more variables from base classes
                 base_node = fd.get_definition()
-                derived_var_tokens = self.extract_vars_from_class(base_node, indent + 1)
-                var_tokens.extend(derived_var_tokens)
+                derived_var_records = self.extract_vars_from_class(base_node, indent + 1)
+                var_records.extend(derived_var_records)
 
-        #for fd in node.walk_preorder():
+        # for fd in node.walk_preorder():
         #    print(f" {fd.spelling} {fd.type.spelling} {fd.kind} ")
         #    dump(fd, fd.spelling)
-        #bpdb.set_trace()
-        return var_tokens
+        # bpdb.set_trace()
+        return var_records
 
-
-    def extract_class_tokens(self):
+    def extract_class_records(self):
         """
         look at nodes for enum decl and definitions
         """
-        for kind in [CursorKind.CLASS_DECL, CursorKind.CLASS_TEMPLATE, CursorKind.STRUCT_DECL,]:
+        CK = CursorKind
+        for kind in [CK.CLASS_DECL, CK.CLASS_TEMPLATE, CK.STRUCT_DECL, CK.UNION_DECL]:
             for node in self.nodelist[kind]:
                 # skip anon classes for now
+                # TODO: allow union in class/struct
                 if node.is_anonymous():
                     continue
                 # create record
@@ -352,38 +346,27 @@ class ParseCPP():
                     else:
                         name = node.displayname
 
-                class_token = ClassToken(name, node.displayname, node.hash, node.kind.name)
+                class_record = ClassRecord(name, node.displayname, node.hash, node.kind.name)
                 # now find closing brace so we can inject 'friend' type statements
                 *_, last_tok = node.get_tokens()
-                class_token.last_tok = last_tok
+                class_record.last_tok = last_tok
                 if last_tok.kind != TokenKind.PUNCTUATION or last_tok.spelling != "}":
-                    log.warning(f" can't find closing brace of {class_token}")
+                    log.warning(f" can't find closing brace of {class_record}")
 
-                if node.kind == CursorKind.CLASS_TEMPLATE:
+                if node.kind == CK.CLASS_TEMPLATE:
                     for fd in node.walk_preorder():
-                        is_template_type_param =        (fd.kind == CursorKind.TEMPLATE_TYPE_PARAMETER)
-                        is_template_non_type_param =    (fd.kind == CursorKind.TEMPLATE_NON_TYPE_PARAMETER)
-                        is_dield_declaration =          (fd.kind == CursorKind.FIELD_DECL)
-                        # print(f" {fd.kind} {fd.spelling} type:{fd.type.spelling} is_def:{fd.is_definition()} as:{fd.access_specifier.name} dn:{fd.displayname} ")
+                        is_template_type_param = (fd.kind == CK.TEMPLATE_TYPE_PARAMETER)
+                        is_template_non_type_param = (fd.kind == CK.TEMPLATE_NON_TYPE_PARAMETER)
+                        # print(f" {fd.kind} {fd.spelling} type:{fd.type.spelling} is_def:{fd.is_definition()}
+                        # as:{fd.access_specifier.name} dn:{fd.displayname} ")
                         if is_template_type_param or is_template_non_type_param:
-                            tvar_token = ClassVarToken(
-                                    fd.spelling, fd.displayname, fd.type.spelling, fd.access_specifier.name)
-                            tvar_token.indent = 0
-                            tvar_token.is_template_type = is_template_type_param;
-                            class_token.tvars.append(tvar_token)
+                            tvar_record = ClassVar(
+                                    fd.spelling, fd.displayname, fd.type.spelling, fd.access_specifier.name, 0)
+                            tvar_record.is_template_type = is_template_type_param
+                            class_record.tvars.append(tvar_record)
 
-                            
-                class_token.vars = self.extract_vars_from_class(node, indent=0)
+                class_record.vars = self.extract_vars_from_class(node, indent=0)
 
-                log.debug(f"class_token = {class_token}")
-                if len(class_token.vars) > 0 or len(class_token.tvars) > 0:
-                    self.class_tokens.append(class_token)
-
-
-                #self.class_token = class_token
-                #self.class_token.vars = []
-                #self.class_token.tvars = []
-                #self.visit(node, 0, set(), self.cb_extract_class_tokens)
-                #self.class_tokens.append(self.class_token)
-
-
+                log.debug(f"class_record = {class_record}")
+                if len(class_record.vars) > 0 or len(class_record.tvars) > 0:
+                    self.class_records.append(class_record)
