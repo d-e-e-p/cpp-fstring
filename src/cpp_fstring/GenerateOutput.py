@@ -3,6 +3,20 @@ import bpdb  # noqa: F401
 
 log = logging.getLogger(__name__)
 
+"""
+should really be using 
+ https://clang.llvm.org/doxygen/classclang_1_1Lexer.html#a7e7f08993261441a8d83d9253ca53859
+ ◆ makeFileCharRange() - Accepts a range and returns a character range with file locations.
+Returns a null range if a part of the range resides inside a macro expansion or the range does not reside on the same FileID.
+ ◆ MeasureTokenLength - Relex the token at the specified location and return its length in bytes in the input file.
+
+
+https://clang.llvm.org/doxygen/classclang_1_1tooling_1_1Replacement.html
+◆ Replacement() Creates a replacement of the range [Offset, Offset+Length) in FilePath with ReplacementText.
+
+
+
+"""
 
 class GenerateOutput:
     def __init__(self, code, args=None, **kwargs):

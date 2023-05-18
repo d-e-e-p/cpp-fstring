@@ -83,20 +83,42 @@ class MarkedTokens:
 def dump(obj, name="obj"):
     for attribute in dir(obj):
         # if isinstance(getattr(obj, attribute), str):
+        if attribute.startswith("_"):
+            continue
+
         try:
             val = getattr(obj, attribute)
-            # if isinstance(val, type(lambda: None))
-            if type(val) is types.MethodType:   # noqa: E721
-                if not val.__name__.startswith("_"):
-                    print(f"{name}[{attribute}]", end=" ")
-                    print(val())
-            else:
-                if not val.startswith("_"):
-                    print(f"{name}[{attribute}]", end=" ")
-                    print(val)
         except:  # noqa: E722
-            pass
+            val = None
 
+        if val is None:
+            print(f"{name}[{attribute}] = ERR")
+            continue
+        
+        print(f"{name}[{attribute}]", end=" ")
+        # if isinstance(val, type(lambda: None))
+        if type(val) is types.MethodType:   # noqa: E721
+            try:
+                print("()", end=" ")
+                print(val())
+            except:  # noqa: E722
+                print("ERR")
+        else:
+                print(val)
+
+    attr_list = "lexical_parent type".split()
+    for attr in attr_list:
+        if getattr(obj, attr):
+            val = getattr(obj, attr).spelling
+            print(f"{name}[{attr}] = {val}")
+
+    if getattr(obj, "get_tokens"):
+        tokens = ""
+        for fd in obj.get_tokens():
+            tokens += " " + fd.spelling
+        print(f"{name}[tokens] = {tokens}")
+
+    print("------")
 
 class ParseCPP():
     """
@@ -192,8 +214,11 @@ class ParseCPP():
         if node.spelling:
             line += f"s: {node.spelling} "
         if node.type.spelling:
-            #line += f" t: {node.type.spelling}"
-            line += f" t: {node.type.spelling} ta={node.type.get_num_template_arguments()}"
+            line += f" t: {node.type.spelling}"
+            num_temp_args = node.type.get_num_template_arguments()
+            if num_temp_args > 0:
+                line += f"  ta={num_temp_args}"
+
         log.debug(line)
 
     def extract_enum_tokens(self):
@@ -236,54 +261,6 @@ class ParseCPP():
                     if in_str.find('{') > 0 or in_str.find('}') > 0:
                         self.string_tokens.append(token)
 
-    def extract_class_tokens_old(self):
-        for node in self.class_decl_nodes:
-            if node.is_anonymous():
-                continue
-            class_token = ClassToken(node.type.spelling, node.displayname, node.hash)
-            # now find closing brace
-            *_, last_tok = node.get_tokens()
-            class_token.last_tok = last_tok
-            if last_tok.kind != TokenKind.PUNCTUATION or last_tok.spelling != "}":
-                log.warning(f" last tok of class {node.type.spelling} is : {last_tok.kind} {last_tok.spelling}")
-            class_token.class_kind = node.kind.name
-            # if template then also get template params
-            if node.kind == CursorKind.CLASS_TEMPLATE:
-                """
-                skip templates of templates and other weird creatures
-                """
-                for child in node.get_children():
-                    is_template_type_param = (child.kind == CursorKind.TEMPLATE_TYPE_PARAMETER)
-                    is_template_non_type_param = (child.kind == CursorKind.TEMPLATE_NON_TYPE_PARAMETER)
-                    if is_template_type_param or is_template_non_type_param:
-                        tvar_token = ClassVarToken(child.spelling, child.displayname, child.type.spelling, is_template_type_param)
-                        class_token.tvars.append(tvar_token)
-
-                    if child.kind == CursorKind.FIELD_DECL:
-                        var_token = ClassVarToken(child.spelling, child.type.spelling, child.type.spelling)
-                        class_token.vars.append(var_token)
-                    if child.kind == CursorKind.VAR_DECL:
-                        var_token = ClassVarToken(child.spelling, child.type.spelling, )
-                        var_token.access_specifier = child.access_specifier.name
-                        class_token.vars.append(var_token)
-
-
-
-            log.debug(f" nts={node.type.spelling} {node.spelling} of {node.kind} : ")
-            # also works for get_children()
-            for child in node.get_children():
-                if child.kind == CursorKind.CXX_BASE_SPECIFIER:
-                    log.debug(f" ck={child.kind} base={child.spelling}") 
-            for fd in node.type.get_fields():
-                if fd.is_definition():
-                    var_token = ClassVarToken(fd.spelling, fd.type.spelling)
-                    var_token.access_specifier = fd.access_specifier.name
-                    class_token.vars.append(var_token)
-            log.debug(f"class_token = {class_token}")
-            if len(class_token.vars) > 0:
-                self.class_tokens.append(class_token)
-
-
     def get_qualified_name(self, node):
 
         if node is None:
@@ -320,16 +297,20 @@ class ParseCPP():
 
         for fd in node.get_children():
             if fd.kind == CursorKind.FIELD_DECL:
-                name = fd.spelling
                 if node.kind == CursorKind.CLASS_TEMPLATE:
                     name = self.get_qualified_name(fd)
+                else:
+                    name = fd.spelling
+
                 var_token = ClassVarToken(
-                        fd.spelling, fd.displayname, fd.type.spelling, fd.access_specifier.name, indent)
+                        name, fd.displayname, fd.type.spelling, fd.access_specifier.name, indent)
                 var_tokens.append(var_token)
 
 
         # both cases need to deal with inheritance
         # see https://stackoverflow.com/questions/42795408/can-libclang-parse-the-crtp-pattern
+        # TODO: decide between visiting all downstream nodes with fd.walk_preorder() or just 
+        # immediate children with fd.get_children()
         for fd in node.walk_preorder():
             if fd.kind == CursorKind.CXX_BASE_SPECIFIER:
                 has_template_args = fd.type.get_num_template_arguments() > 0
@@ -344,6 +325,10 @@ class ParseCPP():
                 derived_var_tokens = self.extract_vars_from_class(base_node, indent + 1)
                 var_tokens.extend(derived_var_tokens)
 
+        #for fd in node.walk_preorder():
+        #    print(f" {fd.spelling} {fd.type.spelling} {fd.kind} ")
+        #    dump(fd, fd.spelling)
+        #bpdb.set_trace()
         return var_tokens
 
 

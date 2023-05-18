@@ -1,8 +1,8 @@
 ===========
-cpp_fstring
+cpp-fstring
 ===========
 
-This is the documentation of **cpp_fstring**.
+This is the documentation of **cpp-fstring**.
 
 .. note::
 
