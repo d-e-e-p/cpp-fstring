@@ -20,7 +20,7 @@ from typing import Callable
 
 
 from cpp_fstring.clang.cindex import Index, Config, Cursor, Token, TranslationUnit
-from cpp_fstring.clang.cindex import CursorKind, TokenKind
+from cpp_fstring.clang.cindex import CursorKind, TokenKind, AccessSpecifier
 
 log = logging.getLogger(__name__)
 
@@ -49,6 +49,7 @@ class EnumRecord:
     enum_type: str = ""
     is_scoped: bool = False
     is_anonymous: bool = False
+    access_specifier: str = "PUBLIC"
     values: list[EnumConstantDecl] = field(default_factory=list)
 
 
@@ -75,6 +76,9 @@ class ClassRecord:
     hash: int
     class_kind: str = "STRUCT_DECL"
     last_tok: Token = Token()
+    wants_to_be_friends: bool = False
+    is_external: bool = False
+    access_specifier: str = "PUBLIC"
     bases: list[int] = field(default_factory=list)
     vars: list[ClassVar] = field(default_factory=list)
     tvars: list[ClassVar] = field(default_factory=list)
@@ -150,6 +154,7 @@ class ParseCPP():
 
         self.code = code
         self.filename = filename
+        self.file = None
         self.extraargs = extraargs
         self.interesting_kinds = [
             CursorKind.COMPOUND_STMT,   # for strings
@@ -176,6 +181,7 @@ class ParseCPP():
         tu = index.parse(path=None, args=args, unsaved_files=unsaved_files, options=TranslationUnit.PARSE_INCOMPLETE)
         if not tu:
             log.error(f"unable to load input using args = {args}")
+        self.file = tu.get_file(self.filename)  #  to compare against locations in header
 
         # self.find_string_records(tu.cursor)
         # self.get_info(tu.cursor)
@@ -247,6 +253,7 @@ class ParseCPP():
 
             self.enum_record.is_scoped = node.is_scoped_enum()
             self.enum_record.enum_type = node.type.get_declaration().enum_type.kind.name
+            self.enum_record.access_specifier = node.access_specifier.name
 
             self.visit(node, 0, set(), self.cb_extract_enum_records)
             self.enum_records.append(self.enum_record)
@@ -280,25 +287,32 @@ class ParseCPP():
         else:
             res = self.get_qualified_name(node.semantic_parent)
             if res != '':
-                return res + '::' + node.spelling
-        return node.spelling
+                return res + '::' + node.displayname
+        return node.displayname
 
-    def extract_vars_from_class(self, node, indent):
+    def extract_vars_from_class(self, node, prefix, indent):
         """
         if the class definition node has base class, then add the vars to list to print
         """
         var_records = []
 
         for fd in node.get_children():
-            if fd.kind == CursorKind.FIELD_DECL:
+            if fd.kind == CursorKind.FIELD_DECL or fd.kind == CursorKind.VAR_DECL:
                 if node.kind == CursorKind.CLASS_TEMPLATE:
                     name = self.get_qualified_name(fd)
                 else:
                     name = fd.spelling
 
                 var_record = ClassVar(
-                        name, fd.displayname, fd.type.spelling, fd.access_specifier.name, indent)
+                        prefix + name, fd.displayname, fd.type.spelling, fd.access_specifier.name, indent)
                 var_records.append(var_record)
+
+            if fd.kind == CursorKind.CLASS_DECL or fd.kind == CursorKind.STRUCT_DECL:
+                #child_prefix = f"{prefix}{fd.displayname}."
+                #child_var_records = self.extract_vars_from_class(fd, child_prefix, indent + 1)
+                #var_records.extend(child_var_records)
+                # bpdb.set_trace()
+                pass
 
         # both cases need to deal with inheritance
         # see https://stackoverflow.com/questions/42795408/can-libclang-parse-the-crtp-pattern
@@ -315,7 +329,7 @@ class ParseCPP():
 
                 # gather more variables from base classes
                 base_node = fd.get_definition()
-                derived_var_records = self.extract_vars_from_class(base_node, indent + 1)
+                derived_var_records = self.extract_vars_from_class(base_node, prefix, indent + 1)
                 var_records.extend(derived_var_records)
 
         # for fd in node.walk_preorder():
@@ -324,6 +338,72 @@ class ParseCPP():
         # bpdb.set_trace()
         return var_records
 
+    def extract_one_class_record(self, node):
+        """
+        """
+        CK = CursorKind
+        # skip anon classes for now
+        # TODO: allow union in class/struct
+        if node.is_anonymous():
+            return
+        # create record
+        name = self.get_qualified_name(node)
+        if ">::" in name:
+            #  template class is parent...skip for now
+            return
+        if not name:
+            name = self.get_qualified_name(node)
+            """
+            if "::" in qname:
+                # 'A::Base' + 'Base<T>' => 'A::Base<T>'
+                path = qname.rsplit("::", 1)[0]
+                name = path + "::" + node.displayname
+            else:
+                name = node.displayname
+            """
+
+        class_record = ClassRecord(name, node.displayname, node.hash, node.kind.name)
+        if node.access_specifier is AccessSpecifier.INVALID:
+            class_record.access_specifier == "PUBLIC"
+        else:
+            class_record.access_specifier = node.access_specifier.name
+
+        # now find closing brace so we can inject 'friend' type statements
+        *_, last_tok = node.get_tokens()
+        class_record.last_tok = last_tok
+        if last_tok.kind != TokenKind.PUNCTUATION or last_tok.spelling != "}":
+            log.debug(f" can't find closing brace of {class_record}")
+            class_record.last_tok = None
+
+        if node.kind == CK.CLASS_TEMPLATE:
+            """
+            see https://en.cppreference.com/w/cpp/language/template_parameters
+            // non-type template parameter type is char
+            B<'a'> b2;
+            // type param has class or typename
+            template<typename... Ts> class My_tuple;
+            // Template template parameter
+            template<template<typename> typename C> class Map;
+            """
+            for fd in node.walk_preorder():
+                is_template_type_param = (fd.kind == CK.TEMPLATE_TYPE_PARAMETER)
+                is_template_non_type_param = (fd.kind == CK.TEMPLATE_NON_TYPE_PARAMETER)
+                is_template_template_param = (fd.kind == CK.TEMPLATE_TEMPLATE_PARAMETER)
+                # print(f" {fd.kind} {fd.spelling} type:{fd.type.spelling} is_def:{fd.is_definition()}
+                # as:{fd.access_specifier.name} dn:{fd.displayname} ")
+                if is_template_type_param or is_template_non_type_param:
+                    tvar_record = ClassVar(
+                            fd.spelling, fd.displayname, fd.type.spelling, fd.access_specifier.name, 0)
+                    tvar_record.is_template_type = is_template_type_param
+                    class_record.tvars.append(tvar_record)
+                if is_template_template_param:
+                    pass
+
+        class_record.vars = self.extract_vars_from_class(node, prefix="", indent=0)
+
+        if len(class_record.vars) > 0 or len(class_record.tvars) > 0:
+            self.class_records.append(class_record)
+
     def extract_class_records(self):
         """
         look at nodes for enum decl and definitions
@@ -331,42 +411,30 @@ class ParseCPP():
         CK = CursorKind
         for kind in [CK.CLASS_DECL, CK.CLASS_TEMPLATE, CK.STRUCT_DECL, CK.UNION_DECL]:
             for node in self.nodelist[kind]:
-                # skip anon classes for now
-                # TODO: allow union in class/struct
-                if node.is_anonymous():
-                    continue
-                # create record
-                name = node.type.spelling
-                if not name:
-                    qname = self.get_qualified_name(node)
-                    if "::" in qname:
-                        # 'A::Base' + 'Base<T>' => 'A::Base<T>'
-                        path = qname.rsplit("::", 1)[0]
-                        name = path + "::" + node.displayname
-                    else:
-                        name = node.displayname
+                self.extract_one_class_record(node)
 
-                class_record = ClassRecord(name, node.displayname, node.hash, node.kind.name)
-                # now find closing brace so we can inject 'friend' type statements
-                *_, last_tok = node.get_tokens()
-                class_record.last_tok = last_tok
-                if last_tok.kind != TokenKind.PUNCTUATION or last_tok.spelling != "}":
-                    log.warning(f" can't find closing brace of {class_record}")
 
-                if node.kind == CK.CLASS_TEMPLATE:
-                    for fd in node.walk_preorder():
-                        is_template_type_param = (fd.kind == CK.TEMPLATE_TYPE_PARAMETER)
-                        is_template_non_type_param = (fd.kind == CK.TEMPLATE_NON_TYPE_PARAMETER)
-                        # print(f" {fd.kind} {fd.spelling} type:{fd.type.spelling} is_def:{fd.is_definition()}
-                        # as:{fd.access_specifier.name} dn:{fd.displayname} ")
-                        if is_template_type_param or is_template_non_type_param:
-                            tvar_record = ClassVar(
-                                    fd.spelling, fd.displayname, fd.type.spelling, fd.access_specifier.name, 0)
-                            tvar_record.is_template_type = is_template_type_param
-                            class_record.tvars.append(tvar_record)
+        """
+         OK: PUBLIC
+         NOT OK: INVALID PROTECTED PRIVATE NONE?
+        """
+        for rec in self.class_records:
+            private_vars = [var for var in rec.vars if var.access_specifier != "PUBLIC"]
+            if len(private_vars) > 0 or rec.access_specifier != "PUBLIC":
+                rec.wants_to_be_friends = True
 
-                class_record.vars = self.extract_vars_from_class(node, indent=0)
+        """
+        mark external definitions in include files
+        """
+        for rec in self.class_records:
+            rec.is_external = (rec.last_tok.location.file != self.file)
 
-                log.debug(f"class_record = {class_record}")
-                if len(class_record.vars) > 0 or len(class_record.tvars) > 0:
-                    self.class_records.append(class_record)
+        """
+        remove records if last_tok is None, ie just forward declarations
+        """
+        self.class_records = list(
+                filter(lambda rec: rec.last_tok is not None, self.class_records))
+
+        for rec in self.class_records:
+            log.debug(f"class_record = {rec}")
+

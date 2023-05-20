@@ -23,25 +23,21 @@ class Processor:
     def __init__(self, args=None, **kwargs):
         # https://regex101.com/r/lurKSR/1
         self.pattern = r"(?<=\{)([^}:]+)(?=(:[^}]+)?\})"
-        self.lbracket = "__LEFT_CURLY_BRACKET__"
-        self.rbracket = "__RIGHT_CURLY_BRACKET__"
 
     def get_char_replacements(self, in_str):
         """
         find something to replace double brackets and :: that isn't in the in_str
         """
-        lbracket = "⟪"
-        while in_str.find(lbracket) > 0:
-            lbracket += lbracket
+        lbracket = self.get_unique(in_str, "⟪")
+        rbracket = self.get_unique(in_str, "⟫")
+        doublecolon = self.get_unique(in_str, "__DOUBLECOLON__")
 
-        rbracket = "⟫"
-        while in_str.find(rbracket) > 0:
-            rbracket += rbracket
-
-        doublecolon = "__DOUBLECOLON__"
-        while in_str.find(rbracket) > 0:
-            rbracket += rbracket
         return lbracket, rbracket, doublecolon
+
+    def get_unique(self, in_str, target):
+        while in_str.find(target) > 0:
+            target += target
+        return target
 
     def get_literals(self, tok):
         """
@@ -56,10 +52,9 @@ class Processor:
         log.debug(f" {tok} ld={ldelim} rd={rdelim}")
 
 
-
-    def gen_fstring_changes(self, tokens):
+    def gen_fstring_changes(self, records):
         changes = []
-        for tok in tokens:
+        for rec in records:
             """
             convert:
                 "this is a {foo_bar} test"
@@ -67,9 +62,9 @@ class Processor:
                 fmt::format("this is a {} test", foo_bar)
                             ------ f_str ------  -v_str-
             """
-            #in_str = repr(tok.value)[1:-1]  # escape backslash
-            in_str = tok.spelling
-            # (lliteral, rliteral) = self.get_literals(tok)
+            #in_str = repr(rec.value)[1:-1]  # escape backslash
+            in_str = rec.spelling
+            # (lliteral, rliteral) = self.get_literals(rec)
 
             (lbracket, rbracket, doublecolon) = self.get_char_replacements(in_str)
             rbacket_rev = rbracket[::-1]
@@ -97,38 +92,37 @@ class Processor:
                 f_str = f_str.replace(doublecolon, "::")
                 replacement_str = f_str
 
-            changes.append([tok, replacement_str])
+            changes.append([rec, replacement_str])
 
         return changes
 
-    def gen_class_changes(self, tokens):
+    def gen_class_changes(self, records):
         """
         add a friend format statement to classes with private vars
              OK: PUBLIC 
              NOT OK: INVALID PROTECTED PRIVATE NONE?
         """
         changes = []
-        for tok in tokens:
-            public_vars = [var for var in tok.vars if var.access_specifier=='PUBLIC']
-            if len(tok.vars) > len(public_vars):
-                replacement_str = f"  friend struct fmt::formatter<{tok.name}>;\n"
-                replacement_str += tok.last_tok.spelling;
-                changes.append([tok.last_tok, replacement_str])
-        
+        for rec in records:
+            ok_to_be_friends = rec.wants_to_be_friends and not rec.is_external
+            if ok_to_be_friends:
+                replacement_str = f"  friend struct fmt::formatter<{rec.name}>;\n"
+                replacement_str += rec.last_tok.spelling
+                changes.append([rec.last_tok, replacement_str])
+
         return changes
 
-
-    def gen_enum_format(self, tokens):
+    def gen_enum_format(self, records):
         """
         given list of enum generate fmt: statements
         """
         changes = ""
-        for tok in tokens:
-            log.debug(f" tok = {tok}")
-            changes += self.gen_one_enum(tok)
+        for rec in records:
+            log.debug(f" enum = {rec}")
+            changes += self.gen_one_enum(rec)
         return changes
 
-    def gen_one_enum_format_as(self, tok):
+    def gen_one_enum_format_as(self, rec):
         """
         follow example in fmt:: documentation, ie:
 
@@ -146,24 +140,27 @@ class Processor:
         """
 
         # skip enum with no entries
-        if len(tok.values) == 0:
+        if len(rec.values) == 0:
             return ""
 
         # skip if anon
-        if tok.is_anonymous:
+        if rec.is_anonymous:
             return ""
 
-        decl = tok.name
+        # for now skip if not public
+        if rec.access_specifier != "PUBLIC":
+            return ""
+
+        decl = rec.name
         out = f"""
-// Generated formatter for enum {decl} of type {tok.enum_type.spelling} scoped {tok.is_scoped}
+// Generated formatter for {rec.access_specifier} enum {decl} of type {rec.enum_type.spelling} scoped {rec.is_scoped}
   auto format_as(const {decl} obj) {{
     fmt::string_view name = "<unknown>";
     switch (obj) {{
 """
-        # pu.db()
         # if scoped and name of enum decl is foo::bar::my_enum then inherit the whole name
         # if not scoped, leave out the my_enum part
-        if tok.is_scoped:
+        if rec.is_scoped:
             prefix = f"{decl}::"
         else:
             separator = "::"
@@ -172,11 +169,11 @@ class Processor:
                 prefix = ""
 
         seen_index = []
-        for elem in tok.values:
+        for elem in rec.values:
             is_duplicate = (elem.index in seen_index)
             seen_index.append(elem.index)
 
-            width = max([len(x.name) for x in tok.values])
+            width = max([len(x.name) for x in rec.values])
             name_in_quotes = f'"{elem.name}"'
             line = f"""case {prefix}{elem.name:<{width}}: name = {name_in_quotes:<{width+2}}; break;  // index={elem.index}"""
             if not is_duplicate:
@@ -190,7 +187,7 @@ class Processor:
 
         return out
 
-    def gen_one_enum(self, tok):
+    def gen_one_enum(self, rec):
         """
         follow example in fmt:: documentation, ie:
 
@@ -208,16 +205,20 @@ class Processor:
         """
 
         # skip enum with no entries
-        if len(tok.values) == 0:
+        if len(rec.values) == 0:
             return ""
 
         # skip if anon
-        if tok.is_anonymous:
+        if rec.is_anonymous:
             return ""
 
-        decl = tok.name
+        # for now skip if not public
+        if rec.access_specifier != "PUBLIC":
+            return ""
+
+        decl = rec.name
         out = f"""
-// Generated formatter for enum {decl} of type {tok.enum_type} scoped {tok.is_scoped}
+// Generated formatter for {rec.access_specifier} enum {decl} of type {rec.enum_type} scoped {rec.is_scoped}
 template <> 
 struct fmt::formatter<{decl}>: formatter<string_view> {{
   template <typename FormatContext>
@@ -227,7 +228,7 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
 """
         # if scoped and name of enum decl is foo::bar::my_enum then inherit the whole name
         # if not scoped, leave out the my_enum part
-        if tok.is_scoped:
+        if rec.is_scoped:
             prefix = f"{decl}::"
         else:
             separator = "::"
@@ -236,11 +237,11 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
                 prefix = ""
 
         seen_index = []
-        for elem in tok.values:
+        for elem in rec.values:
             is_duplicate = (elem.index in seen_index)
             seen_index.append(elem.index)
 
-            width = max([len(x.name) for x in tok.values])
+            width = max([len(x.name) for x in rec.values])
             name_in_quotes = f'"{elem.name}"'
             line = f"""case {prefix}{elem.name:<{width}}: name = {name_in_quotes:<{width+2}}; break;  // index={elem.index}"""
             if not is_duplicate:
@@ -255,16 +256,16 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
 
         return out
 
-    def gen_class_format(self, tokens):
+    def gen_class_format(self, records):
         """
         look at simple struct and produce debug format to_string version
         """
         changes = ""
-        for tok in tokens:
-            changes += self.gen_one_class(tok)
+        for rec in records:
+            changes += self.gen_one_class(rec)
         return changes
 
-    def get_template_decl(self, tok):
+    def get_template_decl(self, rec):
         """
         look thru definitions and produce list that goes inside template <>, eg
                 template <typename T, T Min, T Max>
@@ -273,12 +274,12 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
         eg, for example above:
             typeid(T).name() 
         """
-        if tok.class_kind != 'CLASS_TEMPLATE':
+        if rec.class_kind != 'CLASS_TEMPLATE':
             return "", []
 
         tvarlist = []
         ttypelist = []
-        for tvar in tok.tvars:
+        for tvar in rec.tvars:
             if tvar.is_template_type:
                 tvarlist.append(f"typename {tvar.name}")
                 ttypelist.append(tvar.name)
@@ -288,16 +289,16 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
         template_decl_str = ", ".join(tvarlist) 
         return template_decl_str,  ttypelist
 
-    def get_typeid_calls(self, tok):
+    def get_typeid_calls(self, rec):
         """
 
         """
-        if tok.class_kind != 'CLASS_TEMPLATE':
+        if rec.class_kind != 'CLASS_TEMPLATE':
             return ""
 
         tvarlist = []
         ttypelist = []
-        for tvar in tok.tvars:
+        for tvar in rec.tvars:
             if tvar.is_template_type:
                 tvarlist.append(f"typename {tvar.name}")
                 ttypelist.append(tvar.name)
@@ -309,27 +310,38 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
         bpdb.set_trace()
         return template_decl_str,  ttypelist
 
-    def get_all_class_vars(self, tok):
+    def get_all_class_vars(self, rec):
         """
         deal with inherited classes having multiple echos of same var
         """
         seen = set()
         vars = []
-        for var in tok.vars:
+        # everthing is blocked for private classes 
+        if rec.access_specifier != "PUBLIC" and rec.is_external:
+            return vars
+
+        # assume everything internal is going to be friended
+        for var in rec.vars:
             if var.displayname not in seen:
-                vars.append(var)
-                seen.add(var.displayname)
+                if var.access_specifier == "PUBLIC" or not rec.is_external:
+                    vars.append(var)
+                    seen.add(var.displayname)
         return vars
 
-    def gen_one_class(self, tok):
+    def gen_one_class(self, rec):
         """
         follow example in fmt:: documentation
         """
-        template_decl_str, tvars = self.get_template_decl(tok)
+        vars = self.get_all_class_vars(rec)
+        log.debug(f"{rec.name} : {vars}")
+        if len(vars) == 0:
+            return ""
 
-        decl = tok.name
+        template_decl_str, tvars = self.get_template_decl(rec)
 
-        out = f"""// Generated formatter for {tok.class_kind} {decl}
+        decl = rec.name
+
+        out = f"""// Generated formatter for {rec.class_kind} {decl}
 template <{template_decl_str}>
 struct fmt::formatter<{decl}> {{
     constexpr auto parse(format_parse_context& ctx) {{
@@ -339,15 +351,14 @@ struct fmt::formatter<{decl}> {{
     template <typename FormatContext>
     auto format(const {decl}& obj, FormatContext& ctx) {{
         return format_to(ctx.out(),
-R"({tok.class_kind} {decl}:
+R"({rec.class_kind} {decl}:
 """
         for tvar in tvars:
             out += f"   type({tvar}): {{}} \n"
 
-        vars = self.get_all_class_vars(tok)
         for var in vars:
             prefix = ' ' * var.indent
-            out += f" {prefix}   {var.access_specifier} {var.vartype} {var.displayname}: {{}} \n"
+            out += f" {prefix}   {var.access_specifier} {var.vartype} {var.name}: {{}} \n"
 
         out += ')"'
 
@@ -355,7 +366,7 @@ R"({tok.class_kind} {decl}:
         if tvarlist:
             out += ", " + ", ".join(tvarlist)
 
-        varlist = [f"obj.{var.displayname}" for var in vars]
+        varlist = [f"obj.{var.name}" for var in vars]
         if varlist:
             out += ", " + ", ".join(varlist)
 
