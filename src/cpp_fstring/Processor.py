@@ -89,8 +89,8 @@ class Processor:
             self.vars = []
             f_str = re.sub(self.pattern, self.fstring_elem_callback, in_str)
 
-            f_str = f_str.replace(lbracket, "{{")
-            f_str = f_str.replace(rbracket, "}}")
+            f_str = f_str.replace(lbracket, "{")
+            f_str = f_str.replace(rbracket, "}")
             f_str = f_str.replace(doublecolon, "::")
 
             # are there any vars or const inside brackets?

@@ -13,7 +13,11 @@ int main() {
   str = "} after";
   str = "before } after";
   str = "{}";
-  str = fmt::format("{{{}}}", 42);
-  str = fmt::format("{{{}}}", foo);
-  str = fmt::format("{{{}}}", 0x42);
+  str = "{42}";
+  str = fmt::format("{{}}", 42);
+  str = fmt::format("{{}}", foo);
+  str = fmt::format("{{}}", 0x42);
 }
+
+
+

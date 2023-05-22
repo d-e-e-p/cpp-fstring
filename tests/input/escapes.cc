@@ -13,6 +13,7 @@ int main() {
   str = "}} after";
   str = "before }} after";
   str = "{{}}";
+  str = "{{42}}";
   str = "{{{42}}}";
   str = "{{{foo}}}";
   str = "{{{0x42}}}";
