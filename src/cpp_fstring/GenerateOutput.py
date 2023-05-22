@@ -1,10 +1,11 @@
 import logging
+
 import bpdb  # noqa: F401
 
 log = logging.getLogger(__name__)
 
 """
-should really be using 
+should really be using
  https://clang.llvm.org/doxygen/classclang_1_1Lexer.html#a7e7f08993261441a8d83d9253ca53859
  ◆ makeFileCharRange() - Accepts a range and returns a character range with file locations.
 Returns a null range if a part of the range resides inside a macro expansion or the range does not reside on the same FileID.
@@ -17,6 +18,7 @@ https://clang.llvm.org/doxygen/classclang_1_1tooling_1_1Replacement.html
 
 
 """
+
 
 class GenerateOutput:
     def __init__(self, code, args=None, **kwargs):
@@ -47,13 +49,15 @@ class GenerateOutput:
             log.debug(f" tok={tok} r={replstr}")
             pos_start = self.get_absolute_position(tok.extent.start.line, tok.extent.start.column)
             pos_end = self.get_absolute_position(tok.extent.end.line, tok.extent.end.column)
-            if (len(tok.spelling) != pos_end - pos_start):
-                log.error(f"""
+            if len(tok.spelling) != pos_end - pos_start:
+                log.error(
+                    f"""
                 tok : {tok.spelling}
                 extent: {tok.extent}
                 len: {len(tok.spelling)}
                 pos: {pos_start} -> {pos_end} = {pos_end - pos_start}
-                """)
+                """
+                )
                 j = 0
                 for i in range(pos_start, pos_end):
                     log.error(f" i={i} j={j} tokenstring={tok.spelling[j]} code={self.code[i]}")
@@ -82,4 +86,3 @@ class GenerateOutput:
         """
         self.code += addition
         print(addition)
-        

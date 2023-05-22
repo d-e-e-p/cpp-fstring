@@ -1,7 +1,8 @@
 import logging
 import re
-import pudb
+
 import bpdb
+import pudb
 
 log = logging.getLogger(__name__)
 
@@ -48,8 +49,8 @@ class Processor:
         rpos = lpos + len(tok.value)
 
         (lliteral, rliteral) = ("", "")
-        #ldelim = self.code[lpos-1]
-        #rdelim = self.code[rpos+1]
+        # ldelim = self.code[lpos-1]
+        # rdelim = self.code[rpos+1]
         log.debug(f" {tok} ld={ldelim} rd={rdelim}")
 
     def fstring_elem_callback(self, match):
@@ -70,7 +71,7 @@ class Processor:
             repl = f"{var}={{"
         else:
             repl = "{"
-        return repl 
+        return repl
 
     def gen_fstring_changes(self, records):
         changes = []
@@ -82,7 +83,7 @@ class Processor:
                 fmt::format("this is a {} test", foo_bar)
                             ------ f_str ------  -v_str-
             """
-            #in_str = repr(rec.value)[1:-1]  # escape backslash
+            # in_str = repr(rec.value)[1:-1]  # escape backslash
             in_str = rec.spelling
             # (lliteral, rliteral) = self.get_literals(rec)
 
@@ -121,7 +122,7 @@ class Processor:
     def gen_class_changes(self, records):
         """
         add a friend format statement to classes with private vars
-             OK: PUBLIC 
+             OK: PUBLIC
              NOT OK: INVALID PROTECTED PRIVATE NONE?
         """
         changes = []
@@ -145,18 +146,18 @@ class Processor:
 
     def gen_one_enum_format_as(self, rec):
         """
-        follow example in fmt:: documentation, ie:
+          follow example in fmt:: documentation, ie:
 
-      enum class color {red, green, blue};
-      auto format_as(const color c) {
-        fmt::string_view name = "unknown";
-        switch (c) {
-            case color::red:   name = "red";   break;
-            case color::green: name = "green"; break;
-            case color::blue:  name = "blue";  break;
-        }
-        return name;
-      };
+        enum class color {red, green, blue};
+        auto format_as(const color c) {
+          fmt::string_view name = "unknown";
+          switch (c) {
+              case color::red:   name = "red";   break;
+              case color::green: name = "green"; break;
+              case color::blue:  name = "blue";  break;
+          }
+          return name;
+        };
 
         """
 
@@ -189,7 +190,7 @@ class Processor:
 
         seen_index = []
         for elem in rec.values:
-            is_duplicate = (elem.index in seen_index)
+            is_duplicate = elem.index in seen_index
             seen_index.append(elem.index)
 
             width = max([len(x.name) for x in rec.values])
@@ -208,18 +209,18 @@ class Processor:
 
     def gen_one_enum(self, rec):
         """
-        follow example in fmt:: documentation, ie:
+          follow example in fmt:: documentation, ie:
 
-      enum class color {red, green, blue};
-      auto format_as(const color c) {
-        fmt::string_view name = "unknown";
-        switch (c) {
-            case color::red:   name = "red";   break;
-            case color::green: name = "green"; break;
-            case color::blue:  name = "blue";  break;
-        }
-        return name;
-      };
+        enum class color {red, green, blue};
+        auto format_as(const color c) {
+          fmt::string_view name = "unknown";
+          switch (c) {
+              case color::red:   name = "red";   break;
+              case color::green: name = "green"; break;
+              case color::blue:  name = "blue";  break;
+          }
+          return name;
+        };
 
         """
 
@@ -236,7 +237,7 @@ class Processor:
         decl = rec.name
         out = f"""
 // Generated formatter for {rec.access_specifier} enum {decl} of type {rec.enum_type} scoped {rec.is_scoped}
-template <> 
+template <>
 struct fmt::formatter<{decl}>: formatter<string_view> {{
   template <typename FormatContext>
   auto format({decl} val, FormatContext& ctx) const {{
@@ -255,7 +256,7 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
 
         seen_index = []
         for elem in rec.values:
-            is_duplicate = (elem.index in seen_index)
+            is_duplicate = elem.index in seen_index
             seen_index.append(elem.index)
 
             width = max([len(x.name) for x in rec.values])
@@ -287,11 +288,11 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
         look thru definitions and produce list that goes inside template <>, eg
                 template <typename T, T Min, T Max>
 
-        for template typename arguments, emit extra statement showing type of template param, 
+        for template typename arguments, emit extra statement showing type of template param,
         eg, for example above:
-            typeid(T).name() 
+            typeid(T).name()
         """
-        if rec.class_kind != 'CLASS_TEMPLATE':
+        if rec.class_kind != "CLASS_TEMPLATE":
             return "", []
 
         tvarlist = []
@@ -303,14 +304,12 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
             else:
                 tvarlist.append(f"{tvar.vartype} {tvar.name}")
 
-        template_decl_str = ", ".join(tvarlist) 
-        return template_decl_str,  ttypelist
+        template_decl_str = ", ".join(tvarlist)
+        return template_decl_str, ttypelist
 
     def get_typeid_calls(self, rec):
-        """
-
-        """
-        if rec.class_kind != 'CLASS_TEMPLATE':
+        """ """
+        if rec.class_kind != "CLASS_TEMPLATE":
             return ""
 
         tvarlist = []
@@ -322,10 +321,10 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
             else:
                 tvarlist.append(f"{tvar.vartype} {tvar.name}")
 
-        template_decl_str = ", ".join(tvarlist) 
+        template_decl_str = ", ".join(tvarlist)
         print(f" template_decl_str={template_decl_str}, ttypelist={ttypelist}")
         bpdb.set_trace()
-        return template_decl_str,  ttypelist
+        return template_decl_str, ttypelist
 
     def get_all_class_vars(self, rec):
         """
@@ -333,7 +332,7 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
         """
         seen = set()
         vars = []
-        # everthing is blocked for private classes 
+        # everthing is blocked for private classes
         if rec.access_specifier != "PUBLIC" and rec.is_external:
             return vars
 
@@ -374,7 +373,7 @@ R"({rec.class_kind} {decl}:
             out += f"   type({tvar}): {{}} \n"
 
         for var in vars:
-            prefix = ' ' * var.indent
+            prefix = " " * var.indent
             out += f" {prefix}   {var.access_specifier} {var.vartype} {var.name}: {{}} \n"
 
         out += ')"'

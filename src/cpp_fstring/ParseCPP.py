@@ -12,16 +12,16 @@ token:
     keyword, identifier, literal, operator or punctuation symbol
 """
 
-import bpdb  # noqa: F401
 import logging
 import types
 from dataclasses import dataclass, field
 from typing import Callable
 
+import bpdb  # noqa: F401
 
-from cpp_fstring.clang.cindex import Index, Config, Cursor, Token, TranslationUnit
-from cpp_fstring.clang.cindex import TokenKind, AccessSpecifier
+from cpp_fstring.clang.cindex import AccessSpecifier, Config, Cursor
 from cpp_fstring.clang.cindex import CursorKind as CK
+from cpp_fstring.clang.cindex import Index, Token, TokenKind, TranslationUnit
 
 log = logging.getLogger(__name__)
 
@@ -46,6 +46,7 @@ class EnumRecord:
     """
     store enum definition
     """
+
     name: str
     enum_type: str = ""
     is_scoped: bool = False
@@ -59,6 +60,7 @@ class ClassVar:
     """
     store class/struct variables
     """
+
     name: str
     displayname: str
     vartype: str
@@ -72,6 +74,7 @@ class ClassRecord:
     """
     store class/struct definition
     """
+
     name: str
     displayname: str
     hash: int
@@ -90,9 +93,10 @@ class SelectedRecords:
     """
     store lists of str/enum/class tokens
     """
+
     tstring: list[Token]
-    tenum:   list[EnumRecord]
-    tclass:  list[Token]
+    tenum: list[EnumRecord]
+    tclass: list[Token]
 
 
 def dump(obj, name="obj"):
@@ -112,7 +116,7 @@ def dump(obj, name="obj"):
 
         print(f"{name}[{attribute}]", end=" ")
         # if isinstance(val, type(lambda: None))
-        if type(val) is types.MethodType:   # noqa: E721
+        if type(val) is types.MethodType:  # noqa: E721
             try:
                 print("()", end=" ")
                 print(val())
@@ -136,10 +140,11 @@ def dump(obj, name="obj"):
     print("------")
 
 
-class ParseCPP():
+class ParseCPP:
     """
     parse cpp file
     """
+
     def __init__(self, code, filename, extraargs, **kwargs):
         self.string_records = []
         self.enum_records = []
@@ -158,18 +163,27 @@ class ParseCPP():
         self.file = None
         self.extraargs = extraargs
         self.interesting_kinds = [
-            CK.COMPOUND_STMT,   # for strings
-            CK.ENUM_DECL,       # for enum
+            CK.COMPOUND_STMT,  # for strings
+            CK.ENUM_DECL,  # for enum
             # for structs+classes
-            CK.STRUCT_DECL,  CK.CLASS_DECL, CK.CLASS_TEMPLATE,
-            CK.UNION_DECL
+            CK.STRUCT_DECL,
+            CK.CLASS_DECL,
+            CK.CLASS_TEMPLATE,
+            CK.UNION_DECL,
         ]
         self.nodelist = {key: [] for key in self.interesting_kinds}
         self.INDENT = 4
 
     def find_records(self):
         args = [self.filename]
-        args.extend(['-xc++', '--std=c++17', "-nobuiltininc", "--no-standard-includes",])
+        args.extend(
+            [
+                "-xc++",
+                "--std=c++17",
+                "-nobuiltininc",
+                "--no-standard-includes",
+            ]
+        )
         args.extend(self.extraargs)
         # from https://cwoodall.com/posts/2018-02-24-using-clang-and-python-to-generate-cpp-struct-serde-fns/
         # Add the include files for the standard library.
@@ -224,7 +238,7 @@ class ParseCPP():
 
     def cb_store_if_interesting(self, node, indent):
         kind = node.kind
-        prefix = ' ' * indent
+        prefix = " " * indent
         line = f"{prefix}{kind.name} "
         if kind in self.interesting_kinds:
             self.nodelist[kind].append(node)
@@ -243,7 +257,6 @@ class ParseCPP():
         look at nodes for enum decl and definitions
         """
         for node in self.nodelist[CK.ENUM_DECL]:
-
             # TODO: find a more robust solution for anon namespace
 
             if "(anonymous namespace)::" in node.type.spelling:
@@ -276,19 +289,18 @@ class ParseCPP():
                 if token.kind == TokenKind.LITERAL:
                     in_str = token.spelling
                     log.debug(f"{token.cursor.kind.name}  str: {token.spelling}")
-                    if in_str.find('{') > 0 or in_str.find('}') > 0:
+                    if in_str.find("{") > 0 or in_str.find("}") > 0:
                         self.string_records.append(token)
 
     def get_qualified_name(self, node):
-
         if node is None:
-            return ''
+            return ""
         elif node.kind == CK.TRANSLATION_UNIT or node.kind == CK.FILE:
-            return ''
+            return ""
         else:
             res = self.get_qualified_name(node.semantic_parent)
-            if res != '':
-                return res + '::' + node.displayname
+            if res != "":
+                return res + "::" + node.displayname
         return node.displayname
 
     def extract_vars_from_class(self, node, prefix, indent):
@@ -296,7 +308,7 @@ class ParseCPP():
         if the class definition node has base class, then add the vars to list to print
         for nested classes:
             - if class has name => just stop at this level
-                - for templates need to calculate specialization name 
+                - for templates need to calculate specialization name
             - anon class => don't print var associated with anon class: decend one level deeper
         """
         var_records = []
@@ -309,10 +321,11 @@ class ParseCPP():
                     else:
                         name = fd.spelling
 
-                    #if fd.spelling == "a":
+                    # if fd.spelling == "a":
                     #     bpdb.set_trace()
                     var_record = ClassVar(
-                            prefix + name, fd.displayname, fd.type.spelling, fd.access_specifier.name, indent)
+                        prefix + name, fd.displayname, fd.type.spelling, fd.access_specifier.name, indent
+                    )
                     var_records.append(var_record)
 
                 else:  # is_anonymous() so decend
@@ -321,7 +334,6 @@ class ParseCPP():
                             child_prefix = f"{prefix}{fd.displayname}."
                             child_var_records = self.extract_vars_from_class(ft, child_prefix, indent + 1)
                             var_records.extend(child_var_records)
-
 
         # both cases need to deal with inheritance
         # see https://stackoverflow.com/questions/42795408/can-libclang-parse-the-crtp-pattern
@@ -351,8 +363,7 @@ class ParseCPP():
         return var_records
 
     def extract_one_class_record(self, node):
-        """
-        """
+        """ """
         # skip anon classes for now
         # TODO: allow union in class/struct
         if node.is_anonymous():
@@ -397,14 +408,13 @@ class ParseCPP():
             template<template<typename> typename C> class Map;
             """
             for fd in node.walk_preorder():
-                is_template_type_param = (fd.kind == CK.TEMPLATE_TYPE_PARAMETER)
-                is_template_non_type_param = (fd.kind == CK.TEMPLATE_NON_TYPE_PARAMETER)
-                is_template_template_param = (fd.kind == CK.TEMPLATE_TEMPLATE_PARAMETER)
+                is_template_type_param = fd.kind == CK.TEMPLATE_TYPE_PARAMETER
+                is_template_non_type_param = fd.kind == CK.TEMPLATE_NON_TYPE_PARAMETER
+                is_template_template_param = fd.kind == CK.TEMPLATE_TEMPLATE_PARAMETER
                 # print(f" {fd.kind} {fd.spelling} type:{fd.type.spelling} is_def:{fd.is_definition()}
                 # as:{fd.access_specifier.name} dn:{fd.displayname} ")
                 if is_template_type_param or is_template_non_type_param:
-                    tvar_record = ClassVar(
-                            fd.spelling, fd.displayname, fd.type.spelling, fd.access_specifier.name, 0)
+                    tvar_record = ClassVar(fd.spelling, fd.displayname, fd.type.spelling, fd.access_specifier.name, 0)
                     tvar_record.is_template_type = is_template_type_param
                     class_record.tvars.append(tvar_record)
                 if is_template_template_param:
@@ -423,7 +433,6 @@ class ParseCPP():
             for node in self.nodelist[kind]:
                 self.extract_one_class_record(node)
 
-
         """
          OK: PUBLIC
          NOT OK: INVALID PROTECTED PRIVATE NONE?
@@ -439,14 +448,12 @@ class ParseCPP():
         mark external definitions in include files
         """
         for rec in self.class_records:
-            rec.is_external = (rec.last_tok.location.file.name != self.file.name)
+            rec.is_external = rec.last_tok.location.file.name != self.file.name
 
         """
         remove records if last_tok is None, ie just forward declarations
         """
-        self.class_records = list(
-                filter(lambda rec: rec.last_tok is not None, self.class_records))
+        self.class_records = list(filter(lambda rec: rec.last_tok is not None, self.class_records))
 
         for rec in self.class_records:
             log.debug(f"class_record = {rec}")
-

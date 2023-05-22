@@ -5,10 +5,11 @@ import argparse
 import logging
 import sys
 
-#from cpp_fstring import __version__
+from cpp_fstring.GenerateOutput import GenerateOutput
+
+# from cpp_fstring import __version__
 from cpp_fstring.ParseCPP import ParseCPP
 from cpp_fstring.Processor import Processor
-from cpp_fstring.GenerateOutput import GenerateOutput
 
 __version__ = "0.1.1"
 __author__ = "d-e-e-p"
