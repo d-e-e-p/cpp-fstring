@@ -20,7 +20,8 @@ from typing import Callable
 
 
 from cpp_fstring.clang.cindex import Index, Config, Cursor, Token, TranslationUnit
-from cpp_fstring.clang.cindex import CursorKind, TokenKind, AccessSpecifier
+from cpp_fstring.clang.cindex import TokenKind, AccessSpecifier
+from cpp_fstring.clang.cindex import CursorKind as CK
 
 log = logging.getLogger(__name__)
 
@@ -157,11 +158,11 @@ class ParseCPP():
         self.file = None
         self.extraargs = extraargs
         self.interesting_kinds = [
-            CursorKind.COMPOUND_STMT,   # for strings
-            CursorKind.ENUM_DECL,       # for enum
+            CK.COMPOUND_STMT,   # for strings
+            CK.ENUM_DECL,       # for enum
             # for structs+classes
-            CursorKind.STRUCT_DECL,  CursorKind.CLASS_DECL, CursorKind.CLASS_TEMPLATE,
-            CursorKind.UNION_DECL
+            CK.STRUCT_DECL,  CK.CLASS_DECL, CK.CLASS_TEMPLATE,
+            CK.UNION_DECL
         ]
         self.nodelist = {key: [] for key in self.interesting_kinds}
         self.INDENT = 4
@@ -241,7 +242,7 @@ class ParseCPP():
         """
         look at nodes for enum decl and definitions
         """
-        for node in self.nodelist[CursorKind.ENUM_DECL]:
+        for node in self.nodelist[CK.ENUM_DECL]:
 
             # TODO: find a more robust solution for anon namespace
 
@@ -262,7 +263,7 @@ class ParseCPP():
         """
         for each visited note, look for constant declarations
         """
-        if node.kind == CursorKind.ENUM_CONSTANT_DECL:
+        if node.kind == CK.ENUM_CONSTANT_DECL:
             enum_constant_decl = EnumConstantDecl(node.displayname, str(node.enum_value))
             self.enum_record.values.append(enum_constant_decl)
 
@@ -270,7 +271,7 @@ class ParseCPP():
         """
         just create a list of string object tokens
         """
-        for node in self.nodelist[CursorKind.COMPOUND_STMT]:
+        for node in self.nodelist[CK.COMPOUND_STMT]:
             for token in node.get_tokens():
                 if token.kind == TokenKind.LITERAL:
                     in_str = token.spelling
@@ -282,7 +283,7 @@ class ParseCPP():
 
         if node is None:
             return ''
-        elif node.kind == CursorKind.TRANSLATION_UNIT or node.kind == CursorKind.FILE:
+        elif node.kind == CK.TRANSLATION_UNIT or node.kind == CK.FILE:
             return ''
         else:
             res = self.get_qualified_name(node.semantic_parent)
@@ -293,44 +294,55 @@ class ParseCPP():
     def extract_vars_from_class(self, node, prefix, indent):
         """
         if the class definition node has base class, then add the vars to list to print
+        for nested classes:
+            - if class has name => just stop at this level
+                - for templates need to calculate specialization name 
+            - anon class => don't print var associated with anon class: decend one level deeper
         """
         var_records = []
 
         for fd in node.get_children():
-            if fd.kind == CursorKind.FIELD_DECL or fd.kind == CursorKind.VAR_DECL:
-                if node.kind == CursorKind.CLASS_TEMPLATE:
-                    name = self.get_qualified_name(fd)
-                else:
-                    name = fd.spelling
+            if fd.kind == CK.FIELD_DECL or fd.kind == CK.VAR_DECL:
+                if not fd.is_anonymous():
+                    if node.kind == CK.CLASS_TEMPLATE:
+                        name = self.get_qualified_name(fd)
+                    else:
+                        name = fd.spelling
 
-                var_record = ClassVar(
-                        prefix + name, fd.displayname, fd.type.spelling, fd.access_specifier.name, indent)
-                var_records.append(var_record)
+                    #if fd.spelling == "a":
+                    #     bpdb.set_trace()
+                    var_record = ClassVar(
+                            prefix + name, fd.displayname, fd.type.spelling, fd.access_specifier.name, indent)
+                    var_records.append(var_record)
 
-            if fd.kind == CursorKind.CLASS_DECL or fd.kind == CursorKind.STRUCT_DECL:
-                #child_prefix = f"{prefix}{fd.displayname}."
-                #child_var_records = self.extract_vars_from_class(fd, child_prefix, indent + 1)
-                #var_records.extend(child_var_records)
-                # bpdb.set_trace()
-                pass
+                else:  # is_anonymous() so decend
+                    for ft in fd.get_children():
+                        if ft.kind == CK.CLASS_DECL or ft.kind == CK.STRUCT_DECL:
+                            child_prefix = f"{prefix}{fd.displayname}."
+                            child_var_records = self.extract_vars_from_class(ft, child_prefix, indent + 1)
+                            var_records.extend(child_var_records)
+
 
         # both cases need to deal with inheritance
         # see https://stackoverflow.com/questions/42795408/can-libclang-parse-the-crtp-pattern
         # TODO: decide between visiting all downstream nodes with fd.walk_preorder() or just
         # immediate children with fd.get_children()
         for fd in node.walk_preorder():
-            if fd.kind == CursorKind.CXX_BASE_SPECIFIER:
+            if fd.kind == CK.CXX_BASE_SPECIFIER:
                 # has_template_args = fd.type.get_num_template_arguments() > 0
                 # for fm in fd.walk_preorder():
                 #   log.debug(f" fm ref = {fm.displayname} {fm.type.spelling} {has_template_args}")
-                #   if fm.kind == CursorKind.TYPE_REF:
-                #   if fm.kind == CursorKind.CLASS_DECL:
-                #   if fm.kind == CursorKind.TEMPLATE_REF:
+                #   if fm.kind == CK.TYPE_REF:
+                #   if fm.kind == CK.CLASS_DECL:
+                #   if fm.kind == CK.TEMPLATE_REF:
 
                 # gather more variables from base classes
                 base_node = fd.get_definition()
                 derived_var_records = self.extract_vars_from_class(base_node, prefix, indent + 1)
-                var_records.extend(derived_var_records)
+                for rec in derived_var_records:
+                    if fd.access_specifier != AccessSpecifier.PUBLIC:
+                        rec.access_specifier = fd.access_specifier.name
+                    var_records.append(rec)
 
         # for fd in node.walk_preorder():
         #    print(f" {fd.spelling} {fd.type.spelling} {fd.kind} ")
@@ -341,7 +353,6 @@ class ParseCPP():
     def extract_one_class_record(self, node):
         """
         """
-        CK = CursorKind
         # skip anon classes for now
         # TODO: allow union in class/struct
         if node.is_anonymous():
@@ -408,7 +419,6 @@ class ParseCPP():
         """
         look at nodes for enum decl and definitions
         """
-        CK = CursorKind
         for kind in [CK.CLASS_DECL, CK.CLASS_TEMPLATE, CK.STRUCT_DECL, CK.UNION_DECL]:
             for node in self.nodelist[kind]:
                 self.extract_one_class_record(node)
