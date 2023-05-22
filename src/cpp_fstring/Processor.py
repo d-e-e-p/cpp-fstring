@@ -1,8 +1,7 @@
 import logging
 import re
 
-import bpdb
-import pudb
+import bpdb  # noqa: F401
 
 log = logging.getLogger(__name__)
 
@@ -29,6 +28,7 @@ class Processor:
     def get_char_replacements(self, in_str):
         """
         find something to replace double brackets and :: that isn't in the in_str
+        also see https://clang.llvm.org/doxygen/LiteralSupport_8cpp_source.html
         """
         lbracket = self.get_unique(in_str, "⟪")
         rbracket = self.get_unique(in_str, "⟫")
@@ -40,18 +40,6 @@ class Processor:
         while in_str.find(target) > 0:
             target += target
         return target
-
-    def get_literals(self, tok):
-        """
-        see https://clang.llvm.org/doxygen/LiteralSupport_8cpp_source.html
-        """
-        lpos = tok.lexpos
-        rpos = lpos + len(tok.value)
-
-        (lliteral, rliteral) = ("", "")
-        # ldelim = self.code[lpos-1]
-        # rdelim = self.code[rpos+1]
-        log.debug(f" {tok} ld={ldelim} rd={rdelim}")
 
     def fstring_elem_callback(self, match):
         """
@@ -85,7 +73,6 @@ class Processor:
             """
             # in_str = repr(rec.value)[1:-1]  # escape backslash
             in_str = rec.spelling
-            # (lliteral, rliteral) = self.get_literals(rec)
 
             (lbracket, rbracket, doublecolon) = self.get_char_replacements(in_str)
             rbacket_rev = rbracket[::-1]
@@ -97,9 +84,8 @@ class Processor:
             in_str = in_str[::-1].replace("}}", rbacket_rev)[::-1]
 
             # implement a version of :
-            # https://docs.python.org/3/whatsnew/3.8.html#f-strings-support-for-self-documenting-expressions-and-debugging
+            # https://docs.python.org/3/whatsnew/3.8.html#f-strings-support-for-self-documenting-expressions-and-debugging # noqa: E501
 
-            matches = re.findall(self.pattern, in_str)
             self.vars = []
             f_str = re.sub(self.pattern, self.fstring_elem_callback, in_str)
 
@@ -195,7 +181,9 @@ class Processor:
 
             width = max([len(x.name) for x in rec.values])
             name_in_quotes = f'"{elem.name}"'
-            line = f"""case {prefix}{elem.name:<{width}}: name = {name_in_quotes:<{width+2}}; break;  // index={elem.index}"""
+            line = (
+                f"case {prefix}{elem.name:<{width}}: name = {name_in_quotes:<{width+2}}; break;  // index={elem.index}"
+            )
             if not is_duplicate:
                 out += f"        {line}\n"
             else:
@@ -261,7 +249,9 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
 
             width = max([len(x.name) for x in rec.values])
             name_in_quotes = f'"{elem.name}"'
-            line = f"""case {prefix}{elem.name:<{width}}: name = {name_in_quotes:<{width+2}}; break;  // index={elem.index}"""
+            line = (
+                f"case {prefix}{elem.name:<{width}}: name = {name_in_quotes:<{width+2}}; break;  // index={elem.index}"
+            )
             if not is_duplicate:
                 out += f"        {line}\n"
             else:

@@ -196,7 +196,7 @@ class ParseCPP:
         tu = index.parse(path=None, args=args, unsaved_files=unsaved_files, options=TranslationUnit.PARSE_INCOMPLETE)
         if not tu:
             log.error(f"unable to load input using args = {args}")
-        self.file = tu.get_file(self.filename)  #  to compare against locations in header
+        self.file = tu.get_file(self.filename)  # to compare against external included files
 
         # self.find_string_records(tu.cursor)
         # self.get_info(tu.cursor)
