@@ -429,15 +429,17 @@ class ParseCPP():
          NOT OK: INVALID PROTECTED PRIVATE NONE?
         """
         for rec in self.class_records:
+            if rec.access_specifier != "PUBLIC":
+                rec.wants_to_be_friends = True
             private_vars = [var for var in rec.vars if var.access_specifier != "PUBLIC"]
-            if len(private_vars) > 0 or rec.access_specifier != "PUBLIC":
+            if len(private_vars) > 0:
                 rec.wants_to_be_friends = True
 
         """
         mark external definitions in include files
         """
         for rec in self.class_records:
-            rec.is_external = (rec.last_tok.location.file != self.file)
+            rec.is_external = (rec.last_tok.location.file.name != self.file.name)
 
         """
         remove records if last_tok is None, ie just forward declarations

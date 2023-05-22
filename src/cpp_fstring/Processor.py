@@ -131,7 +131,6 @@ class Processor:
                 replacement_str = f"  friend struct fmt::formatter<{rec.name}>;\n"
                 replacement_str += rec.last_tok.spelling
                 changes.append([rec.last_tok, replacement_str])
-
         return changes
 
     def gen_enum_format(self, records):
@@ -169,9 +168,7 @@ class Processor:
         if rec.is_anonymous:
             return ""
 
-        # for now skip if not public
-        if rec.access_specifier != "PUBLIC":
-            return ""
+        # don't care about access_specifier?
 
         decl = rec.name
         out = f"""
@@ -234,9 +231,7 @@ class Processor:
         if rec.is_anonymous:
             return ""
 
-        # for now skip if not public
-        if rec.access_specifier != "PUBLIC":
-            return ""
+        # ignore rec.access_specifier ?
 
         decl = rec.name
         out = f"""
