@@ -21,8 +21,9 @@ class Processor:
     """
 
     def __init__(self, args=None, **kwargs):
-        # https://regex101.com/r/lurKSR/1
-        self.pattern = r"(?<=\{)([^}:]+)(?=(:[^}]+)?\})"
+        # https://regex101.com/r/5cY7CW/1
+        self.pattern = r"(\{)([^}:]+)(?=(:[^}]+)?(\}))"
+        self.vars = []
 
     def get_char_replacements(self, in_str):
         """
@@ -51,6 +52,25 @@ class Processor:
         #rdelim = self.code[rpos+1]
         log.debug(f" {tok} ld={ldelim} rd={rdelim}")
 
+    def fstring_elem_callback(self, match):
+        """
+        ok now look for { in string and assume each one has a corresponding var
+        """
+        var = match[2].strip()
+        if not var:
+            log.warning(f" no var found in fstring: {match}")
+
+        ends_with_equal = var.endswith("=")
+
+        if ends_with_equal:
+            var = var.rstrip("=")
+        self.vars.append(var)
+
+        if ends_with_equal:
+            repl = f"{var}={{"
+        else:
+            repl = "{"
+        return repl 
 
     def gen_fstring_changes(self, records):
         changes = []
@@ -69,27 +89,29 @@ class Processor:
             (lbracket, rbracket, doublecolon) = self.get_char_replacements(in_str)
             rbacket_rev = rbracket[::-1]
 
+            # replace protected patterns like :: {{ }} so regex doesn't have to real with them
             in_str = in_str.replace("::", doublecolon)
             in_str = in_str.replace("{{", lbracket)
             # right-to-left replace
             in_str = in_str[::-1].replace("}}", rbacket_rev)[::-1]
 
+            # implement a version of :
+            # https://docs.python.org/3/whatsnew/3.8.html#f-strings-support-for-self-documenting-expressions-and-debugging
+
             matches = re.findall(self.pattern, in_str)
-            f_str = re.sub(self.pattern, "", in_str)
+            self.vars = []
+            f_str = re.sub(self.pattern, self.fstring_elem_callback, in_str)
+
+            f_str = f_str.replace(lbracket, "{{")
+            f_str = f_str.replace(rbracket, "}}")
+            f_str = f_str.replace(doublecolon, "::")
 
             # are there any vars or const inside brackets?
-            if matches:
-                v_str = ", ".join(map(lambda x: x[0], matches))
+            if self.vars:
+                v_str = ", ".join(self.vars)
                 v_str = v_str.replace(doublecolon, "::")
-
-                f_str = f_str.replace(lbracket, "{{")
-                f_str = f_str.replace(rbracket, "}}")
-                f_str = f_str.replace(doublecolon, "::")
                 replacement_str = f"fmt::format({f_str}, {v_str})"
             else:
-                f_str = f_str.replace(lbracket, "{")
-                f_str = f_str.replace(rbracket, "}")
-                f_str = f_str.replace(doublecolon, "::")
                 replacement_str = f_str
 
             changes.append([rec, replacement_str])
