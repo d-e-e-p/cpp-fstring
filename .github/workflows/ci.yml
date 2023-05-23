@@ -79,7 +79,7 @@ jobs:
       - name: install prereq
         run: sudo apt-get -y install libncurses5-dev libncursesw5-dev
       - name: find clang
-        run: locate libclang.so
+        run: sudo find / -name libclang.so -ls
       - name: Run tests
         run: >-
           pipx run --python '${{ steps.setup-python.outputs.python-path }}'
