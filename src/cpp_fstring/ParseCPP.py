@@ -182,10 +182,11 @@ class ParseCPP:
         file_name, dirs = self.get_libclang_file_dirs()
         file = self.find_first_file(file_name, dirs)
         if file is None:
-            log.error(f"can't find pre-built lib file {file_name} under dirs {dirs}")
+            log.error(f"can't find pre-built lib {file_name} under dirs {dirs}")
             exit()
         log.info(f"using library file {file}")
-        Config.set_library_file(file)
+        if not Config.loaded:
+            Config.set_library_file(file)
 
     def get_libclang_file_dirs(self):
         # from clang cindex

@@ -2867,9 +2867,6 @@ class TranslationUnit(ClangObject):
                 unsaved_array[i].contents = contents
                 unsaved_array[i].length = len(contents)
 
-        import bpdb
-
-        print(f" {cls=} {filename=} {args=} {unsaved_files=} {options=} {index=}")
         ptr = conf.lib.clang_parseTranslationUnit(
             index,
             fspath(filename) if filename is not None else None,
