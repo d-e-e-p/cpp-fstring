@@ -13,6 +13,7 @@ token:
 """
 
 import logging
+import os
 import types
 from dataclasses import dataclass, field
 from typing import Callable
@@ -26,9 +27,12 @@ from cpp_fstring.clang.cindex import Index, Token, TokenKind, TranslationUnit
 log = logging.getLogger(__name__)
 
 # TODO: locate and check lib path
-library_path = "/opt/homebrew/Cellar/llvm/16.0.1/lib/"
-log.debug(f"using cling library from: {library_path}")
-Config.set_library_path(library_path)
+# library_path = "/opt/homebrew/Cellar/llvm/16.0.1/lib/"
+# library_path = "/opt/homebrew/lib/python3.11/site-packages/clang/native/"
+# library_path = "/tmp/tp/clang+llvm-16.0.4-arm64-apple-darwin22.0/lib"
+# library_path = "/Library/Developer/CommandLineTools/usr/lib/"
+# log.debug(f"using cling library from: {library_path}")
+# Config.set_library_path(library_path)
 
 """
 storage for string/enum/class records
@@ -168,11 +172,59 @@ class ParseCPP:
             # for structs+classes
             CK.STRUCT_DECL,
             CK.CLASS_DECL,
-            CK.CLASS_TEMPLATE,
             CK.UNION_DECL,
+            CK.CLASS_TEMPLATE,
         ]
         self.nodelist = {key: [] for key in self.interesting_kinds}
         self.INDENT = 4
+
+    def find_libclang_lib(self):
+        file_name, dirs = self.get_libclang_file_dirs()
+        file = self.find_first_file(file_name, dirs)
+        if file is None:
+            log.error(f"can't find pre-built lib file {file_name} under dirs {dirs}")
+            exit()
+        log.info(f"using library file {file}")
+        Config.set_library_file(file)
+
+    def get_libclang_file_dirs(self):
+        # from clang cindex
+        import platform
+
+        name = platform.system()
+
+        if name == "Darwin":
+            file = "libclang.dylib"
+            dirs = """/opt/homebrew/Cellar/llvm /Library/Frameworks /usr/local/lib /opt/local/lib
+            /opt/homebrew /usr/local/opt /""".split()
+        elif name == "Windows":
+            file = "libclang.dll"
+            dirs = ["/Program Files/LLVM", "/Program Files", "/"]
+        else:
+            file = "libclang.so"
+            dirs = "/usr/lib /usr/local/lib /usr/lib64 /usr/local/lib64 /opt/local/lib /".split()
+        return file, dirs
+
+    def find_first_file(self, file_name, dirs):
+        for dir_path in dirs:
+            for root, dirs, files in os.walk(dir_path):
+                if file_name in files:
+                    first_file = os.path.join(root, file_name)
+                    return first_file
+        return None
+
+    def find_newest_file(self, file_name, dirs):
+        newest_file = None
+        newest_time = 0
+        for dir_path in dirs:
+            for root, dirs, files in os.walk(dir_path):
+                if file_name in files:
+                    file_path = os.path.join(root, file_name)
+                    file_time = os.path.getmtime(file_path)
+                    if file_time > newest_time:
+                        newest_file = file_path
+                        newest_time = file_time
+        return newest_file
 
     def find_records(self):
         args = [self.filename]
@@ -191,6 +243,7 @@ class ParseCPP:
         # incargs = [b'-I' + inc for inc in syspath]
         unsaved_files = [(self.filename, self.code)]
 
+        self.find_libclang_lib()
         index = Index.create()
         log.debug(f"clang args = {args}")
         tu = index.parse(path=None, args=args, unsaved_files=unsaved_files, options=TranslationUnit.PARSE_INCOMPLETE)

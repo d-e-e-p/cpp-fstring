@@ -7,13 +7,13 @@ from unittest.mock import patch
 
 from cpp_fstring.cpp_fstring import run
 
-
 # cd to test dir to find testcase files
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 actual_dir = "actual"
 expected_dir = "expected"
+
 
 def test_files(capsys):
     """
@@ -33,7 +33,7 @@ def test_files(capsys):
             actual = captured.out.splitlines()
             if not os.path.exists(actual_dir):
                 os.makedirs(actual_dir)
-            with open(actual_file, 'w') as file:
+            with open(actual_file, "w") as file:
                 file.write(captured.out)
 
             with capsys.disabled():

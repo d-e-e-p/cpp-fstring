@@ -165,4 +165,3 @@ struct fmt::formatter<Xnamespace::cdir>: formatter<string_view> {
     return formatter<string_view>::format(name, ctx);
   }
 };
-

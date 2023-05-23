@@ -6,6 +6,3 @@ int main() {
 	str = fmt::format("{}", 42ull);
   str = fmt::format("{}", 0x42);
 }
-
-
-
