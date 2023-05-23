@@ -78,6 +78,8 @@ jobs:
         with: {name: python-distribution-files, path: dist/}
       - name: install prereq
         run: sudo apt-get -y install libncurses5-dev libncursesw5-dev
+      - name: find clang
+        run: locate libclang.so
       - name: Run tests
         run: >-
           pipx run --python '${{ steps.setup-python.outputs.python-path }}'
