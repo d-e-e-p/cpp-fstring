@@ -78,6 +78,8 @@ jobs:
         with: {name: python-distribution-files, path: dist/}
       - name: install prereq
         run: sudo apt-get -y install libncurses5-dev libncursesw5-dev
+      - name: Set up Clang
+        uses: egor-tensin/setup-clang@v1
       - name: find clang
         run: sudo find / -name libclang.so -ls
       - name: Run tests
