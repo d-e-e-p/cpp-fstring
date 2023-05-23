@@ -65,7 +65,7 @@ import os
 import sys
 from ctypes import *
 
-import clang.enumerations
+from cpp_fstring.clang.enumerations import TokenKinds
 
 if sys.version_info[0] == 3:
     # Python 3 strings are unicode, translate them to/from utf8 for C-interop.
@@ -3712,7 +3712,7 @@ class Config:
 
 
 def register_enumerations():
-    for name, value in clang.enumerations.TokenKinds:
+    for name, value in TokenKinds:
         TokenKind.register(value, name)
 
 
