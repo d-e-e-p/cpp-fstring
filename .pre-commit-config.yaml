@@ -23,7 +23,7 @@ repos:
   hooks:
   - id: pyupgrade
     args: ['--py39-plus']
-    exclude: 'src/cpp_fstring/ply/|src/cpp_fstring/Preprocessor.py'
+    exclude: 'src/cpp_fstring/clang/cindex.py'
 
 
 ## If you want to avoid flake8 errors due to unused vars or imports:
@@ -48,7 +48,7 @@ repos:
   hooks:
   - id: black
     language_version: python3
-    exclude: 'src/cpp_fstring/ply/|src/cpp_fstring/Preprocessor.py'
+    exclude: 'src/cpp_fstring/clang/cindex.py'
 
 ## If like to embrace black styles even in the docs:
 # - repo: https://github.com/asottile/blacken-docs
