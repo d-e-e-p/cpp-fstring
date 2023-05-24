@@ -1518,7 +1518,8 @@ class Cursor(Structure):
         """Returns True if the cursor refers to a C++ member function or member
         function template that is declared '= delete'.
         """
-        return conf.lib.clang_CXXMethod_isDeleted(self)
+        pass
+        # return conf.lib.clang_CXXMethod_isDeleted(self)
 
     def is_copy_assignment_operator_method(self):
         """Returnrs True if the cursor refers to a copy-assignment operator.
@@ -3606,7 +3607,7 @@ functionList = [
     ("clang_CXXField_isMutable", [Cursor], bool),
     ("clang_CXXMethod_isConst", [Cursor], bool),
     ("clang_CXXMethod_isDefaulted", [Cursor], bool),
-    ("clang_CXXMethod_isDeleted", [Cursor], bool),
+    # ("clang_CXXMethod_isDeleted", [Cursor], bool),
     ("clang_CXXMethod_isCopyAssignmentOperator", [Cursor], bool),
     ("clang_CXXMethod_isMoveAssignmentOperator", [Cursor], bool),
     # ("clang_CXXMethod_isExplicit", [Cursor], bool),
