@@ -77,7 +77,7 @@ jobs:
         uses: actions/download-artifact@v3
         with: {name: python-distribution-files, path: dist/}
       - name: install prereq
-        run: sudo apt-get -yq --no-install-recommends install libncurses5-dev libncursesw5-dev libclang-dev 
+        run: sudo apt-get -yq --no-install-recommends install libncurses5-dev libncursesw5-dev libclang-dev
       - name: find clang
         run: sudo find /usr/lib -name libclang.so -ls
       - name: Run tests
