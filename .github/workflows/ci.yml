@@ -87,7 +87,7 @@ jobs:
           -- -rFEx --durations 10 --color yes  # pytest args
       - name: Generate coverage report
         run: |
-          pipx run coverage run pytest
+          pipx run coverage run $(which pytest)
           pipx run coverage lcov -o coverage.lcov
           pipx run coverage html
       - name: Upload partial coverage report
