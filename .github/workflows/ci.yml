@@ -87,6 +87,7 @@ jobs:
           -- -rFEx --durations 10 --color yes  # pytest args
       - name: Generate coverage report
         run: |
+          pipx install pytest-cov
           pipx run pytest --cov
           pipx run coverage lcov -o coverage.lcov
           pipx run coverage html
