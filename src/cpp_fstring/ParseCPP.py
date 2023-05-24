@@ -24,9 +24,9 @@ from cpp_fstring.clang.cindex import AccessSpecifier, Config, Cursor
 from cpp_fstring.clang.cindex import CursorKind as CK
 from cpp_fstring.clang.cindex import Index, Token, TokenKind, TranslationUnit
 
-#from clang.cindex import AccessSpecifier, Config, Cursor
-#from clang.cindex import CursorKind as CK
-#from clang.cindex import Index, Token, TokenKind, TranslationUnit
+# from clang.cindex import AccessSpecifier, Config, Cursor
+# from clang.cindex import CursorKind as CK
+# from clang.cindex import Index, Token, TokenKind, TranslationUnit
 
 log = logging.getLogger(__name__)
 
