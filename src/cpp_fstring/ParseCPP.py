@@ -24,6 +24,10 @@ from cpp_fstring.clang.cindex import AccessSpecifier, Config, Cursor
 from cpp_fstring.clang.cindex import CursorKind as CK
 from cpp_fstring.clang.cindex import Index, Token, TokenKind, TranslationUnit
 
+#from clang.cindex import AccessSpecifier, Config, Cursor
+#from clang.cindex import CursorKind as CK
+#from clang.cindex import Index, Token, TokenKind, TranslationUnit
+
 log = logging.getLogger(__name__)
 
 # TODO: locate and check lib path
@@ -31,6 +35,7 @@ log = logging.getLogger(__name__)
 # library_path = "/opt/homebrew/lib/python3.11/site-packages/clang/native/"
 # library_path = "/tmp/tp/clang+llvm-16.0.4-arm64-apple-darwin22.0/lib"
 # library_path = "/Library/Developer/CommandLineTools/usr/lib/"
+# library_path = "/opt/homebrew/lib/python3.11/site-packages/clang/native/"
 # log.debug(f"using cling library from: {library_path}")
 # Config.set_library_path(library_path)
 
@@ -244,7 +249,8 @@ class ParseCPP:
         # incargs = [b'-I' + inc for inc in syspath]
         unsaved_files = [(self.filename, self.code)]
 
-        self.find_libclang_lib()
+        if not Config.loaded:
+            self.find_libclang_lib()
         index = Index.create()
         log.debug(f"clang args = {args}")
         tu = index.parse(path=None, args=args, unsaved_files=unsaved_files, options=TranslationUnit.PARSE_INCOMPLETE)

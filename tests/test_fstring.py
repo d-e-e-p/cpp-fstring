@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import sys
+import coverage
 from glob import glob
 from pathlib import Path
 from unittest.mock import patch
@@ -19,6 +20,9 @@ def test_files(capsys):
     """
     test series of files
     """
+    #cov = coverage.Coverage()
+    #cov.start()
+
     for infile in glob("input/*.cc"):
         stem = Path(infile).stem
         actual_file = os.path.join(actual_dir, stem + ".cpp")
@@ -45,3 +49,8 @@ def test_files(capsys):
                     # print(f" actual = {actual}")
                     # print(f" expected = {expected}")
                     assert expected == actual
+
+    #cov.stop()
+    #cov.save()
+    #cov.html_report()
+
