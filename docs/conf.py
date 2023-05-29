@@ -10,6 +10,7 @@
 import os
 import sys
 import shutil
+import bpdb
 
 # -- Path setup --------------------------------------------------------------
 

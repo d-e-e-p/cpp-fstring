@@ -1,4 +1,16 @@
 """
+    @file  ParseCPP.py
+    @author  Sandeep <deep@tensorfield.ag>
+    @version 1.0
+
+    @section LICENSE
+
+    MIT License <http://opensource.org/licenses/MIT>
+
+    @section DESCRIPTION
+
+    https://github.com/d-e-e-p/cpp-fstring
+    Copyright (c) 2023 Sandeep <deep@tensorfield.ag>
 
 translation unit (TU)
     single file including all #included code.
@@ -20,27 +32,18 @@ from typing import Callable
 
 import bpdb  # noqa: F401
 
-from cpp_fstring.clang.cindex import AccessSpecifier, Config, Cursor
-from cpp_fstring.clang.cindex import CursorKind as CK
-from cpp_fstring.clang.cindex import Index, Token, TokenKind, TranslationUnit
+# from cpp_fstring.clang.cindex import AccessSpecifier, Config, Cursor
+# from cpp_fstring.clang.cindex import CursorKind as CK
+# from cpp_fstring.clang.cindex import Index, Token, TokenKind, TranslationUnit
 
-# from clang.cindex import AccessSpecifier, Config, Cursor
-# from clang.cindex import CursorKind as CK
-# from clang.cindex import Index, Token, TokenKind, TranslationUnit
+from clang.cindex import AccessSpecifier, Config, Cursor
+from clang.cindex import CursorKind as CK
+from clang.cindex import Index, Token, TokenKind, TranslationUnit
 
 log = logging.getLogger(__name__)
 
-# TODO: locate and check lib path
-# library_path = "/opt/homebrew/Cellar/llvm/16.0.1/lib/"
-# library_path = "/opt/homebrew/lib/python3.11/site-packages/clang/native/"
-# library_path = "/tmp/tp/clang+llvm-16.0.4-arm64-apple-darwin22.0/lib"
-# library_path = "/Library/Developer/CommandLineTools/usr/lib/"
-# library_path = "/opt/homebrew/lib/python3.11/site-packages/clang/native/"
-# log.debug(f"using cling library from: {library_path}")
-# Config.set_library_path(library_path)
-
 """
-storage for string/enum/class records
+storage structures for string/enum/class records
 """
 
 
@@ -71,6 +74,7 @@ class ClassVar:
     """
 
     name: str
+    qualified_name: str
     displayname: str
     vartype: str
     access_specifier: str = "PUBLIC"
@@ -158,9 +162,6 @@ class ParseCPP:
         self.string_records = []
         self.enum_records = []
         self.class_records = []
-        self.enum_decl_nodes = []
-        self.comp_stmt_nodes = []
-        self.class_decl_nodes = []
 
         # used by callback
         self.enum_record = None
@@ -182,6 +183,45 @@ class ParseCPP:
         ]
         self.nodelist = {key: [] for key in self.interesting_kinds}
         self.INDENT = 4
+        self.file_has_existing_formatters = set()
+
+    def find_records(self):
+        args = [self.filename]
+        args.extend(
+            [
+                "-xc++",
+                "--std=c++17",
+                "-nobuiltininc",
+                "--no-standard-includes",
+            ]
+        )
+        args.extend(self.extraargs)
+        # from https://cwoodall.com/posts/2018-02-24-using-clang-and-python-to-generate-cpp-struct-serde-fns/
+        # Add the include files for the standard library?
+        # syspath = ccsyspath.system_include_paths('clang++')
+        # incargs = [b'-I' + inc for inc in syspath]
+        unsaved_files = [(self.filename, self.code)]
+
+        if not Config.loaded:
+            self.set_libclang_from_lib()
+        index = Index.create()
+        log.debug(f"clang args = {args}")
+        tu = index.parse(path=None, args=args, unsaved_files=unsaved_files, options=TranslationUnit.PARSE_INCOMPLETE)
+        if not tu:
+            log.error(f"unable to load input using args = {args}")
+        self.file = tu.get_file(self.filename)  # to compare against external included files
+
+        # self.find_string_records(tu.cursor)
+        # self.get_info(tu.cursor)
+        self.visit(tu.cursor, 0, set(), self.cb_store_if_interesting)
+        self.remove_duplicate_records()
+        self.extract_string_records()
+        self.find_existing_formatters()
+        self.extract_enum_records()
+        self.extract_class_records()
+
+        return self.string_records, self.enum_records, self.class_records
+
 
     def find_libclang_lib(self):
         file_name, dirs = self.get_libclang_file_dirs()
@@ -193,23 +233,18 @@ class ParseCPP:
         if not Config.loaded:
             Config.set_library_file(file)
 
-    def get_libclang_file_dirs(self):
+    def get_libclang_file(self):
         # from clang cindex
         import platform
-
         name = platform.system()
 
         if name == "Darwin":
             file = "libclang.dylib"
-            dirs = """/opt/homebrew/Cellar/llvm /Library/Frameworks /usr/local/lib /opt/local/lib
-            /opt/homebrew /usr/local/opt /""".split()
         elif name == "Windows":
             file = "libclang.dll"
-            dirs = ["/Program Files/LLVM", "/Program Files", "/"]
         else:
             file = "libclang.so"
-            dirs = "/usr/lib /usr/local/lib /usr/lib64 /usr/local/lib64 /opt/local/lib /".split()
-        return file, dirs
+        return file
 
     def find_first_file(self, file_name, dirs):
         for dir_path in dirs:
@@ -232,40 +267,18 @@ class ParseCPP:
                         newest_time = file_time
         return newest_file
 
-    def find_records(self):
-        args = [self.filename]
-        args.extend(
-            [
-                "-xc++",
-                "--std=c++17",
-                "-nobuiltininc",
-                "--no-standard-includes",
-            ]
-        )
-        args.extend(self.extraargs)
-        # from https://cwoodall.com/posts/2018-02-24-using-clang-and-python-to-generate-cpp-struct-serde-fns/
-        # Add the include files for the standard library.
-        # syspath = ccsyspath.system_include_paths('clang++')
-        # incargs = [b'-I' + inc for inc in syspath]
-        unsaved_files = [(self.filename, self.code)]
+    def set_libclang_from_lib(self):
+        import clang    # noqa: E402
+        dir = clang.__path__[0]
+        library_path = os.path.join(os.path.realpath(dir), 'native')
+        file = os.path.join(library_path, self.get_libclang_file())
+        if os.path.isfile(file):
+            log.debug(f"using libclang library : {file}")
+        else:
+            log.error(f"libclang file not found: {file}")
+        Config.set_library_file(file)
 
-        if not Config.loaded:
-            self.find_libclang_lib()
-        index = Index.create()
-        log.debug(f"clang args = {args}")
-        tu = index.parse(path=None, args=args, unsaved_files=unsaved_files, options=TranslationUnit.PARSE_INCOMPLETE)
-        if not tu:
-            log.error(f"unable to load input using args = {args}")
-        self.file = tu.get_file(self.filename)  # to compare against external included files
 
-        # self.find_string_records(tu.cursor)
-        # self.get_info(tu.cursor)
-        self.visit(tu.cursor, 0, set(), self.cb_store_if_interesting)
-        self.remove_duplicate_records()
-        self.extract_string_records()
-        self.extract_enum_records()
-        self.extract_class_records()
-        return self.string_records, self.enum_records, self.class_records
 
     def dup_remover(self, nodes):
         seen = set()
@@ -317,8 +330,21 @@ class ParseCPP:
         look at nodes for enum decl and definitions
         """
         for node in self.nodelist[CK.ENUM_DECL]:
-            # TODO: find a more robust solution for anon namespace
 
+            # ignore unnamed enum
+            if node.is_anonymous():
+                continue
+
+            # skip if file has pre-existing fmt::formatter statements
+            *_, last_tok = node.get_tokens()
+            if last_tok.kind != TokenKind.PUNCTUATION or last_tok.spelling != "}":
+                log.debug(f" can't find closing brace of {node.spelling}")
+                return
+            # skip this enum because file has some pre-existing formatters
+            if last_tok.location.file.name in self.file_has_existing_formatters:
+                return
+
+            # TODO: find a more robust solution for anon namespace
             if "(anonymous namespace)::" in node.type.spelling:
                 self.enum_record = EnumRecord(node.spelling)
             else:
@@ -326,8 +352,16 @@ class ParseCPP:
                 self.enum_record.is_anonymous = node.is_anonymous()
 
             self.enum_record.is_scoped = node.is_scoped_enum()
-            self.enum_record.enum_type = node.type.get_declaration().enum_type.kind.name
-            self.enum_record.access_specifier = node.access_specifier.name
+            kind = node.type.get_declaration().kind
+            # CK.NO_DECL_FOUND when struct S { using enum Fruit; };
+            if kind == CK.NO_DECL_FOUND:
+                self.enum_record.enum_type = None
+            else:
+                self.enum_record.enum_type = node.type.get_declaration().enum_type.kind.name
+            if node.access_specifier == AccessSpecifier.INVALID:
+                self.enum_record.access_specifier = "PUBLIC"
+            else:
+                self.enum_record.access_specifier = node.access_specifier.name
 
             self.visit(node, 0, set(), self.cb_extract_enum_records)
             self.enum_records.append(self.enum_record)
@@ -355,7 +389,8 @@ class ParseCPP:
     def get_qualified_name(self, node):
         if node is None:
             return ""
-        elif node.kind == CK.TRANSLATION_UNIT or node.kind == CK.FILE:
+        #elif node.kind == CK.TRANSLATION_UNIT or node.kind == CK.FILE:
+        elif node.kind == CK.TRANSLATION_UNIT:
             return ""
         else:
             res = self.get_qualified_name(node.semantic_parent)
@@ -376,15 +411,12 @@ class ParseCPP:
         for fd in node.get_children():
             if fd.kind == CK.FIELD_DECL or fd.kind == CK.VAR_DECL:
                 if not fd.is_anonymous():
-                    if node.kind == CK.CLASS_TEMPLATE:
-                        name = self.get_qualified_name(fd)
-                    else:
-                        name = fd.spelling
+                    name = fd.spelling
+                    qualified_name = self.get_qualified_name(fd)
 
-                    # if fd.spelling == "a":
-                    #     bpdb.set_trace()
                     var_record = ClassVar(
-                        prefix + name, fd.displayname, fd.type.spelling, fd.access_specifier.name, indent
+                        prefix + name, prefix + qualified_name, fd.displayname,
+                        fd.type.spelling, fd.access_specifier.name, indent
                     )
                     var_records.append(var_record)
 
@@ -423,11 +455,17 @@ class ParseCPP:
         return var_records
 
     def extract_one_class_record(self, node):
-        """ """
+        """ create ClassRecord for suitable nodes """
+
         # skip anon classes for now
         # TODO: allow union in class/struct
         if node.is_anonymous():
             return
+
+        # skip Local class/struct, ie defined inside main() for example
+        if node.lexical_parent.kind == CK.FUNCTION_DECL:
+            return
+
         # create record
         name = self.get_qualified_name(node)
         if ">::" in name:
@@ -456,6 +494,10 @@ class ParseCPP:
         if last_tok.kind != TokenKind.PUNCTUATION or last_tok.spelling != "}":
             log.debug(f" can't find closing brace of {class_record}")
             class_record.last_tok = None
+            return
+        # skip this definition because file has some pre-existing formatters
+        if last_tok.location.file.name in self.file_has_existing_formatters:
+            return
 
         if node.kind == CK.CLASS_TEMPLATE:
             """
@@ -474,7 +516,9 @@ class ParseCPP:
                 # print(f" {fd.kind} {fd.spelling} type:{fd.type.spelling} is_def:{fd.is_definition()}
                 # as:{fd.access_specifier.name} dn:{fd.displayname} ")
                 if is_template_type_param or is_template_non_type_param:
-                    tvar_record = ClassVar(fd.spelling, fd.displayname, fd.type.spelling, fd.access_specifier.name, 0)
+                    qualified_name = self.get_qualified_name(fd)
+                    tvar_record = ClassVar(fd.spelling, qualified_name, fd.displayname,
+                                           fd.type.spelling, fd.access_specifier.name, 0)
                     tvar_record.is_template_type = is_template_type_param
                     class_record.tvars.append(tvar_record)
                 if is_template_template_param:
@@ -517,3 +561,35 @@ class ParseCPP:
 
         for rec in self.class_records:
             log.debug(f"class_record = {rec}")
+
+    def add_one_existing_formatter(self, node):
+        """
+        determine name and args about formatter
+        """
+        pass
+
+
+    def find_existing_formatters(self):
+        """
+        we would like to find existing functions of the type 
+
+        template <>
+        struct fmt::formatter<Bar> {
+
+        unfortunately libclang doesn't expose explicit specialization
+        of a template like this one. so we could parse this like
+        ourselves or use just assume any existing specialization means
+        all classes and enums have fmt:formatter in this file.
+
+        """
+        for kind in [CK.STRUCT_DECL]:
+            for node in self.nodelist[kind]:
+                if "unnamed struct" in node.spelling:
+                    if getattr(node, "get_tokens"):
+                        tokens = ""
+                        for fd in node.get_tokens():
+                            tokens += " " + fd.spelling
+                        if "struct fmt :: formatter" in tokens:
+                            if fd.location.file.name not in self.file_has_existing_formatters:
+                                self.file_has_existing_formatters.add(fd.location.file.name)
+

@@ -89,8 +89,8 @@ class Processor:
             self.vars = []
             f_str = re.sub(self.pattern, self.fstring_elem_callback, in_str)
 
-            f_str = f_str.replace(lbracket, "{")
-            f_str = f_str.replace(rbracket, "}")
+            f_str = f_str.replace(lbracket, "{{")
+            f_str = f_str.replace(rbracket, "}}")
             f_str = f_str.replace(doublecolon, "::")
 
             # are there any vars or const inside brackets?
@@ -220,10 +220,13 @@ class Processor:
         if rec.is_anonymous:
             return ""
 
-        # ignore rec.access_specifier ?
+        # comment out private enums..
+        out = ""
+        if rec.access_specifier == "PROTECTED":
+            out += "\n/******************* PROTECTED **\n"
 
         decl = rec.name
-        out = f"""
+        out += f"""
 // Generated formatter for {rec.access_specifier} enum {decl} of type {rec.enum_type} scoped {rec.is_scoped}
 template <>
 struct fmt::formatter<{decl}>: formatter<string_view> {{
@@ -262,6 +265,9 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
   }
 };"""
 
+        if rec.access_specifier == "PROTECTED":
+            out += "\n******************** PROTECTED */\n"
+
         return out
 
     def gen_class_format(self, records):
@@ -295,6 +301,7 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
                 tvarlist.append(f"{tvar.vartype} {tvar.name}")
 
         template_decl_str = ", ".join(tvarlist)
+        log.debug(f" template_decl_str = {template_decl_str}")
         return template_decl_str, ttypelist
 
     def get_typeid_calls(self, rec):

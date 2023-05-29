@@ -1,4 +1,16 @@
 """
+cpp-fstring is a c++ pre-processor that adds python f-string support
+
+cpp-fstring modifies c++ string statements with {var} into calls to fmt::format.
+After processing the args and setting up logging, the actual conversion is done
+in 3 phases:
+
+The 3 phases of conversion are:
+        - phase1: parse code and create records of string, classes, and enums.
+        - phase2: decide what lines need to be modified and what file appends need to be made
+        - phase3: execute these changes in the input file and write modified code to stdout
+
+
 """
 
 import argparse
@@ -69,7 +81,18 @@ def setup_logging(loglevel):
 
 def main(args):
     """
-    Args:
+    main entry point for cpp-fstring.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Arguments parsed from the command line.
+
+    3 Phases:
+        - parse code and pick out string tokens, classes, enum etc
+        - decide what lines need to be modified and what file appends need to be made
+        - execute these changes in the input file and write modified code to stdout
+
     """
     args, extraargs = parse_args(args)
     setup_logging(args.loglevel)
@@ -78,15 +101,20 @@ def main(args):
     with open(args.filename) as f:
         code = f.read()
 
+    # record all interesting snippets in source
     parser = ParseCPP(code, args.filename, extraargs)
     string_records, enum_records, class_records = parser.find_records()
 
+    # batch up changes and additions:
+    #   changes are mods to existing code
+    #   addition can be appended to the end of file
     processor = Processor()
     string_changes = processor.gen_fstring_changes(string_records)
     class_changes = processor.gen_class_changes(class_records)
     enum_addition = processor.gen_enum_format(enum_records)
     class_addition = processor.gen_class_format(class_records)
 
+    # execute changes
     go = GenerateOutput(code)
     go.write_changes(string_changes, class_changes)
     go.append(enum_addition)
