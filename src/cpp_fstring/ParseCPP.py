@@ -31,14 +31,14 @@ from dataclasses import dataclass, field
 from typing import Callable
 
 import bpdb  # noqa: F401
+from clang.cindex import AccessSpecifier, Config, Cursor
+from clang.cindex import CursorKind as CK
+from clang.cindex import Index, Token, TokenKind, TranslationUnit
 
 # from cpp_fstring.clang.cindex import AccessSpecifier, Config, Cursor
 # from cpp_fstring.clang.cindex import CursorKind as CK
 # from cpp_fstring.clang.cindex import Index, Token, TokenKind, TranslationUnit
 
-from clang.cindex import AccessSpecifier, Config, Cursor
-from clang.cindex import CursorKind as CK
-from clang.cindex import Index, Token, TokenKind, TranslationUnit
 
 log = logging.getLogger(__name__)
 
@@ -222,7 +222,6 @@ class ParseCPP:
 
         return self.string_records, self.enum_records, self.class_records
 
-
     def find_libclang_lib(self):
         file_name, dirs = self.get_libclang_file_dirs()
         file = self.find_first_file(file_name, dirs)
@@ -236,6 +235,7 @@ class ParseCPP:
     def get_libclang_file(self):
         # from clang cindex
         import platform
+
         name = platform.system()
 
         if name == "Darwin":
@@ -268,17 +268,16 @@ class ParseCPP:
         return newest_file
 
     def set_libclang_from_lib(self):
-        import clang    # noqa: E402
+        import clang  # noqa: E402
+
         dir = clang.__path__[0]
-        library_path = os.path.join(os.path.realpath(dir), 'native')
+        library_path = os.path.join(os.path.realpath(dir), "native")
         file = os.path.join(library_path, self.get_libclang_file())
         if os.path.isfile(file):
             log.debug(f"using libclang library : {file}")
         else:
             log.error(f"libclang file not found: {file}")
         Config.set_library_file(file)
-
-
 
     def dup_remover(self, nodes):
         seen = set()
@@ -330,7 +329,6 @@ class ParseCPP:
         look at nodes for enum decl and definitions
         """
         for node in self.nodelist[CK.ENUM_DECL]:
-
             # ignore unnamed enum
             if node.is_anonymous():
                 continue
@@ -389,7 +387,7 @@ class ParseCPP:
     def get_qualified_name(self, node):
         if node is None:
             return ""
-        #elif node.kind == CK.TRANSLATION_UNIT or node.kind == CK.FILE:
+        # elif node.kind == CK.TRANSLATION_UNIT or node.kind == CK.FILE:
         elif node.kind == CK.TRANSLATION_UNIT:
             return ""
         else:
@@ -415,8 +413,12 @@ class ParseCPP:
                     qualified_name = self.get_qualified_name(fd)
 
                     var_record = ClassVar(
-                        prefix + name, prefix + qualified_name, fd.displayname,
-                        fd.type.spelling, fd.access_specifier.name, indent
+                        prefix + name,
+                        prefix + qualified_name,
+                        fd.displayname,
+                        fd.type.spelling,
+                        fd.access_specifier.name,
+                        indent,
                     )
                     var_records.append(var_record)
 
@@ -455,7 +457,7 @@ class ParseCPP:
         return var_records
 
     def extract_one_class_record(self, node):
-        """ create ClassRecord for suitable nodes """
+        """create ClassRecord for suitable nodes"""
 
         # skip anon classes for now
         # TODO: allow union in class/struct
@@ -517,8 +519,9 @@ class ParseCPP:
                 # as:{fd.access_specifier.name} dn:{fd.displayname} ")
                 if is_template_type_param or is_template_non_type_param:
                     qualified_name = self.get_qualified_name(fd)
-                    tvar_record = ClassVar(fd.spelling, qualified_name, fd.displayname,
-                                           fd.type.spelling, fd.access_specifier.name, 0)
+                    tvar_record = ClassVar(
+                        fd.spelling, qualified_name, fd.displayname, fd.type.spelling, fd.access_specifier.name, 0
+                    )
                     tvar_record.is_template_type = is_template_type_param
                     class_record.tvars.append(tvar_record)
                 if is_template_template_param:
@@ -568,10 +571,9 @@ class ParseCPP:
         """
         pass
 
-
     def find_existing_formatters(self):
         """
-        we would like to find existing functions of the type 
+        we would like to find existing functions of the type
 
         template <>
         struct fmt::formatter<Bar> {
@@ -592,4 +594,3 @@ class ParseCPP:
                         if "struct fmt :: formatter" in tokens:
                             if fd.location.file.name not in self.file_has_existing_formatters:
                                 self.file_has_existing_formatters.add(fd.location.file.name)
-

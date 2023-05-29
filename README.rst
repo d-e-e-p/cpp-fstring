@@ -36,7 +36,7 @@ cpp-fstring
 
     cpp-fstring: python style f-string in C++
 
-cpp-fstring is a C++ code processor that expands any {var} type statements inside strings 
+cpp-fstring is a C++ code processor that expands any {var} type statements inside strings
 to equivalent fmt::format commands. So you can do things like::
 
     std::cout << "Connecting on port {get_port()}...\n";
@@ -47,7 +47,7 @@ enums and simple structs and classes.
 Motivation
 ==========
 
-Just got tired waiting for python style f-strings in C++ . 
+Just got tired waiting for python style f-strings in C++ .
 Proposals like `Interpolated literals <https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1819r0.html>`_
 seem to hit the brick wall because C++ lacks reflection.  One day (hopefully before C++30) we will be able to
 do something like:::
