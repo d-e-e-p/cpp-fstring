@@ -132,7 +132,7 @@ class Processor:
 
     def gen_one_enum_format_as(self, rec):
         """
-          follow example in fmt:: documentation, ie:
+        follow example in fmt:: documentation, ie:
 
         """
 
