@@ -61,7 +61,7 @@ int main() {
 }
 
 
-// Generated formatter for INVALID enum cdir of type INT scoped True
+// Generated formatter for PUBLIC enum cdir of type INT scoped True
 template <>
 struct fmt::formatter<cdir>: formatter<string_view> {
   template <typename FormatContext>
@@ -74,7 +74,7 @@ struct fmt::formatter<cdir>: formatter<string_view> {
     return formatter<string_view>::format(name, ctx);
   }
 };
-// Generated formatter for INVALID enum dir of type UINT scoped False
+// Generated formatter for PUBLIC enum dir of type UINT scoped False
 template <>
 struct fmt::formatter<dir>: formatter<string_view> {
   template <typename FormatContext>
@@ -139,7 +139,7 @@ struct fmt::formatter<Xclass::cdir>: formatter<string_view> {
     return formatter<string_view>::format(name, ctx);
   }
 };
-// Generated formatter for INVALID enum Xnamespace::dir of type UINT scoped False
+// Generated formatter for PUBLIC enum Xnamespace::dir of type UINT scoped False
 template <>
 struct fmt::formatter<Xnamespace::dir>: formatter<string_view> {
   template <typename FormatContext>
@@ -152,7 +152,7 @@ struct fmt::formatter<Xnamespace::dir>: formatter<string_view> {
     return formatter<string_view>::format(name, ctx);
   }
 };
-// Generated formatter for INVALID enum Xnamespace::cdir of type INT scoped True
+// Generated formatter for PUBLIC enum Xnamespace::cdir of type INT scoped True
 template <>
 struct fmt::formatter<Xnamespace::cdir>: formatter<string_view> {
   template <typename FormatContext>
@@ -165,3 +165,4 @@ struct fmt::formatter<Xnamespace::cdir>: formatter<string_view> {
     return formatter<string_view>::format(name, ctx);
   }
 };
+

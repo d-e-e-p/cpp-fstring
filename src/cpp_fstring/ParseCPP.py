@@ -333,14 +333,17 @@ class ParseCPP:
             if node.is_anonymous():
                 continue
 
+            log.debug(f" extract_enum_records {node.spelling}")
+
             # skip if file has pre-existing fmt::formatter statements
             *_, last_tok = node.get_tokens()
             if last_tok.kind != TokenKind.PUNCTUATION or last_tok.spelling != "}":
                 log.debug(f" can't find closing brace of {node.spelling}")
-                return
+                continue
+
             # skip this enum because file has some pre-existing formatters
             if last_tok.location.file.name in self.file_has_existing_formatters:
-                return
+                continue
 
             # TODO: find a more robust solution for anon namespace
             if "(anonymous namespace)::" in node.type.spelling:

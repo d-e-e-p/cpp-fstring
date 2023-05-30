@@ -90,7 +90,7 @@ int main() {
 }
 
 
-// Generated formatter for INVALID enum Color1 of type INT scoped True
+// Generated formatter for PUBLIC enum Color1 of type INT scoped True
 template <>
 struct fmt::formatter<Color1>: formatter<string_view> {
   template <typename FormatContext>
@@ -104,7 +104,7 @@ struct fmt::formatter<Color1>: formatter<string_view> {
     return formatter<string_view>::format(name, ctx);
   }
 };
-// Generated formatter for INVALID enum Color2 of type INT scoped False
+// Generated formatter for PUBLIC enum Color2 of type INT scoped False
 template <>
 struct fmt::formatter<Color2>: formatter<string_view> {
   template <typename FormatContext>
@@ -118,7 +118,7 @@ struct fmt::formatter<Color2>: formatter<string_view> {
     return formatter<string_view>::format(name, ctx);
   }
 };
-// Generated formatter for INVALID enum Numbers of type INT scoped True
+// Generated formatter for PUBLIC enum Numbers of type INT scoped True
 template <>
 struct fmt::formatter<Numbers>: formatter<string_view> {
   template <typename FormatContext>
@@ -133,7 +133,7 @@ struct fmt::formatter<Numbers>: formatter<string_view> {
     return formatter<string_view>::format(name, ctx);
   }
 };
-// Generated formatter for INVALID enum Directions of type INT scoped False
+// Generated formatter for PUBLIC enum Directions of type INT scoped False
 template <>
 struct fmt::formatter<Directions>: formatter<string_view> {
   template <typename FormatContext>
@@ -148,7 +148,7 @@ struct fmt::formatter<Directions>: formatter<string_view> {
     return formatter<string_view>::format(name, ctx);
   }
 };
-// Generated formatter for INVALID enum number of type ULONG scoped False
+// Generated formatter for PUBLIC enum number of type ULONG scoped False
 template <>
 struct fmt::formatter<number>: formatter<string_view> {
   template <typename FormatContext>
@@ -163,7 +163,7 @@ struct fmt::formatter<number>: formatter<string_view> {
     return formatter<string_view>::format(name, ctx);
   }
 };
-// Generated formatter for INVALID enum crc_hack of type INT scoped True
+// Generated formatter for PUBLIC enum crc_hack of type INT scoped True
 template <>
 struct fmt::formatter<crc_hack>: formatter<string_view> {
   template <typename FormatContext>
@@ -175,7 +175,7 @@ struct fmt::formatter<crc_hack>: formatter<string_view> {
     return formatter<string_view>::format(name, ctx);
   }
 };
-// Generated formatter for INVALID enum crc_hack_2 of type INT scoped True
+// Generated formatter for PUBLIC enum crc_hack_2 of type INT scoped True
 template <>
 struct fmt::formatter<crc_hack_2>: formatter<string_view> {
   template <typename FormatContext>
@@ -188,7 +188,7 @@ struct fmt::formatter<crc_hack_2>: formatter<string_view> {
     return formatter<string_view>::format(name, ctx);
   }
 };
-// Generated formatter for INVALID enum MaxUsedAsInvalid of type INT scoped True
+// Generated formatter for PUBLIC enum MaxUsedAsInvalid of type INT scoped True
 template <>
 struct fmt::formatter<MaxUsedAsInvalid>: formatter<string_view> {
   template <typename FormatContext>
@@ -202,7 +202,7 @@ struct fmt::formatter<MaxUsedAsInvalid>: formatter<string_view> {
     return formatter<string_view>::format(name, ctx);
   }
 };
-// Generated formatter for INVALID enum Binary of type BOOL scoped True
+// Generated formatter for PUBLIC enum Binary of type BOOL scoped True
 template <>
 struct fmt::formatter<Binary>: formatter<string_view> {
   template <typename FormatContext>
@@ -215,7 +215,7 @@ struct fmt::formatter<Binary>: formatter<string_view> {
     return formatter<string_view>::format(name, ctx);
   }
 };
-// Generated formatter for INVALID enum Numbers2 of type INT scoped True
+// Generated formatter for PUBLIC enum Numbers2 of type INT scoped True
 template <>
 struct fmt::formatter<Numbers2>: formatter<string_view> {
   template <typename FormatContext>
@@ -230,7 +230,7 @@ struct fmt::formatter<Numbers2>: formatter<string_view> {
     return formatter<string_view>::format(name, ctx);
   }
 };
-// Generated formatter for INVALID enum Dir of type INT scoped False
+// Generated formatter for PUBLIC enum Dir of type INT scoped False
 template <>
 struct fmt::formatter<Dir>: formatter<string_view> {
   template <typename FormatContext>
@@ -245,3 +245,4 @@ struct fmt::formatter<Dir>: formatter<string_view> {
     return formatter<string_view>::format(name, ctx);
   }
 };
+

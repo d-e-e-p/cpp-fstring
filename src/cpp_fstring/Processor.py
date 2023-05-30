@@ -134,17 +134,6 @@ class Processor:
         """
           follow example in fmt:: documentation, ie:
 
-        enum class color {red, green, blue};
-        auto format_as(const color c) {
-          fmt::string_view name = "unknown";
-          switch (c) {
-              case color::red:   name = "red";   break;
-              case color::green: name = "green"; break;
-              case color::blue:  name = "blue";  break;
-          }
-          return name;
-        };
-
         """
 
         # skip enum with no entries
@@ -209,6 +198,8 @@ class Processor:
           }
           return name;
         };
+
+        or template version...
 
         """
 
