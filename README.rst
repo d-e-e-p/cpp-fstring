@@ -1,55 +1,48 @@
-ew. These are examples of badges you might want to add to your README:
-   please update the URLs accordingly
 
-    .. image:: https://api.cirrus-ci.com/github/<USER>/cpp_fstring.svg?branch=main
+    .. image:: https://api.cirrus-ci.com/github/d-e-e-p/cpp_fstring.svg?branch=main
         :alt: Built Status
-        :target: https://cirrus-ci.com/github/<USER>/cpp_fstring
+        :target: https://cirrus-ci.com/github/d-e-e-p/cpp_fstring
     .. image:: https://readthedocs.org/projects/cpp_fstring/badge/?version=latest
         :alt: ReadTheDocs
         :target: https://cpp_fstring.readthedocs.io/en/stable/
-    .. image:: https://img.shields.io/coveralls/github/<USER>/cpp_fstring/main.svg
+    .. image:: https://img.shields.io/coveralls/github/d-e-e-p/cpp_fstring/main.svg
         :alt: Coveralls
-        :target: https://coveralls.io/r/<USER>/cpp_fstring
+        :target: https://coveralls.io/r/d-e-e-p/cpp_fstring
     .. image:: https://img.shields.io/pypi/v/cpp_fstring.svg
         :alt: PyPI-Server
         :target: https://pypi.org/project/cpp_fstring/
     .. image:: https://img.shields.io/conda/vn/conda-forge/cpp_fstring.svg
         :alt: Conda-Forge
         :target: https://anaconda.org/conda-forge/cpp_fstring
-    .. image:: https://pepy.tech/badge/cpp_fstring/month
-        :alt: Monthly Downloads
-        :target: https://pepy.tech/project/cpp_fstring
-    .. image:: https://img.shields.io/twitter/url/http/shields.io.svg?style=social&label=Twitter
-        :alt: Twitter
-        :target: https://twitter.com/cpp_fstring
 
-.. image:: https://img.shields.io/badge/-PyScaffold-005CA0?logo=pyscaffold
-    :alt: Project generated with PyScaffold
-    :target: https://pyscaffold.org/
 
 |
 
-===========
-cpp-fstring
-===========
+=========================================
+cpp-fstring: python style f-string in C++
+=========================================
 
-
-    cpp-fstring: python style f-string in C++
 
 cpp-fstring is a C++ code processor that expands any {var} type statements inside strings
 to equivalent fmt::format commands. So you can do things like::
 
-    std::cout << "Connecting on port {get_port()}...\n";
+    enum class Color { red, yellow, green, blue };
+    enum class Fruit { orange, apple, banana };
+    std::map<Color, std::vector<Fruit>> mc2f = {
+      {Color::red,    {Fruit::apple}},
+      {Color::yellow, {Fruit::apple, Fruit::banana}},
+    };
+    std::cout << "we like to display the fruit by colors: {mc2f} \n";
 
 the script generates the additional boilerplate code to display a variety of types including
-enums and simple structs and classes.
+enums, simple structs and classes.
 
 Motivation
 ==========
 
 Just got tired waiting for python style f-strings in C++ .
 Proposals like `Interpolated literals <https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1819r0.html>`_
-seem to hit the brick wall because C++ lacks reflection.  One day (hopefully before C++30) we will be able to
+seem to dead end at C++'s lack of reflection.  There is slow and steady march towards real reflection so we could
 do something like:::
 
     #include <meta>
@@ -63,9 +56,10 @@ do something like:::
       return "<unnamed>";
     }
 
-This experimental feature is from `Scalable Reflection in C++ <https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p1240r2.pdf>`_
+But `Scalable Reflection in C++ <https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p1240r2.pdf>`_ seems be 
+be on track for C++30 or beyond.
 
-cpp-fstring cheats by generating code before compile giving explicit instructions on displaying an enum for example.
+Meanwhile, cpp-fstring cheats by generating code before compile giving explicit instructions on displaying enum/classes etc.
 So the code:::
 
     enum class Color { red, yellow, green = 20, blue };
@@ -73,6 +67,7 @@ So the code:::
 
 explodes into:::
 
+    enum class Color { red, yellow, green = 20, blue };
     std::cout << fmt::format("the fruit is {}\n", Color::yellow);
 
     // Generated formatter for enum Color of type INT scoped True
@@ -99,12 +94,12 @@ To install the tool, use:::
 
     pip install cpp-fstring
 
-The following command converts foo.cc into foo.cpp:::
+The following command then converts foo.cc into foo.cpp:::
 
     cpp-fstring foo.cc -I ../include > foo.cpp
 
 cpp-fstring can be incorporated in a cmake environment by either moving files to be
-processed into another dir or given a different suffix. see cpp-fstring-examples
+processed into another dir or using different suffix. see cpp-fstring-examples
 
 .. _pyscaffold-notes:
 
