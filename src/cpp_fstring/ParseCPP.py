@@ -26,6 +26,7 @@ token:
 
 import logging
 import os
+import re
 import types
 from dataclasses import dataclass, field
 from typing import Callable
@@ -63,6 +64,8 @@ class EnumRecord:
     enum_type: str = ""
     is_scoped: bool = False
     is_anonymous: bool = False
+    is_external: bool = False
+    last_tok: Token = Token()
     access_specifier: str = "PUBLIC"
     values: list[EnumConstantDecl] = field(default_factory=list)
 
@@ -186,7 +189,9 @@ class ParseCPP:
         self.file_has_existing_formatters = set()
 
     def find_records(self):
-        args = [self.filename]
+
+        filename = self.get_filename_for_parsing()
+        args = [filename]
         args.extend(
             [
                 "-xc++",
@@ -200,7 +205,8 @@ class ParseCPP:
         # Add the include files for the standard library?
         # syspath = ccsyspath.system_include_paths('clang++')
         # incargs = [b'-I' + inc for inc in syspath]
-        unsaved_files = [(self.filename, self.code)]
+
+        unsaved_files = [(filename, self.code)]
 
         if not Config.loaded:
             self.set_libclang_from_lib()
@@ -231,6 +237,19 @@ class ParseCPP:
         log.info(f"using library file {file}")
         if not Config.loaded:
             Config.set_library_file(file)
+
+    def get_filename_for_parsing(self):
+        """
+        parsing has problems if the filetype looking like an include file...
+        so append a fake .cpp for these cases
+         tools/clang-format/git-clang-format looks for:
+                h hh hpp hxx
+        we just append all files with with .h* type extension with .cpp
+        """
+        filename = self.filename
+        if re.match(r".*\.h[^.]*", filename):
+            filename += ".cpp"
+        return filename
 
     def get_libclang_file(self):
         # from clang cindex
@@ -279,7 +298,7 @@ class ParseCPP:
             log.error(f"libclang file not found: {file}")
         Config.set_library_file(file)
 
-    def dup_remover(self, nodes):
+    def dup_nodes_remover(self, nodes):
         seen = set()
         res = []
         for node in nodes:
@@ -288,12 +307,32 @@ class ParseCPP:
                 seen.add(node.hash)
         return res
 
+    def dup_vars_remover(self, vars):
+        seen = set()
+        res = []
+        for var in vars:
+            if var.name not in seen:
+                res.append(var)
+                seen.add(var.name)
+        return res
+
     def remove_duplicate_records(self):
         """
         remove copies of visited nodes
         """
         for type, nodes in self.nodelist.items():
-            self.nodelist[type] = self.dup_remover(self.nodelist[type])
+            self.nodelist[type] = self.dup_nodes_remover(self.nodelist[type])
+
+    def remove_duplicate_class_vars(self):
+        """
+        it's possible to end up with same var because of overloading, eg:
+        (name='Target', qualified_name='clipp::detail::action_provider<Derived>::set(Target &)::Target', displayname='Target', vartype='Target', access_specifier='PUBLIC', indent=0, is_template_type=True)
+        (name='Target', qualified_name='clipp::detail::action_provider<Derived>::set(Target &, Value &&)::Target', displayname='Target', vartype='Target', access_specifier='PUBLIC', indent=0, is_template_type=True)
+        """
+
+        for rec in self.class_records:
+            rec.vars = self.dup_vars_remover(rec.vars)
+            rec.tvars = self.dup_vars_remover(rec.tvars)
 
     # from https://gist.github.com/scturtle/a7b5349028c249f2e9eeb5688d3e0c5e
     def visit(self, node: Cursor, indent: int, saw: set, callback: Callable[[], str]):
@@ -345,6 +384,7 @@ class ParseCPP:
             if last_tok.location.file.name in self.file_has_existing_formatters:
                 continue
 
+
             # TODO: find a more robust solution for anon namespace
             if "(anonymous namespace)::" in node.type.spelling:
                 self.enum_record = EnumRecord(node.spelling)
@@ -352,6 +392,7 @@ class ParseCPP:
                 self.enum_record = EnumRecord(node.type.spelling)
                 self.enum_record.is_anonymous = node.is_anonymous()
 
+            self.enum_record.is_external = last_tok.location.file.name != self.file.name
             self.enum_record.is_scoped = node.is_scoped_enum()
             kind = node.type.get_declaration().kind
             # CK.NO_DECL_FOUND when struct S { using enum Fruit; };
@@ -374,6 +415,7 @@ class ParseCPP:
         if node.kind == CK.ENUM_CONSTANT_DECL:
             enum_constant_decl = EnumConstantDecl(node.displayname, str(node.enum_value))
             self.enum_record.values.append(enum_constant_decl)
+
 
     def extract_string_records(self):
         """
@@ -408,6 +450,8 @@ class ParseCPP:
             - anon class => don't print var associated with anon class: decend one level deeper
         """
         var_records = []
+        if node is None:
+            return var_records
 
         for fd in node.get_children():
             if fd.kind == CK.FIELD_DECL or fd.kind == CK.VAR_DECL:
@@ -565,6 +609,11 @@ class ParseCPP:
         """
         self.class_records = list(filter(lambda rec: rec.last_tok is not None, self.class_records))
 
+        """
+        remove duplicate vars and tvars
+        """
+        self.remove_duplicate_class_vars()
+
         for rec in self.class_records:
             log.debug(f"class_record = {rec}")
 
@@ -597,3 +646,5 @@ class ParseCPP:
                         if "struct fmt :: formatter" in tokens:
                             if fd.location.file.name not in self.file_has_existing_formatters:
                                 self.file_has_existing_formatters.add(fd.location.file.name)
+
+

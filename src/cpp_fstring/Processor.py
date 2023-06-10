@@ -144,7 +144,7 @@ class Processor:
         if rec.is_anonymous:
             return ""
 
-        # don't care about access_specifier?
+        # need to skip if PRIVATE and External
 
         decl = rec.name
         out = f"""
@@ -213,8 +213,12 @@ class Processor:
 
         # comment out private enums..
         out = ""
-        if rec.access_specifier == "PROTECTED":
-            out += "\n/******************* PROTECTED **\n"
+        comment_out = (
+                (rec.access_specifier != "PUBLIC" and rec.is_external)  or
+                (rec.access_specifier == "PROTECTED"))
+
+        if comment_out:
+            out += "\n/******************* {rec.access_specifier} **\n"
 
         decl = rec.name
         out += f"""
@@ -226,7 +230,7 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
     string_view name = "<unknown>";
     switch (val) {{
 """
-        # if scoped and name of enum decl is foo::bar::my_enum then inherit the whole name
+        # if scoped and name of enum decl is A::B::my_enum then inherit the whole name
         # if not scoped, leave out the my_enum part
         if rec.is_scoped:
             prefix = f"{decl}::"
@@ -256,8 +260,8 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
   }
 };"""
 
-        if rec.access_specifier == "PROTECTED":
-            out += "\n******************** PROTECTED */\n"
+        if comment_out:
+            out += "\n******************** {rec.access_specifier} */\n"
 
         return out
 
@@ -345,7 +349,7 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
 
         decl = rec.name
 
-        out = f"""// Generated formatter for {rec.class_kind} {decl}
+        out = f"""// Generated formatter for {rec.access_specifier} {rec.class_kind} {decl}
 template <{template_decl_str}>
 struct fmt::formatter<{decl}> {{
     constexpr auto parse(format_parse_context& ctx) {{
