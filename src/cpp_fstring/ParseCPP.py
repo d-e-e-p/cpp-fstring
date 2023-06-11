@@ -34,7 +34,7 @@ from typing import Callable
 import bpdb  # noqa: F401
 from clang.cindex import AccessSpecifier, Config, Cursor
 from clang.cindex import CursorKind as CK
-from clang.cindex import Index, Token, TokenKind, TranslationUnit
+from clang.cindex import Index, Token, TokenKind, TypeKind, TranslationUnit
 
 # from cpp_fstring.clang.cindex import AccessSpecifier, Config, Cursor
 # from cpp_fstring.clang.cindex import CursorKind as CK
@@ -83,6 +83,7 @@ class ClassVar:
     access_specifier: str = "PUBLIC"
     indent: int = 0
     is_template_type: bool = False
+    is_pointer = False
 
 
 @dataclass
@@ -190,8 +191,8 @@ class ParseCPP:
 
     def find_records(self):
 
-        filename = self.get_filename_for_parsing()
-        args = [filename]
+        self.set_filename_for_parsing()
+        args = [self.filename]
         args.extend(
             [
                 "-xc++",
@@ -206,7 +207,7 @@ class ParseCPP:
         # syspath = ccsyspath.system_include_paths('clang++')
         # incargs = [b'-I' + inc for inc in syspath]
 
-        unsaved_files = [(filename, self.code)]
+        unsaved_files = [(self.filename, self.code)]
 
         if not Config.loaded:
             self.set_libclang_from_lib()
@@ -238,7 +239,7 @@ class ParseCPP:
         if not Config.loaded:
             Config.set_library_file(file)
 
-    def get_filename_for_parsing(self):
+    def set_filename_for_parsing(self):
         """
         parsing has problems if the filetype looking like an include file...
         so append a fake .cpp for these cases
@@ -246,10 +247,8 @@ class ParseCPP:
                 h hh hpp hxx
         we just append all files with with .h* type extension with .cpp
         """
-        filename = self.filename
-        if re.match(r".*\.h[^.]*", filename):
-            filename += ".cpp"
-        return filename
+        if re.match(r".*\.h[^.]*", self.filename):
+            self.filename += ".fake.cpp"
 
     def get_libclang_file(self):
         # from clang cindex
@@ -392,7 +391,7 @@ class ParseCPP:
                 self.enum_record = EnumRecord(node.type.spelling)
                 self.enum_record.is_anonymous = node.is_anonymous()
 
-            self.enum_record.is_external = last_tok.location.file.name != self.file.name
+            self.enum_record.is_external = last_tok.location.file.name != self.filename
             self.enum_record.is_scoped = node.is_scoped_enum()
             kind = node.type.get_declaration().kind
             # CK.NO_DECL_FOUND when struct S { using enum Fruit; };
@@ -467,7 +466,9 @@ class ParseCPP:
                         fd.access_specifier.name,
                         indent,
                     )
+                    var_record.is_pointer = fd.type.kind == TypeKind.POINTER
                     var_records.append(var_record)
+
 
                 else:  # is_anonymous() so decend
                     for ft in fd.get_children():
@@ -607,7 +608,7 @@ class ParseCPP:
         mark external definitions in include files
         """
         for rec in self.class_records:
-            rec.is_external = rec.last_tok.location.file.name != self.file.name
+            rec.is_external = rec.last_tok.location.file.name != self.filename
 
         """
         remove records if last_tok is None, ie just forward declarations

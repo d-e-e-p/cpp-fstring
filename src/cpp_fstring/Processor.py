@@ -150,7 +150,7 @@ class Processor:
   public:
   auto to_string() const {{
     return fmt::format(R"(
-{decl}: 
+{decl}:
 """
         for tvar in tvars:
             out += f"   type({tvar}): {{}} \n"
@@ -165,7 +165,21 @@ class Processor:
         if tvarlist:
             out += ", " + ", ".join(tvarlist)
 
-        varlist = [f"{var.name}" for var in vars]
+        # deal with pointers using fmt::ptr
+        # deal with special cases of derived variables in class templates using this->
+        # TODO: only use this-> for class templates
+        varlist = []
+        for var in vars:
+            if var.indent > 0:
+                name = f"this->{var.name}"
+            else:
+                name = var.name
+
+            if var.is_pointer:
+                varlist.append(f"fmt::ptr({name})")
+            else:
+                varlist.append(name)
+
         if varlist:
             out += ", " + ", ".join(varlist)
 
@@ -268,11 +282,11 @@ class Processor:
         # comment out private enums..
         out = ""
         comment_out = (
-                (rec.access_specifier != "PUBLIC" and rec.is_external)  or
+                (rec.access_specifier != "PUBLIC" and rec.is_external) or
                 (rec.access_specifier == "PROTECTED"))
 
         if comment_out:
-            out += "\n/******************* {rec.access_specifier} **\n"
+            out += f"\n/******************* {rec.access_specifier} **\n"
 
         decl = rec.name
         out += f"""
@@ -315,7 +329,7 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
 };"""
 
         if comment_out:
-            out += "\n******************** {rec.access_specifier} */\n"
+            out += f"\n******************** {rec.access_specifier} */\n"
 
         return out
 
@@ -370,7 +384,6 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
 
         template_decl_str = ", ".join(tvarlist)
         print(f" template_decl_str={template_decl_str}, ttypelist={ttypelist}")
-        bpdb.set_trace()
         return template_decl_str, ttypelist
 
     def get_all_class_vars(self, rec):
