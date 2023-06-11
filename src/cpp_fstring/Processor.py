@@ -105,7 +105,7 @@ class Processor:
 
         return changes
 
-    def gen_class_changes(self, records):
+    def gen_class_changes_old(self, records):
         """
         add a friend format statement to classes with private vars
              OK: PUBLIC
@@ -119,6 +119,60 @@ class Processor:
                 replacement_str += rec.last_tok.spelling
                 changes.append([rec.last_tok, replacement_str])
         return changes
+
+    def gen_class_changes(self, records):
+        """
+        inject to_string entry into every class/struct
+        """
+        changes = []
+        for rec in records:
+            if not rec.is_external:
+                replacement_str = self.gen_to_string(rec)
+                replacement_str += rec.last_tok.spelling
+                changes.append([rec.last_tok, replacement_str])
+        return changes
+
+    def gen_to_string(self, rec):
+        """
+        generate a way to stringify any function
+        """
+        vars = self.get_all_class_vars(rec)
+        log.debug(f"{rec.name} : {vars}")
+
+        #if len(vars) == 0:
+        #    return f"{rec.name}"
+
+        template_decl_str, tvars = self.get_template_decl(rec)
+
+        decl = rec.name
+
+        out = f"""// Generated to_string for {rec.access_specifier} {rec.class_kind} {decl}
+  public:
+  auto to_string() const {{
+    return fmt::format(R"(
+{decl}: 
+"""
+        for tvar in tvars:
+            out += f"   type({tvar}): {{}} \n"
+
+        for var in vars:
+            prefix = " " * var.indent
+            out += f" {prefix}   {var.access_specifier} {var.vartype} {var.name}: {{}} \n"
+
+        out += ')"'
+
+        tvarlist = [f"typeid({tvar}).name() " for tvar in tvars]
+        if tvarlist:
+            out += ", " + ", ".join(tvarlist)
+
+        varlist = [f"{var.name}" for var in vars]
+        if varlist:
+            out += ", " + ", ".join(varlist)
+
+        out += """);
+  }
+"""
+        return out
 
     def gen_enum_format(self, records):
         """
@@ -289,11 +343,12 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
         tvarlist = []
         ttypelist = []
         for tvar in rec.tvars:
-            if tvar.is_template_type:
-                tvarlist.append(f"typename {tvar.name}")
-                ttypelist.append(tvar.name)
-            else:
-                tvarlist.append(f"{tvar.vartype} {tvar.name}")
+            if tvar.name:
+                if tvar.is_template_type:
+                    tvarlist.append(f"typename {tvar.name}")
+                    ttypelist.append(tvar.name)
+                else:
+                    tvarlist.append(f"{tvar.vartype} {tvar.name}")
 
         template_decl_str = ", ".join(tvarlist)
         log.debug(f" template_decl_str = {template_decl_str}")

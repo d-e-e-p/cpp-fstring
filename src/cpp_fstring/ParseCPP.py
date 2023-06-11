@@ -143,11 +143,11 @@ def dump(obj, name="obj"):
 
     attr_list = "lexical_parent type".split()
     for attr in attr_list:
-        if getattr(obj, attr):
+        if hasattr(obj, attr):
             val = getattr(obj, attr).spelling
             print(f"{name}[{attr}] = {val}")
 
-    if getattr(obj, "get_tokens"):
+    if hasattr(obj, "get_tokens"):
         tokens = ""
         for fd in obj.get_tokens():
             tokens += " " + fd.spelling
@@ -517,9 +517,9 @@ class ParseCPP:
 
         # create record
         name = self.get_qualified_name(node)
-        if ">::" in name:
-            #  template class is parent...skip for now
-            return
+        #if ">::" in name:
+        #    #  template class is parent...skip for now
+        #    return
         if not name:
             name = self.get_qualified_name(node)
             """
@@ -537,7 +537,7 @@ class ParseCPP:
         else:
             class_record.access_specifier = node.access_specifier.name
 
-        # now find closing brace so we can inject 'friend' type statements
+        # now find closing brace so we can inject 'friend' or 'to_string()'
         *_, last_tok = node.get_tokens()
         class_record.last_tok = last_tok
         if last_tok.kind != TokenKind.PUNCTUATION or last_tok.spelling != "}":
@@ -547,6 +547,11 @@ class ParseCPP:
         # skip this definition because file has some pre-existing formatters
         if last_tok.location.file.name in self.file_has_existing_formatters:
             return
+
+        # skip if this class already has a pre-existing to_string function
+        for fd in node.get_children():
+            if fd.kind == CK.CXX_METHOD and fd.spelling == "to_string":
+                return
 
         if node.kind == CK.CLASS_TEMPLATE:
             """

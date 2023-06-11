@@ -112,13 +112,13 @@ def main(args):
     string_changes = processor.gen_fstring_changes(string_records)
     class_changes = processor.gen_class_changes(class_records)
     enum_addition = processor.gen_enum_format(enum_records)
-    class_addition = processor.gen_class_format(class_records)
+    # class_addition = processor.gen_class_format(class_records)
 
     # execute changes
     go = GenerateOutput(code)
     go.write_changes(string_changes, class_changes)
     go.append(enum_addition)
-    go.append(class_addition)
+    # go.append(class_addition)
 
     log.info("end")
 
