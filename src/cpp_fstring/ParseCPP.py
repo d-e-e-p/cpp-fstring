@@ -67,6 +67,9 @@ class EnumRecord:
     is_external: bool = False
     last_tok: Token = Token()
     access_specifier: str = "PUBLIC"
+    namespace: str = None
+    wants_to_be_friends: bool = False
+    class_last_tok = Token()
     values: list[EnumConstantDecl] = field(default_factory=list)
 
 
@@ -99,6 +102,7 @@ class ClassRecord:
     last_tok: Token = Token()
     wants_to_be_friends: bool = False
     is_external: bool = False
+    needs_to_string: bool = False
     access_specifier: str = "PUBLIC"
     bases: list[int] = field(default_factory=list)
     vars: list[ClassVar] = field(default_factory=list)
@@ -145,8 +149,9 @@ def dump(obj, name="obj"):
     attr_list = "lexical_parent type".split()
     for attr in attr_list:
         if hasattr(obj, attr):
-            val = getattr(obj, attr).spelling
-            print(f"{name}[{attr}] = {val}")
+            val = getattr(obj, attr)
+            if val is not None:
+                print(f"{name}[{attr}] = {val.spelling}")
 
     if hasattr(obj, "get_tokens"):
         tokens = ""
@@ -383,6 +388,11 @@ class ParseCPP:
             if last_tok.location.file.name in self.file_has_existing_formatters:
                 continue
 
+            # skip this enum because it is external--only internal enums are supported
+            is_external = last_tok.location.file.name != self.filename
+            if is_external:
+                continue
+
 
             # TODO: find a more robust solution for anon namespace
             if "(anonymous namespace)::" in node.type.spelling:
@@ -391,7 +401,6 @@ class ParseCPP:
                 self.enum_record = EnumRecord(node.type.spelling)
                 self.enum_record.is_anonymous = node.is_anonymous()
 
-            self.enum_record.is_external = last_tok.location.file.name != self.filename
             self.enum_record.is_scoped = node.is_scoped_enum()
             kind = node.type.get_declaration().kind
             # CK.NO_DECL_FOUND when struct S { using enum Fruit; };
@@ -404,6 +413,20 @@ class ParseCPP:
             else:
                 self.enum_record.access_specifier = node.access_specifier.name
 
+            # is any parent a namespace?
+            namespacelist = self.get_parent_namespaces(node)
+            if namespacelist:
+                self.enum_record.namespace = "::".join(namespacelist)
+
+            # is parent a class?
+            is_in_class, class_last_tok = self.get_enclosing_class(node)
+            if is_in_class and self.enum_record.access_specifier != "PUBLIC":
+                self.enum_record.wants_to_be_friends = True
+                self.enum_record.class_last_tok = class_last_tok
+
+
+            #if "rangers" in self.enum_record.name:
+            #    bpdb.set_trace()
             self.visit(node, 0, set(), self.cb_extract_enum_records)
             self.enum_records.append(self.enum_record)
 
@@ -421,6 +444,10 @@ class ParseCPP:
         just create a list of string object tokens
         """
         for node in self.nodelist[CK.COMPOUND_STMT]:
+            # skip if external
+            is_external = node.location.file.name != self.filename
+            if is_external:
+                continue
             for token in node.get_tokens():
                 if token.kind == TokenKind.LITERAL:
                     in_str = token.spelling
@@ -439,6 +466,30 @@ class ParseCPP:
             if res != "":
                 return res + "::" + node.displayname
         return node.displayname
+
+    def get_parent_namespaces(self, node):
+        res = []
+        if node is None:
+            return res
+        elif node.kind == CK.TRANSLATION_UNIT:
+            return res
+        else:
+            res = self.get_parent_namespaces(node.semantic_parent)
+            if node.semantic_parent.kind == CK.NAMESPACE:
+                res.append(node.semantic_parent.displayname)
+        return res
+
+    def get_enclosing_class(self, node):
+        """
+        for enum we need to potentially insert friend statement for protected enum
+        at class level
+        """
+        kind = node.semantic_parent.kind
+        if kind != CK.CLASS_DECL and kind != CK.STRUCT_DECL and kind != CK.CLASS_TEMPLATE:
+            return False, Token()
+
+        *_, last_tok = node.semantic_parent.get_tokens()    
+        return True, last_tok
 
     def extract_vars_from_class(self, node, prefix, indent):
         """

@@ -1,5 +1,6 @@
 import logging
 import re
+from collections import defaultdict
 
 import bpdb  # noqa: F401
 
@@ -120,17 +121,64 @@ class Processor:
                 changes.append([rec.last_tok, replacement_str])
         return changes
 
+    def remove_duplicate_class_instances(self, records):
+        """
+        sometimes a class ends up in AST with template and non-template version
+        """
+        rec_by_loc = defaultdict(list)
+        for rec in records:
+            if not rec.is_external:
+                loc = rec.last_tok.location
+                key = tuple([loc.line, loc.column])
+                rec_by_loc[key].append(rec)
+
+        #
+        # ok now remove duplicates, giving CLASS_TEMPLATE priority over CLASS_DECL
+        #                                 --->   -                        --> -
+        # hack: T comes after D so...
+        for key, recs in rec_by_loc.items():
+            recs.sort(key=lambda rec: rec.class_kind)
+            recs[-1].needs_to_string = True
+
     def gen_class_changes(self, records):
         """
         inject to_string entry into every class/struct
         """
+        self.remove_duplicate_class_instances(records)
+
         changes = []
         for rec in records:
-            if not rec.is_external:
+            if not rec.is_external and rec.needs_to_string:
                 replacement_str = self.gen_to_string(rec)
                 replacement_str += rec.last_tok.spelling
                 changes.append([rec.last_tok, replacement_str])
         return changes
+
+    def gen_enum_changes(self, records):
+        """
+        inject friend entry into every class/struct that have projected enum
+        """
+        changes = []
+        for rec in records:
+            if not rec.is_external and rec.wants_to_be_friends:
+                replacement_str = self.gen_enum_friend_statement(rec)
+                replacement_str += rec.class_last_tok.spelling
+                changes.append([rec.class_last_tok, replacement_str])
+        return changes
+
+    def gen_enum_friend_statement(self, rec):
+        """
+        generate a way to stringify any function
+        """
+        # skip if anon
+        if rec.is_anonymous:
+            return ""
+        decl = rec.name
+        out = self.gen_enum_header_comment(rec)
+        out += " friend "
+        out += self.gen_enum_switch_statement(rec)
+        return out
+
 
     def gen_to_string(self, rec):
         """
@@ -142,7 +190,7 @@ class Processor:
         #if len(vars) == 0:
         #    return f"{rec.name}"
 
-        template_decl_str, tvars = self.get_template_decl(rec)
+        template_decl_str, ttvars = self.get_template_decl(rec)
 
         decl = rec.name
 
@@ -152,24 +200,30 @@ class Processor:
     return fmt::format(R"(
 {decl}:
 """
-        for tvar in tvars:
-            out += f"   type({tvar}): {{}} \n"
-
         for var in vars:
             prefix = " " * var.indent
-            out += f" {prefix}   {var.access_specifier} {var.vartype} {var.name}: {{}} \n"
+            # vartype='T *' should still end up with description
+            vlist = var.vartype.split(None, 1)
+            vtype = vlist[0]
+            decoration = "" if (len(vlist) == 1) else vlist[1]
+            if vtype in ttvars:
+                vartype = f"{vtype}={{}}{decoration}"
+            else:
+                vartype = var.vartype
+
+            out += f" {prefix}   {var.access_specifier} {vartype} {var.name}: {{}} \n"
 
         out += ')"'
-
-        tvarlist = [f"typeid({tvar}).name() " for tvar in tvars]
-        if tvarlist:
-            out += ", " + ", ".join(tvarlist)
 
         # deal with pointers using fmt::ptr
         # deal with special cases of derived variables in class templates using this->
         # TODO: only use this-> for class templates
         varlist = []
         for var in vars:
+            vtype = var.vartype.split()[0]
+            if vtype in ttvars:
+                varlist.append(f"typeid({vtype}).name()")
+
             if var.indent > 0:
                 name = f"this->{var.name}"
             else:
@@ -190,18 +244,34 @@ class Processor:
 
     def gen_enum_format(self, records):
         """
-        given list of enum generate fmt: statements
+        given list of enum generate fmt: statements or format_as statements
         """
         changes = ""
         for rec in records:
             log.debug(f" enum = {rec}")
             changes += self.gen_one_enum(rec)
+        # for enum in namespaces add alias command to refer to top level version of
+        # format_as
+        changes += self.gen_enum_namespace_alias(records)
         return changes
 
-    def gen_one_enum_format_as(self, rec):
-        """
-        follow example in fmt:: documentation, ie:
+    def gen_enum_namespace_alias(self, records):
 
+        nslist = [rec.namespace for rec in records]
+        while (None in nslist):        # strip None values
+            nslist.remove(None)
+
+        nslist = sorted(set(nslist))   # sort and uniq
+
+        out = "\n"
+        for ns in nslist:
+            out += f"namespace {ns} {{using ::format_as;}}\n";
+
+        return out
+
+
+    def gen_one_enum(self, rec):
+        """
         """
 
         # skip enum with no entries
@@ -212,47 +282,35 @@ class Processor:
         if rec.is_anonymous:
             return ""
 
-        # need to skip if PRIVATE and External
+        # skip if already a friend statement
+        if rec.wants_to_be_friends:
+            return ""
 
-        decl = rec.name
-        out = f"""
-// Generated formatter for {rec.access_specifier} enum {decl} of type {rec.enum_type.spelling} scoped {rec.is_scoped}
-  auto format_as(const {decl} obj) {{
-    fmt::string_view name = "<unknown>";
-    switch (obj) {{
-"""
-        # if scoped and name of enum decl is foo::bar::my_enum then inherit the whole name
-        # if not scoped, leave out the my_enum part
-        if rec.is_scoped:
-            prefix = f"{decl}::"
-        else:
-            separator = "::"
-            prefix = separator.join(decl.rsplit(separator, 1)[:-1]) + separator
-            if prefix == separator:
-                prefix = ""
+        # comment out private enums..
+        out = ""
+        comment_out = (
+                (rec.access_specifier != "PUBLIC" and rec.is_external) or
+                (rec.access_specifier == "PROTECTED"))
 
-        seen_index = []
-        for elem in rec.values:
-            is_duplicate = elem.index in seen_index
-            seen_index.append(elem.index)
+        if comment_out:
+            out += f"\n/******************* {rec.access_specifier} **\n"
 
-            width = max([len(x.name) for x in rec.values])
-            name_in_quotes = f'"{elem.name}"'
-            line = (
-                f"case {prefix}{elem.name:<{width}}: name = {name_in_quotes:<{width+2}}; break;  // index={elem.index}"
-            )
-            if not is_duplicate:
-                out += f"        {line}\n"
-            else:
-                out += f"    //  {line} <-- index is duplicate\n"
+        out += self.gen_enum_header_comment(rec)
+        out += self.gen_enum_switch_statement(rec) 
 
-        out += """    }
-    return name;
-    };"""
+        if comment_out:
+            out += f"\n******************** {rec.access_specifier} */\n"
 
         return out
 
-    def gen_one_enum(self, rec):
+    def gen_enum_header_comment(self, rec):
+        """
+        comment for enum
+        """
+        scoped_str = "scoped" if rec.is_scoped else ""
+        return f"// Generated formatter for {rec.access_specifier} enum {rec.name} of type {rec.enum_type} {scoped_str}\n"
+
+    def gen_enum_switch_statement(self, rec):
         """
           follow example in fmt:: documentation, ie:
 
@@ -266,30 +324,16 @@ class Processor:
           }
           return name;
         };
-
-        or template version...
-
         """
-
-        # skip enum with no entries
-        if len(rec.values) == 0:
-            return ""
-
-        # skip if anon
-        if rec.is_anonymous:
-            return ""
-
-        # comment out private enums..
         out = ""
-        comment_out = (
-                (rec.access_specifier != "PUBLIC" and rec.is_external) or
-                (rec.access_specifier == "PROTECTED"))
-
-        if comment_out:
-            out += f"\n/******************* {rec.access_specifier} **\n"
 
         decl = rec.name
-        out += f"""
+        out += f"""auto format_as(const {decl} obj) {{
+  fmt::string_view name = "<unknown>";
+  switch (obj) {{
+"""
+        out2 = ""
+        out2 += f"""
 // Generated formatter for {rec.access_specifier} enum {decl} of type {rec.enum_type} scoped {rec.is_scoped}
 template <>
 struct fmt::formatter<{decl}>: formatter<string_view> {{
@@ -319,23 +363,24 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
                 f"case {prefix}{elem.name:<{width}}: name = {name_in_quotes:<{width+2}}; break;  // index={elem.index}"
             )
             if not is_duplicate:
-                out += f"        {line}\n"
+                out += f"    {line}\n"
             else:
-                out += f"    //  {line} <-- index is duplicate\n"
+                out += f"//  {line} <-- index is duplicate\n"
 
         out += """    }
+    return name;
+}
+"""
+
+        out2 += """    }
     return formatter<string_view>::format(name, ctx);
   }
 };"""
-
-        if comment_out:
-            out += f"\n******************** {rec.access_specifier} */\n"
-
         return out
 
     def gen_class_format(self, records):
         """
-        look at simple struct and produce debug format to_string version
+        look at simple class/struct and produce to_string statement
         """
         changes = ""
         for rec in records:
@@ -410,6 +455,7 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
         """
         vars = self.get_all_class_vars(rec)
         log.debug(f"{rec.name} : {vars}")
+        # TODO: dump out empty class/struct ?
         if len(vars) == 0:
             return ""
 
