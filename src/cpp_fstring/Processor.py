@@ -152,6 +152,16 @@ class Processor:
                 replacement_str = self.gen_to_string(rec)
                 replacement_str += rec.last_tok.spelling
                 changes.append([rec.last_tok, replacement_str])
+        """
+        inject friend entry for all derived classes
+        """
+        for rec in records:
+            if not rec.is_external:
+                for base in rec.bases:
+                    replacement_str = self.gen_class_derived_friend_string(base, rec)
+                    replacement_str += base.last_tok.spelling
+                    changes.append([base.last_tok, replacement_str])
+
         return changes
 
     def gen_enum_changes(self, records):
@@ -160,11 +170,34 @@ class Processor:
         """
         changes = []
         for rec in records:
-            if not rec.is_external and rec.wants_to_be_friends:
+            if not rec.is_external and rec.is_in_class:
                 replacement_str = self.gen_enum_friend_statement(rec)
                 replacement_str += rec.class_last_tok.spelling
                 changes.append([rec.class_last_tok, replacement_str])
         return changes
+
+    def gen_class_derived_friend_string(self, base, rec):
+        """
+        base classes need friend statement to access private vars, so
+        remove common prefix from base.name and rec.name
+        """
+        derived_name = self.remove_common_namespace(base.name, rec.name)
+        return f"\n  friend class {derived_name};\n"
+
+    def remove_common_namespace(self, source: str, target: str) -> str:
+        """
+        if both derived and base class have exactly the same prefix, then leave it out
+        """
+        source_list = source.split("::")
+        target_list = target.split("::")
+
+        tail = target_list.pop()
+        source_list.pop()
+
+        if target_list == source_list:
+            return tail
+        else:
+            return target
 
     def gen_enum_friend_statement(self, rec):
         """
@@ -173,7 +206,6 @@ class Processor:
         # skip if anon
         if rec.is_anonymous:
             return ""
-        decl = rec.name
         out = self.gen_enum_header_comment(rec)
         out += " friend "
         out += self.gen_enum_switch_statement(rec)
@@ -197,8 +229,7 @@ class Processor:
         out = f"""// Generated to_string for {rec.access_specifier} {rec.class_kind} {decl}
   public:
   auto to_string() const {{
-    return fmt::format(R"(
-{decl}:
+    return fstr::format(R"( {decl}:
 """
         for var in vars:
             prefix = " " * var.indent
@@ -250,22 +281,22 @@ class Processor:
         for rec in records:
             log.debug(f" enum = {rec}")
             changes += self.gen_one_enum(rec)
-        # for enum in namespaces add alias command to refer to top level version of
-        # format_as
+        # for enum in namespaces add alias command to refer to top level
+        # version of format_as
         changes += self.gen_enum_namespace_alias(records)
         return changes
 
     def gen_enum_namespace_alias(self, records):
 
-        nslist = [rec.namespace for rec in records]
-        while (None in nslist):        # strip None values
-            nslist.remove(None)
-
-        nslist = sorted(set(nslist))   # sort and uniq
+        nslist = set()
+        for rec in records:
+            if rec.is_in_class or rec.is_in_function or rec.namespace is None:
+                continue
+            nslist.add(rec.namespace)
 
         out = "\n"
         for ns in nslist:
-            out += f"namespace {ns} {{using ::format_as;}}\n";
+            out += f"namespace {ns} {{using ::format_as;}}\n"
 
         return out
 
@@ -283,7 +314,7 @@ class Processor:
             return ""
 
         # skip if already a friend statement
-        if rec.wants_to_be_friends:
+        if rec.is_in_class or rec.is_in_function:
             return ""
 
         # comment out private enums..
@@ -328,8 +359,8 @@ class Processor:
         out = ""
 
         decl = rec.name
-        out += f"""auto format_as(const {decl} obj) {{
-  fmt::string_view name = "<unknown>";
+        out += f"""constexpr auto format_as(const {decl} obj) {{
+  fmt::string_view name = "<missing>";
   switch (obj) {{
 """
         out2 = ""
@@ -352,23 +383,29 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
             if prefix == separator:
                 prefix = ""
 
-        seen_index = []
+        # if all index values are zero, its probably a ExceptionSpecificationKind.UNPARSED problem.
+        seen_index = set()
+        for elem in rec.values:
+            seen_index.add(elem.index)
+        is_valid_index = len(seen_index) > 1
+
+        seen_index = set()
         for elem in rec.values:
             is_duplicate = elem.index in seen_index
-            seen_index.append(elem.index)
+            seen_index.add(elem.index)
 
             width = max([len(x.name) for x in rec.values])
             name_in_quotes = f'"{elem.name}"'
             line = (
                 f"case {prefix}{elem.name:<{width}}: name = {name_in_quotes:<{width+2}}; break;  // index={elem.index}"
             )
-            if not is_duplicate:
-                out += f"    {line}\n"
-            else:
+            if is_duplicate and is_valid_index:
                 out += f"//  {line} <-- index is duplicate\n"
+            else:
+                out += f"    {line}\n"
 
-        out += """    }
-    return name;
+        out += """  }
+  return name;
 }
 """
 

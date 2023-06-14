@@ -68,7 +68,8 @@ class EnumRecord:
     last_tok: Token = Token()
     access_specifier: str = "PUBLIC"
     namespace: str = None
-    wants_to_be_friends: bool = False
+    is_in_class: bool = False
+    is_in_function: bool = False
     class_last_tok = Token()
     values: list[EnumConstantDecl] = field(default_factory=list)
 
@@ -87,6 +88,19 @@ class ClassVar:
     indent: int = 0
     is_template_type: bool = False
     is_pointer = False
+    parent_node = None
+
+
+@dataclass
+class BaseClassRecord:
+    """
+    store base class/struct
+    """
+    name: str
+    displayname: str
+    hash: int
+    class_kind: str = "STRUCT_DECL"
+    last_tok: Token = Token()
 
 
 @dataclass
@@ -104,7 +118,7 @@ class ClassRecord:
     is_external: bool = False
     needs_to_string: bool = False
     access_specifier: str = "PUBLIC"
-    bases: list[int] = field(default_factory=list)
+    bases: list[BaseClassRecord] = field(default_factory=list)
     vars: list[ClassVar] = field(default_factory=list)
     tvars: list[ClassVar] = field(default_factory=list)
 
@@ -221,6 +235,9 @@ class ParseCPP:
         tu = index.parse(path=None, args=args, unsaved_files=unsaved_files, options=TranslationUnit.PARSE_INCOMPLETE)
         if not tu:
             log.error(f"unable to load input using args = {args}")
+        for diagnostic in tu.diagnostics:
+            log.debug(diagnostic.format())
+
         self.file = tu.get_file(self.filename)  # to compare against external included files
 
         # self.find_string_records(tu.cursor)
@@ -330,8 +347,8 @@ class ParseCPP:
     def remove_duplicate_class_vars(self):
         """
         it's possible to end up with same var because of overloading, eg:
-        (name='Target', qualified_name='clipp::detail::action_provider<Derived>::set(Target &)::Target', displayname='Target', vartype='Target', access_specifier='PUBLIC', indent=0, is_template_type=True)
-        (name='Target', qualified_name='clipp::detail::action_provider<Derived>::set(Target &, Value &&)::Target', displayname='Target', vartype='Target', access_specifier='PUBLIC', indent=0, is_template_type=True)
+        (name='Target', qualified_name='clipp::detail::action_provider<Derived>::set(Target &)::Target', 
+        (name='Target', qualified_name='clipp::detail::action_provider<Derived>::set(Target &, Value &&)::Target', 
         """
 
         for rec in self.class_records:
@@ -396,37 +413,37 @@ class ParseCPP:
 
             # TODO: find a more robust solution for anon namespace
             if "(anonymous namespace)::" in node.type.spelling:
-                self.enum_record = EnumRecord(node.spelling)
+                enum_record = EnumRecord(node.spelling)
             else:
-                self.enum_record = EnumRecord(node.type.spelling)
-                self.enum_record.is_anonymous = node.is_anonymous()
+                name = self.get_qualified_name(node)
+                enum_record = EnumRecord(name)
+                enum_record.is_anonymous = node.is_anonymous()
 
-            self.enum_record.is_scoped = node.is_scoped_enum()
+            enum_record.is_scoped = node.is_scoped_enum()
             kind = node.type.get_declaration().kind
             # CK.NO_DECL_FOUND when struct S { using enum Fruit; };
             if kind == CK.NO_DECL_FOUND:
-                self.enum_record.enum_type = None
+                enum_record.enum_type = None
             else:
-                self.enum_record.enum_type = node.type.get_declaration().enum_type.kind.name
+                enum_record.enum_type = node.type.get_declaration().enum_type.kind.name
             if node.access_specifier == AccessSpecifier.INVALID:
-                self.enum_record.access_specifier = "PUBLIC"
+                enum_record.access_specifier = "PUBLIC"
             else:
-                self.enum_record.access_specifier = node.access_specifier.name
+                enum_record.access_specifier = node.access_specifier.name
 
             # is any parent a namespace?
             namespacelist = self.get_parent_namespaces(node)
             if namespacelist:
-                self.enum_record.namespace = "::".join(namespacelist)
+                enum_record.namespace = "::".join(namespacelist)
 
             # is parent a class?
-            is_in_class, class_last_tok = self.get_enclosing_class(node)
-            if is_in_class and self.enum_record.access_specifier != "PUBLIC":
-                self.enum_record.wants_to_be_friends = True
-                self.enum_record.class_last_tok = class_last_tok
+            is_in_class, last_tok = self.get_enclosing_class(node)
+            enum_record.is_in_class = is_in_class
+            enum_record.class_last_tok = last_tok
 
+            enum_record.is_in_function = self.get_enclosing_function(node)
 
-            #if "rangers" in self.enum_record.name:
-            #    bpdb.set_trace()
+            self.enum_record = enum_record
             self.visit(node, 0, set(), self.cb_extract_enum_records)
             self.enum_records.append(self.enum_record)
 
@@ -491,6 +508,14 @@ class ParseCPP:
         *_, last_tok = node.semantic_parent.get_tokens()    
         return True, last_tok
 
+    def get_enclosing_function(self, node):
+        """
+        for enum we need to potentially insert to_string function inside function
+        """
+        kind = node.semantic_parent.kind
+        is_in_function = kind == CK.CXX_METHOD
+        return is_in_function
+
     def extract_vars_from_class(self, node, prefix, indent):
         """
         if the class definition node has base class, then add the vars to list to print
@@ -518,8 +543,8 @@ class ParseCPP:
                         indent,
                     )
                     var_record.is_pointer = fd.type.kind == TypeKind.POINTER
+                    var_record.parent_node = node
                     var_records.append(var_record)
-
 
                 else:  # is_anonymous() so decend
                     for ft in fd.get_children():
@@ -573,8 +598,9 @@ class ParseCPP:
         #    #  template class is parent...skip for now
         #    return
         if not name:
-            name = self.get_qualified_name(node)
+            pass
             """
+            name = self.get_qualified_name(node)
             if "::" in qname:
                 # 'A::Base' + 'Base<T>' => 'A::Base<T>'
                 path = qname.rsplit("::", 1)[0]
@@ -632,9 +658,27 @@ class ParseCPP:
                     pass
 
         class_record.vars = self.extract_vars_from_class(node, prefix="", indent=0)
+        self.mark_base_classes_with_protected_vars(class_record)
 
         if len(class_record.vars) > 0 or len(class_record.tvars) > 0:
             self.class_records.append(class_record)
+
+    def mark_base_classes_with_protected_vars(self, class_record):
+        """
+        derived classes might need to print variables marked private in base classes
+        mark them for future friend statements
+        """
+        base_class = {}
+        for var in class_record.vars:
+            if var.access_specifier != "PUBLIC" and var.parent_node.hash != class_record.hash:
+                base_class[var.parent_node.hash] = var.parent_node
+
+        for node in base_class.values():
+            name = self.get_qualified_name(node)
+            base_record = BaseClassRecord(name, node.displayname, node.hash, node.kind.name)
+            *_, last_tok = node.get_tokens()
+            base_record.last_tok = last_tok
+            class_record.bases.append(base_record)
 
     def extract_class_records(self):
         """
@@ -703,5 +747,3 @@ class ParseCPP:
                         if "struct fmt :: formatter" in tokens:
                             if fd.location.file.name not in self.file_has_existing_formatters:
                                 self.file_has_existing_formatters.add(fd.location.file.name)
-
-
