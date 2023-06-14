@@ -56,7 +56,7 @@ do something like:::
       return "<unnamed>";
     }
 
-But `Scalable Reflection in C++ <https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p1240r2.pdf>`_ seems be 
+But `Scalable Reflection in C++ <https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p1240r2.pdf>`_ seems be
 be on track for C++30 or beyond.
 
 Meanwhile, cpp-fstring cheats by generating code before compile giving explicit instructions on displaying enum/classes etc.

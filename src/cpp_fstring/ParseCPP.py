@@ -34,7 +34,7 @@ from typing import Callable
 import bpdb  # noqa: F401
 from clang.cindex import AccessSpecifier, Config, Cursor
 from clang.cindex import CursorKind as CK
-from clang.cindex import Index, Token, TokenKind, TypeKind, TranslationUnit
+from clang.cindex import Index, Token, TokenKind, TranslationUnit, TypeKind
 
 # from cpp_fstring.clang.cindex import AccessSpecifier, Config, Cursor
 # from cpp_fstring.clang.cindex import CursorKind as CK
@@ -96,6 +96,7 @@ class BaseClassRecord:
     """
     store base class/struct
     """
+
     name: str
     displayname: str
     hash: int
@@ -209,7 +210,6 @@ class ParseCPP:
         self.file_has_existing_formatters = set()
 
     def find_records(self):
-
         self.set_filename_for_parsing()
         args = [self.filename]
         args.extend(
@@ -347,8 +347,8 @@ class ParseCPP:
     def remove_duplicate_class_vars(self):
         """
         it's possible to end up with same var because of overloading, eg:
-        (name='Target', qualified_name='clipp::detail::action_provider<Derived>::set(Target &)::Target', 
-        (name='Target', qualified_name='clipp::detail::action_provider<Derived>::set(Target &, Value &&)::Target', 
+        (name='Target', qualified_name='clipp::detail::action_provider<Derived>::set(Target &)::Target',
+        (name='Target', qualified_name='clipp::detail::action_provider<Derived>::set(Target &, Value &&)::Target',
         """
 
         for rec in self.class_records:
@@ -410,7 +410,6 @@ class ParseCPP:
             if is_external:
                 continue
 
-
             # TODO: find a more robust solution for anon namespace
             if "(anonymous namespace)::" in node.type.spelling:
                 enum_record = EnumRecord(node.spelling)
@@ -454,7 +453,6 @@ class ParseCPP:
         if node.kind == CK.ENUM_CONSTANT_DECL:
             enum_constant_decl = EnumConstantDecl(node.displayname, str(node.enum_value))
             self.enum_record.values.append(enum_constant_decl)
-
 
     def extract_string_records(self):
         """
@@ -505,7 +503,7 @@ class ParseCPP:
         if kind != CK.CLASS_DECL and kind != CK.STRUCT_DECL and kind != CK.CLASS_TEMPLATE:
             return False, Token()
 
-        *_, last_tok = node.semantic_parent.get_tokens()    
+        *_, last_tok = node.semantic_parent.get_tokens()
         return True, last_tok
 
     def get_enclosing_function(self, node):
@@ -594,7 +592,7 @@ class ParseCPP:
 
         # create record
         name = self.get_qualified_name(node)
-        #if ">::" in name:
+        # if ">::" in name:
         #    #  template class is parent...skip for now
         #    return
         if not name:

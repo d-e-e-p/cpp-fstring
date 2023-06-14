@@ -211,7 +211,6 @@ class Processor:
         out += self.gen_enum_switch_statement(rec)
         return out
 
-
     def gen_to_string(self, rec):
         """
         generate a way to stringify any function
@@ -219,7 +218,7 @@ class Processor:
         vars = self.get_all_class_vars(rec)
         log.debug(f"{rec.name} : {vars}")
 
-        #if len(vars) == 0:
+        # if len(vars) == 0:
         #    return f"{rec.name}"
 
         template_decl_str, ttvars = self.get_template_decl(rec)
@@ -287,7 +286,6 @@ class Processor:
         return changes
 
     def gen_enum_namespace_alias(self, records):
-
         nslist = set()
         for rec in records:
             if rec.is_in_class or rec.is_in_function or rec.namespace is None:
@@ -300,10 +298,8 @@ class Processor:
 
         return out
 
-
     def gen_one_enum(self, rec):
-        """
-        """
+        """ """
 
         # skip enum with no entries
         if len(rec.values) == 0:
@@ -319,15 +315,13 @@ class Processor:
 
         # comment out private enums..
         out = ""
-        comment_out = (
-                (rec.access_specifier != "PUBLIC" and rec.is_external) or
-                (rec.access_specifier == "PROTECTED"))
+        comment_out = (rec.access_specifier != "PUBLIC" and rec.is_external) or (rec.access_specifier == "PROTECTED")
 
         if comment_out:
             out += f"\n/******************* {rec.access_specifier} **\n"
 
         out += self.gen_enum_header_comment(rec)
-        out += self.gen_enum_switch_statement(rec) 
+        out += self.gen_enum_switch_statement(rec)
 
         if comment_out:
             out += f"\n******************** {rec.access_specifier} */\n"
@@ -339,7 +333,9 @@ class Processor:
         comment for enum
         """
         scoped_str = "scoped" if rec.is_scoped else ""
-        return f"// Generated formatter for {rec.access_specifier} enum {rec.name} of type {rec.enum_type} {scoped_str}\n"
+        return (
+            f"// Generated formatter for {rec.access_specifier} enum {rec.name} of type {rec.enum_type} {scoped_str}\n"
+        )
 
     def gen_enum_switch_statement(self, rec):
         """
