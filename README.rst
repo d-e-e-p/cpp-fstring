@@ -106,8 +106,8 @@ You also need to add this to foo.cc:::
 
     #include "[fstr.h](src/cpp_fstring/include/fstr.h)"
 
-`fstr.h<src/cpp_fstring/include/fstr.h>`__ contains helper routines needed to stringify enums and classes.
-An example of using cpp-fstring in cmake environment is at `cpp-fstring-examples<https://github.com/d-e-e-p/cpp-fstring-examples>`__
+`fstr.h <src/cpp_fstring/include/fstr.h>`__ contains helper routines needed to stringify enums and classes.
+An example of using cpp-fstring in cmake environment is at `cpp-fstring-examples <https://github.com/d-e-e-p/cpp-fstring-examples>`__
 
 There are 2 dependencies to install. fmt using one of:::
 
@@ -130,7 +130,7 @@ Look at the `examples<examples/psrc>` dir for stuff that works.
 Making Changes & Contributing
 =============================
 
-This project uses `pre-commit<https://pre-commit.com/>` :::
+This project uses `pre-commit <https://pre-commit.com/>` :::
 
     pip install pre-commit
     cd cpp_fstring
@@ -141,9 +141,9 @@ This project uses `pre-commit<https://pre-commit.com/>` :::
 Authors
 =======
 
-**Sandeep** - `@d-e-e-p<https://github.com/d-e-e-p>`
+**Sandeep** - `@d-e-e-p <https://github.com/d-e-e-p>`
 
 ## License
 
-The project is available under the `MIT<https://opensource.org/licenses/MIT>` license.
+The project is available under the `MIT <https://opensource.org/licenses/MIT>` license.
 See `LICENSE` file for details
