@@ -104,7 +104,7 @@ The following command then converts foo.cc into foo.cpp:::
 
 You also need to add this to foo.cc:::
 
-    #include "[fstr.h](src/cpp_fstring/include/fstr.h)"
+    #include "fstr.h"
 
 `fstr.h <src/cpp_fstring/include/fstr.h>`__ contains helper routines needed to stringify enums and classes.
 An example of using cpp-fstring in cmake environment is at `cpp-fstring-examples <https://github.com/d-e-e-p/cpp-fstring-examples>`__
@@ -120,11 +120,64 @@ and libclang:::
 
     pip install libclang
 
-Examples
-========
+What Works
+==========
 
-Look at the `examples<examples/psrc>` dir for stuff that works.
+`Examples <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/demo_misc.cpp>`__ of Format Specifiers, Dates, Expressions and Ranges:::
 
+    using IArr =  std::valarray<int>;
+    IArr ia {1,2,3};
+    IArr ib {4,5,6};
+    IArr iab = std::pow(ia, ib);
+    IArr iba = std::pow(ib, ia);
+    IArr iabba = iab+iba;
+
+    cout <<  R"(
+      Valarray:
+        a^b + b^a = {ia}^{ib} + {ib}^{ia}
+                  = {iab} + {iba}
+                  = {iabba}
+
+        min({iabba}) = {iabba.min()}
+        sum({iabba}) = {iabba.sum()}
+        max({iabba}) = {iabba.max()}
+      
+
+     )" ;
+
+outputs:::
+
+    Valarray:
+      a^b + b^a = [1, 2, 3]^[4, 5, 6] + [4, 5, 6]^[1, 2, 3]
+                = [1, 32, 729] + [4, 25, 216]
+                = [5, 57, 945]
+
+      min([5, 57, 945]) = 5
+      sum([5, 57, 945]) = 1007
+      max([5, 57, 945]) = 945
+
+
+`Example <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/enum_namespace.cpp>`__ of enum in namespaces:
+
+    namespace roman {
+      enum class sym {M, D, C, L, X, V, I};
+      std::map<sym, int> numerals = {
+        {sym::M, 1000},
+        {sym::D,  500},
+        {sym::C,  100},
+        {sym::L,   50},
+        {sym::X,   10},
+        {sym::V,    5},
+        {sym::I,    1}
+      };
+    }  // namespace roman
+
+    ...
+    std::cout << " {roman::numerals=}\n";
+
+outputs:::
+
+    roman::numerals={M: 1000, D: 500, C: 100, L: 50, X: 10, V: 5, I: 1}
 
 
 Making Changes & Contributing
