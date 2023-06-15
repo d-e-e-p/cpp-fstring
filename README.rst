@@ -251,6 +251,50 @@ outputs:
             long u.b: 4
 
 
+What Doesn't Work
+=================
+
+4 catagories of stuff that doesn't work.
+
+1. Bugs in libclang, eg 
+   
+* iterator class variables are incorrectly parsed. See this `issue <https://github.com/llvm/llvm-project/issues/63277>`__ :
+
+.. code-block:: cpp
+
+   const std::vector<int>::const_iterator i_iter;
+
+* base class with templates are sometimes missing in the derived class, so x doesn't show up when dumping Y() :
+
+.. code-block:: cpp
+    template <typename T> class X {
+      public:
+      T x;
+    };
+
+    class Y : public X<bool> {
+      int y = 13;
+    };
+
+
+2. Limitations in fmt:: library, eg wchar_t is not supported:
+
+.. code-block:: cpp
+       static const std::unordered_map<int, wchar_t> k_escapes = {
+        {  0,   L'•' }, 
+        {  1,   L'␁' }
+       };
+
+3. Features of C++, eg inside functions we can't have other functions or template struct
+   
+.. code-block:: cpp
+    int main() {
+        //can't print enum
+        enum class paragraph { param, group };
+    }
+
+4. Bugs/limitations of cpp-fstring.  
+* majority of bugs are of course in this section. Perfect segway to contributing. 
 
 Making Changes & Contributing
 =============================
