@@ -22,10 +22,10 @@
 cpp-fstring: python style f-string in C++
 =========================================
 
-
 cpp-fstring is a C++ code processor that expands any {var} type statements inside strings
-to equivalent fmt::format commands. So you can do things like:::
+to equivalent fmt::format commands. So you can do things like:
 
+.. code-block:: CPP
     enum class Color { red, yellow, green, blue };
     enum class Fruit { orange, apple, banana };
     std::map<Color, std::vector<Fruit>> mc = {
@@ -35,8 +35,9 @@ to equivalent fmt::format commands. So you can do things like:::
     std::cout << "fruit by colors: {mc=} \n";
 
 
-produces the output:::
+which produces the output:
 
+.. code-block:: sh
     fruit by colors: mc = {red: [apple], yellow: [apple, banana]}
 
 cpp-fstring generates the boilerplate code to display a variety of containers including
@@ -57,8 +58,9 @@ Motivation
 Just got tired waiting for python style f-strings in C++ .
 Proposals like `Interpolated literals <https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1819r0.html>`__
 seem to hit the "lack of reflection" brick wall.  Hopefully by C++30 we could do something like the
-`Scalable Reflection in C++ <https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p1240r2.pdf>`__ proposal:::
+`Scalable Reflection in C++ <https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p1240r2.pdf>`__ proposal:
 
+.. code-block:: CPP
     #include <meta>
     template<Enum T>
     std::string to_string(T value) {
@@ -70,13 +72,15 @@ seem to hit the "lack of reflection" brick wall.  Hopefully by C++30 we could do
       return "<unnamed>";
     }
 
-In the mean time, cpp-fstring cheats by pre-processing. so the C++17 code :::
+In the mean time, cpp-fstring cheats by pre-processing. so the C++17 code :
 
+.. code-block:: CPP
     enum class Color { red, yellow, green = 20, blue };
     std::cout << "the fruit is {Color::yellow}\n";
 
-explodes into:::
+explodes into:
 
+.. code-block:: CPP
     enum class Color { red, yellow, green = 20, blue };
     std::cout << fmt::format("the fruit is {}\n", Color::yellow);
     // Generated formatter for PUBLIC enum Color of type INT scoped
@@ -94,37 +98,43 @@ explodes into:::
 Usage
 =====
 
-To install the tool, use:::
+To install the tool, use:
 
+.. code-block:: sh
     pip install cpp-fstring
 
-The following command then converts foo.cc into foo.cpp:::
+The following command then converts foo.cc into foo.cpp:
 
+.. code-block:: sh
     cpp-fstring foo.cc -I ../include > foo.cpp
 
-You also need to add this to foo.cc:::
+You also need to add this to foo.cc:
 
+.. code-block:: CPP
     #include "fstr.h"
 
 `fstr.h <src/cpp_fstring/include/fstr.h>`__ contains helper routines needed to stringify enums and classes.
 An example of using cpp-fstring in cmake environment is at `cpp-fstring-examples <https://github.com/d-e-e-p/cpp-fstring-examples>`__
 
-There are 2 dependencies to install. fmt using one of:::
+There are 2 dependencies to install. fmt using one of:
 
+.. code-block:: sh
     sudo apt install libfmt-dev  # or
     brew install fmt
     vcpkg install fmt
     conda install -c conda-forge fmt
 
-and libclang:::
+and libclang:
 
+.. code-block:: sh
     pip install libclang
 
 What Works
 ==========
 
-`Examples <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/demo_misc.cpp>`__ of Format Specifiers, Dates, Expressions and Ranges:::
+`Examples <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/demo_misc.cpp>`__ of Format Specifiers, Dates, Expressions and Ranges:
 
+.. code-block:: CPP
     using IArr =  std::valarray<int>;
     IArr ia {1,2,3};
     IArr ib {4,5,6};
@@ -145,8 +155,9 @@ What Works
 
      )" ;
 
-outputs:::
+outputs:
 
+.. code-block:: sh
     Valarray:
       a^b + b^a = [1, 2, 3]^[4, 5, 6] + [4, 5, 6]^[1, 2, 3]
                 = [1, 32, 729] + [4, 25, 216]
@@ -159,6 +170,7 @@ outputs:::
 
 `Example <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/enum_namespace.cpp>`__ of enum in namespaces:
 
+.. code-block:: CPP
     namespace roman {
       enum class sym {M, D, C, L, X, V, I};
       std::map<sym, int> numerals = {
@@ -175,9 +187,53 @@ outputs:::
     ...
     std::cout << " {roman::numerals=}\n";
 
-outputs:::
+outputs:
 
+.. code-block:: sh
     roman::numerals={M: 1000, D: 500, C: 100, L: 50, X: 10, V: 5, I: 1}
+
+`class_ctad.cpp <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/class_ctad.cpp>`__ example of derived template classes:
+
+.. code-block:: CPP
+    #include <iostream>
+    #include "fstr.h"
+
+    template<class T>
+    struct A {
+        T t;
+
+        struct {
+            long a, b;
+        } u;
+    };
+
+
+    template<class T>
+    struct B {
+        T t;
+        A<T> a;
+    };
+
+    int main() {
+      using std::cout;
+
+      A<int> a{1,{2,3}};
+      auto b = B<int>{1, {2,{3,4}}};
+      cout << "{a=} {b=}";
+      cout << "\n";
+
+    }
+
+outputs:
+
+.. code-block:: sh
+     b= B<T>:
+         T=i t: 1
+         A<T> a:  A<T>:
+         T=i t: 2
+            long u.a: 3
+            long u.b: 4
+
 
 
 Making Changes & Contributing
