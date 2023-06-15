@@ -24,35 +24,40 @@ cpp-fstring: python style f-string in C++
 
 
 cpp-fstring is a C++ code processor that expands any {var} type statements inside strings
-to equivalent fmt::format commands. So you can do things like::
+to equivalent fmt::format commands. So you can do things like:::
 
     enum class Color { red, yellow, green, blue };
     enum class Fruit { orange, apple, banana };
-    std::map<Color, std::vector<Fruit>> mc2f = {
+    std::map<Color, std::vector<Fruit>> mc = {
       {Color::red,    {Fruit::apple}},
       {Color::yellow, {Fruit::apple, Fruit::banana}},
     };
-    std::cout << "fruit by colors: {mc2f} \n";
+    std::cout << "fruit by colors: {mc=} \n";
 
-the script generates the additional boilerplate code to display a variety of types including
-enums, simple structs and classes.
+
+produces the output:::
+
+    fruit by colors: mc = {red: [apple], yellow: [apple, banana]}
+
+cpp-fstring generates the boilerplate code to display a variety of containers including
+enums, structs and classes.
 
 Credits
 =======
 
-- This project has been set up using [PyScaffold](https://pyscaffold.org/)
-- Posts explaining [C++ template](https://victor-istomin.github.io/c-with-crosses/posts/templates-are-easy/) 
-- C++ formatting library [{fmt}](https://fmt.dev/latest/index.html)
-- Python interface to the [Clang indexing library](https://libclang.readthedocs.io/en/latest/)
-- Packaged version of Clang Python Bindings [libclang](https://pypi.org/project/libclang/)
+-  This project has been set up using `PyScaffold <https://pyscaffold.org/>`__
+-  Posts explaining `C++ template <https://victor-istomin.github.io/c-with-crosses/posts/templates-are-easy/>`__
+-  C++ formatting library `{fmt} <https://fmt.dev/latest/index.html>`__
+-  Python interface to the `Clang indexing library <https://libclang.readthedocs.io/en/latest/>`__
+-  Packaged version of Clang Python Bindings `libclang <https://pypi.org/project/libclang/>`__
 
 Motivation
 ==========
 
 Just got tired waiting for python style f-strings in C++ .
-Proposals like [Interpolated literals](<https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1819r0.html)
+Proposals like `Interpolated literals <https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1819r0.html>`__
 seem to hit the "lack of reflection" brick wall.  Hopefully by C++30 we could do something like the
-[Scalable Reflection in C++](<https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p1240r2.pdf>) proposal:::
+`Scalable Reflection in C++ <https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p1240r2.pdf>`__ proposal:::
 
     #include <meta>
     template<Enum T>
@@ -65,7 +70,7 @@ seem to hit the "lack of reflection" brick wall.  Hopefully by C++30 we could do
       return "<unnamed>";
     }
 
-In the mean time, cpp-fstring cheats by pre-processing: so the code :::
+In the mean time, cpp-fstring cheats by pre-processing. so the C++17 code :::
 
     enum class Color { red, yellow, green = 20, blue };
     std::cout << "the fruit is {Color::yellow}\n";
@@ -86,7 +91,6 @@ explodes into:::
       return name;
     }
 
-
 Usage
 =====
 
@@ -102,7 +106,26 @@ You also need to add this to foo.cc:::
 
     #include "[fstr.h](src/cpp_fstring/include/fstr.h)"
 
-an example of using cpp-fstring in cmake environment is at [cpp-fstring-examples](https://github.com/d-e-e-p/cpp-fstring-examples)
+`fstr.h<src/cpp_fstring/include/fstr.h>`__ contains helper routines needed to stringify enums and classes.
+An example of using cpp-fstring in cmake environment is at `cpp-fstring-examples<https://github.com/d-e-e-p/cpp-fstring-examples>`__
+
+There are 2 dependencies to install. fmt:::
+
+    sudo apt install libfmt-dev
+    brew install fmt
+    vcpkg install fmt
+    conda install -c conda-forge fmt
+
+and libclang:::
+
+    pip install libclang
+
+Examples
+========
+
+Look at the examples dir for ideas of what works. 
+
+
 
 Making Changes & Contributing
 =============================
