@@ -267,6 +267,7 @@ What Doesn't Work
 * base class with templates are sometimes missing in the derived class, so x doesn't show up when dumping Y() :
 
 .. code-block:: cpp
+
     template <typename T> class X {
       public:
       T x;
@@ -280,6 +281,7 @@ What Doesn't Work
 2. Limitations in fmt:: library, eg wchar_t is not supported:
 
 .. code-block:: cpp
+
        static const std::unordered_map<int, wchar_t> k_escapes = {
         {  0,   L'•' }, 
         {  1,   L'␁' }
@@ -288,6 +290,7 @@ What Doesn't Work
 3. Features of C++, eg inside functions we can't have other functions or template struct
    
 .. code-block:: cpp
+
     int main() {
         //can't print enum
         enum class paragraph { param, group };
