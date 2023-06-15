@@ -26,6 +26,7 @@ cpp-fstring is a C++ code processor that expands any {var} type statements insid
 to equivalent fmt::format commands. So you can do things like:
 
 .. code-block:: CPP
+
     enum class Color { red, yellow, green, blue };
     enum class Fruit { orange, apple, banana };
     std::map<Color, std::vector<Fruit>> mc = {
@@ -38,6 +39,7 @@ to equivalent fmt::format commands. So you can do things like:
 which produces the output:
 
 .. code-block:: sh
+
     fruit by colors: mc = {red: [apple], yellow: [apple, banana]}
 
 cpp-fstring generates the boilerplate code to display a variety of containers including
@@ -61,6 +63,7 @@ seem to hit the "lack of reflection" brick wall.  Hopefully by C++30 we could do
 `Scalable Reflection in C++ <https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p1240r2.pdf>`__ proposal:
 
 .. code-block:: CPP
+
     #include <meta>
     template<Enum T>
     std::string to_string(T value) {
@@ -75,12 +78,14 @@ seem to hit the "lack of reflection" brick wall.  Hopefully by C++30 we could do
 In the mean time, cpp-fstring cheats by pre-processing. so the C++17 code :
 
 .. code-block:: CPP
+
     enum class Color { red, yellow, green = 20, blue };
     std::cout << "the fruit is {Color::yellow}\n";
 
 explodes into:
 
 .. code-block:: CPP
+
     enum class Color { red, yellow, green = 20, blue };
     std::cout << fmt::format("the fruit is {}\n", Color::yellow);
     // Generated formatter for PUBLIC enum Color of type INT scoped
@@ -101,16 +106,19 @@ Usage
 To install the tool, use:
 
 .. code-block:: sh
+
     pip install cpp-fstring
 
 The following command then converts foo.cc into foo.cpp:
 
 .. code-block:: sh
+
     cpp-fstring foo.cc -I ../include > foo.cpp
 
 You also need to add this to foo.cc:
 
 .. code-block:: CPP
+
     #include "fstr.h"
 
 `fstr.h <src/cpp_fstring/include/fstr.h>`__ contains helper routines needed to stringify enums and classes.
@@ -119,6 +127,7 @@ An example of using cpp-fstring in cmake environment is at `cpp-fstring-examples
 There are 2 dependencies to install. fmt using one of:
 
 .. code-block:: sh
+
     sudo apt install libfmt-dev  # or
     brew install fmt
     vcpkg install fmt
@@ -127,6 +136,7 @@ There are 2 dependencies to install. fmt using one of:
 and libclang:
 
 .. code-block:: sh
+
     pip install libclang
 
 What Works
@@ -135,6 +145,7 @@ What Works
 `Examples <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/demo_misc.cpp>`__ of Format Specifiers, Dates, Expressions and Ranges:
 
 .. code-block:: CPP
+
     using IArr =  std::valarray<int>;
     IArr ia {1,2,3};
     IArr ib {4,5,6};
@@ -158,6 +169,7 @@ What Works
 outputs:
 
 .. code-block:: sh
+
     Valarray:
       a^b + b^a = [1, 2, 3]^[4, 5, 6] + [4, 5, 6]^[1, 2, 3]
                 = [1, 32, 729] + [4, 25, 216]
@@ -171,6 +183,7 @@ outputs:
 `Example <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/enum_namespace.cpp>`__ of enum in namespaces:
 
 .. code-block:: CPP
+
     namespace roman {
       enum class sym {M, D, C, L, X, V, I};
       std::map<sym, int> numerals = {
@@ -190,11 +203,13 @@ outputs:
 outputs:
 
 .. code-block:: sh
+
     roman::numerals={M: 1000, D: 500, C: 100, L: 50, X: 10, V: 5, I: 1}
 
 `class_ctad.cpp <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/class_ctad.cpp>`__ example of derived template classes:
 
 .. code-block:: CPP
+
     #include <iostream>
     #include "fstr.h"
 
@@ -227,6 +242,7 @@ outputs:
 outputs:
 
 .. code-block:: sh
+
      b= B<T>:
          T=i t: 1
          A<T> a:  A<T>:
