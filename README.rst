@@ -109,9 +109,9 @@ You also need to add this to foo.cc:::
 `fstr.h<src/cpp_fstring/include/fstr.h>`__ contains helper routines needed to stringify enums and classes.
 An example of using cpp-fstring in cmake environment is at `cpp-fstring-examples<https://github.com/d-e-e-p/cpp-fstring-examples>`__
 
-There are 2 dependencies to install. fmt:::
+There are 2 dependencies to install. fmt using one of:::
 
-    sudo apt install libfmt-dev
+    sudo apt install libfmt-dev  # or
     brew install fmt
     vcpkg install fmt
     conda install -c conda-forge fmt
@@ -123,14 +123,14 @@ and libclang:::
 Examples
 ========
 
-Look at the examples dir for ideas of what works. 
+Look at the `examples<examples/psrc>` dir for stuff that works.
 
 
 
 Making Changes & Contributing
 =============================
 
-This project uses [pre-commit](https://pre-commit.com/) ::
+This project uses `pre-commit<https://pre-commit.com/>` :::
 
     pip install pre-commit
     cd cpp_fstring
@@ -138,7 +138,12 @@ This project uses [pre-commit](https://pre-commit.com/) ::
     pre-commit autoupdate
 
 
-Note
-====
+Authors
+=======
 
-This project has been set up using [PyScaffold](https://pyscaffold.org/)
+**Sandeep** - `@d-e-e-p<https://github.com/d-e-e-p>`
+
+## License
+
+The project is available under the `MIT<https://opensource.org/licenses/MIT>` license.
+See `LICENSE` file for details
