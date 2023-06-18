@@ -100,8 +100,8 @@ explodes into:
       return name;
     }
 
-Usage
-=====
+Install
+=======
 
 To install the tool, use:
 
@@ -124,7 +124,7 @@ You also need to add this to foo.cc:
 `fstr.h <src/cpp_fstring/include/fstr.h>`__ contains helper routines needed to stringify enums and classes.
 An example of using cpp-fstring in cmake environment is at `cpp-fstring-examples <https://github.com/d-e-e-p/cpp-fstring-examples>`__
 
-There are 2 dependencies to install. fmt using one of:
+There are 2 dependencies: fmt and libclang. to install fmt use something like:
 
 .. code-block:: sh
 
@@ -139,32 +139,31 @@ and libclang:
 
     pip install libclang
 
-What Works
-==========
+Usage: What Works
+=================
 
-`Examples <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/demo_misc.cpp>`__ of Format Specifiers, Dates, Expressions and Ranges:
+See `demo_misc.cpp <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/demo_misc.cpp>`__ 
+for a demo of Format Specifiers, Dates, Expressions and Ranges:
 
 .. code-block:: CPP
 
-    using IArr =  std::valarray<int>;
-    IArr ia {1,2,3};
-    IArr ib {4,5,6};
-    IArr iab = std::pow(ia, ib);
-    IArr iba = std::pow(ib, ia);
-    IArr iabba = iab+iba;
+  using IArr =  std::valarray<int>;
+  IArr a {1,2,3};
+  IArr b {4,5,6};
+  IArr ab = std::pow(a, b);
+  IArr ba = std::pow(b, a);
+  IArr abba = ab+ba;
 
-    cout <<  R"(
-      Valarray:
-        a^b + b^a = {ia}^{ib} + {ib}^{ia}
-                  = {iab} + {iba}
-                  = {iabba}
+  cout <<  R"(
+    Valarray:
+      a^b + b^a = {a}^{b} + {b}^{a}
+                = {ab} + {ba}
+                = {abba}
 
-        min({iabba}) = {iabba.min()}
-        sum({iabba}) = {iabba.sum()}
-        max({iabba}) = {iabba.max()}
-      
-
-     )" ;
+      min({abba}) = {abba.min()}
+      sum({abba}) = {abba.sum()}
+      max({abba}) = {abba.max()}
+   )" ;
 
 outputs:
 
@@ -180,7 +179,7 @@ outputs:
       max([5, 57, 945]) = 945
 
 
-`Example <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/enum_namespace.cpp>`__ of enum in namespaces:
+See `enum_namespace.cpp <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/enum_namespace.cpp>`__ for example of enums:
 
 .. code-block:: CPP
 
@@ -206,7 +205,7 @@ outputs:
 
     roman::numerals={M: 1000, D: 500, C: 100, L: 50, X: 10, V: 5, I: 1}
 
-`class_ctad.cpp <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/class_ctad.cpp>`__ example of derived template classes:
+See `class_ctad.cpp <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/class_ctad.cpp>`__ for an example of derived template classes:
 
 .. code-block:: CPP
 
@@ -234,8 +233,7 @@ outputs:
 
       A<int> a{1,{2,3}};
       auto b = B<int>{1, {2,{3,4}}};
-      cout << "{a=} {b=}";
-      cout << "\n";
+      cout << " {b=}";
 
     }
 
@@ -251,10 +249,10 @@ outputs:
             long u.b: 4
 
 
-What Doesn't Work
-=================
+Usage: What Doesn't Work
+========================
 
-4 catagories of stuff that doesn't work.
+4 underlying reasons behind stuff that doesn't work:
 
 1. Bugs in libclang, eg 
    
@@ -277,27 +275,51 @@ What Doesn't Work
       int y = 13;
     };
 
+* missing vector variable in class, see `issue <https://github.com/llvm/llvm-project/issues/63372>`__ 
+
+.. code-block:: cpp
+
+struct Map {
+  std::map<int, std::vector<int>> m_is_invisible;
+}; 
+
 
 2. Limitations in fmt:: library, eg wchar_t is not supported:
 
 .. code-block:: cpp
 
-       static const std::unordered_map<int, wchar_t> k_escapes = {
-        {  0,   L'•' }, 
-        {  1,   L'␁' }
-       };
+    #include <fmt/xchar.h>
+    #include <fmt/format.h>
+    #include <fmt/ranges.h>
+    #include <map>
 
-3. Features of C++, eg inside functions we can't have other functions or template struct
-   
+    int main() {
+      // works
+      std::map<int, char> box1 = { {1,  L'⎧'}, {2,  L'╭'} };
+      fmt::print("box1: {}\n", box1);
+
+      // doesn't work..needs additional formatter to be defined to handle wchar_t
+      std::map<int, wchar_t> box2 = { {1,  L'⎧'}, {2,  L'╭'} };
+      fmt::print("box2: {}\n", box2);
+      return 0;
+    }
+
+3. C++ features, eg inside functions we can't have other functions or template struct so 
+   there is no way to define a formatter for enum line in :
+
 .. code-block:: cpp
 
     int main() {
-        //can't print enum
-        enum class paragraph { param, group };
+        //can't print enum becaause it's inside main()
+        enum class line { words, spaces };
     }
 
 4. Bugs/limitations of cpp-fstring.  
-* majority of bugs are of course in this section. Perfect segway to contributing. 
+
+* majority of bugs are of course in this section. 
+  
+  
+  Perfect segway to contributing. 
 
 Making Changes & Contributing
 =============================
