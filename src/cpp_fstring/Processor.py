@@ -379,7 +379,7 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
             if prefix == separator:
                 prefix = ""
 
-        # if all index values are zero, its probably a ExceptionSpecificationKind.UNPARSED problem.
+        # if all index values are zero, its probably a problem
         seen_index = set()
         for elem in rec.values:
             seen_index.add(elem.index)

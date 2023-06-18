@@ -526,6 +526,10 @@ class ParseCPP:
         if node is None:
             return var_records
 
+        #if "Map" in node.spelling:
+        #    for fd in node.get_children():
+        #        print(f" {self.get_qualified_name(fd)} {fd.kind.name} {fd.type.spelling}")
+        #    bpdb.set_trace()
         for fd in node.get_children():
             if fd.kind == CK.FIELD_DECL or fd.kind == CK.VAR_DECL:
                 if not fd.is_anonymous():
@@ -583,8 +587,8 @@ class ParseCPP:
 
         # skip anon classes for now
         # TODO: allow union in class/struct
-        if node.is_anonymous():
-            return
+        # if node.is_anonymous():
+        #    return
 
         # skip Local class/struct, ie defined inside main() for example
         if node.lexical_parent.kind == CK.FUNCTION_DECL:

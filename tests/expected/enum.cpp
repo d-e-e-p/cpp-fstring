@@ -89,159 +89,116 @@ int main() {
 
 }
 
+// Generated formatter for PUBLIC enum Color1 of type INT scoped
+constexpr auto format_as(const Color1 obj) {
+  fmt::string_view name = "<missing>";
+  switch (obj) {
+    case Color1::RED  : name = "RED"  ; break;  // index=-12
+    case Color1::GREEN: name = "GREEN"; break;  // index=7
+    case Color1::BLUE : name = "BLUE" ; break;  // index=15
+  }
+  return name;
+}
+// Generated formatter for PUBLIC enum Color2 of type INT 
+constexpr auto format_as(const Color2 obj) {
+  fmt::string_view name = "<missing>";
+  switch (obj) {
+    case RED  : name = "RED"  ; break;  // index=-12
+    case GREEN: name = "GREEN"; break;  // index=7
+    case BLUE : name = "BLUE" ; break;  // index=15
+  }
+  return name;
+}
+// Generated formatter for PUBLIC enum Numbers of type INT scoped
+constexpr auto format_as(const Numbers obj) {
+  fmt::string_view name = "<missing>";
+  switch (obj) {
+    case Numbers::one  : name = "one"  ; break;  // index=1
+    case Numbers::two  : name = "two"  ; break;  // index=2
+    case Numbers::three: name = "three"; break;  // index=3
+    case Numbers::many : name = "many" ; break;  // index=127
+  }
+  return name;
+}
+// Generated formatter for PUBLIC enum Directions of type INT 
+constexpr auto format_as(const Directions obj) {
+  fmt::string_view name = "<missing>";
+  switch (obj) {
+    case Up   : name = "Up"   ; break;  // index=85
+    case Down : name = "Down" ; break;  // index=-42
+    case Right: name = "Right"; break;  // index=120
+    case Left : name = "Left" ; break;  // index=-120
+  }
+  return name;
+}
+// Generated formatter for PUBLIC enum number of type ULONG 
+constexpr auto format_as(const number obj) {
+  fmt::string_view name = "<missing>";
+  switch (obj) {
+    case one  : name = "one"  ; break;  // index=100
+    case two  : name = "two"  ; break;  // index=200
+    case three: name = "three"; break;  // index=300
+    case four : name = "four" ; break;  // index=400
+  }
+  return name;
+}
+// Generated formatter for PUBLIC enum crc_hack of type INT scoped
+constexpr auto format_as(const crc_hack obj) {
+  fmt::string_view name = "<missing>";
+  switch (obj) {
+    case crc_hack::b5a7b602ab754d7ab30fb42c4fb28d82: name = "b5a7b602ab754d7ab30fb42c4fb28d82"; break;  // index=0
+  }
+  return name;
+}
+// Generated formatter for PUBLIC enum crc_hack_2 of type INT scoped
+constexpr auto format_as(const crc_hack_2 obj) {
+  fmt::string_view name = "<missing>";
+  switch (obj) {
+    case crc_hack_2::b5a7b602ab754d7ab30fb42c4fb28d82: name = "b5a7b602ab754d7ab30fb42c4fb28d82"; break;  // index=0
+    case crc_hack_2::d19f2e9e82d14b96be4fa12b8a27ee9f: name = "d19f2e9e82d14b96be4fa12b8a27ee9f"; break;  // index=1
+  }
+  return name;
+}
+// Generated formatter for PUBLIC enum MaxUsedAsInvalid of type INT scoped
+constexpr auto format_as(const MaxUsedAsInvalid obj) {
+  fmt::string_view name = "<missing>";
+  switch (obj) {
+    case MaxUsedAsInvalid::ONE    : name = "ONE"    ; break;  // index=0
+    case MaxUsedAsInvalid::TWO    : name = "TWO"    ; break;  // index=63
+    case MaxUsedAsInvalid::INVALID: name = "INVALID"; break;  // index=64
+  }
+  return name;
+}
+// Generated formatter for PUBLIC enum Binary of type BOOL scoped
+constexpr auto format_as(const Binary obj) {
+  fmt::string_view name = "<missing>";
+  switch (obj) {
+    case Binary::ONE: name = "ONE"; break;  // index=0
+    case Binary::TWO: name = "TWO"; break;  // index=-1
+  }
+  return name;
+}
+// Generated formatter for PUBLIC enum Numbers2 of type INT scoped
+constexpr auto format_as(const Numbers2 obj) {
+  fmt::string_view name = "<missing>";
+  switch (obj) {
+    case Numbers2::one  : name = "one"  ; break;  // index=2
+    case Numbers2::two  : name = "two"  ; break;  // index=4
+    case Numbers2::three: name = "three"; break;  // index=8
+    case Numbers2::many : name = "many" ; break;  // index=1073741824
+  }
+  return name;
+}
+// Generated formatter for PUBLIC enum Dir of type INT 
+constexpr auto format_as(const Dir obj) {
+  fmt::string_view name = "<missing>";
+  switch (obj) {
+    case L: name = "L"; break;  // index=0
+    case D: name = "D"; break;  // index=1
+    case U: name = "U"; break;  // index=2
+    case R: name = "R"; break;  // index=3
+  }
+  return name;
+}
 
-// Generated formatter for PUBLIC enum Color1 of type INT scoped True
-template <>
-struct fmt::formatter<Color1>: formatter<string_view> {
-  template <typename FormatContext>
-  auto format(Color1 val, FormatContext& ctx) const {
-    string_view name = "<unknown>";
-    switch (val) {
-        case Color1::RED  : name = "RED"  ; break;  // index=-12
-        case Color1::GREEN: name = "GREEN"; break;  // index=7
-        case Color1::BLUE : name = "BLUE" ; break;  // index=15
-    }
-    return formatter<string_view>::format(name, ctx);
-  }
-};
-// Generated formatter for PUBLIC enum Color2 of type INT scoped False
-template <>
-struct fmt::formatter<Color2>: formatter<string_view> {
-  template <typename FormatContext>
-  auto format(Color2 val, FormatContext& ctx) const {
-    string_view name = "<unknown>";
-    switch (val) {
-        case RED  : name = "RED"  ; break;  // index=-12
-        case GREEN: name = "GREEN"; break;  // index=7
-        case BLUE : name = "BLUE" ; break;  // index=15
-    }
-    return formatter<string_view>::format(name, ctx);
-  }
-};
-// Generated formatter for PUBLIC enum Numbers of type INT scoped True
-template <>
-struct fmt::formatter<Numbers>: formatter<string_view> {
-  template <typename FormatContext>
-  auto format(Numbers val, FormatContext& ctx) const {
-    string_view name = "<unknown>";
-    switch (val) {
-        case Numbers::one  : name = "one"  ; break;  // index=1
-        case Numbers::two  : name = "two"  ; break;  // index=2
-        case Numbers::three: name = "three"; break;  // index=3
-        case Numbers::many : name = "many" ; break;  // index=127
-    }
-    return formatter<string_view>::format(name, ctx);
-  }
-};
-// Generated formatter for PUBLIC enum Directions of type INT scoped False
-template <>
-struct fmt::formatter<Directions>: formatter<string_view> {
-  template <typename FormatContext>
-  auto format(Directions val, FormatContext& ctx) const {
-    string_view name = "<unknown>";
-    switch (val) {
-        case Up   : name = "Up"   ; break;  // index=85
-        case Down : name = "Down" ; break;  // index=-42
-        case Right: name = "Right"; break;  // index=120
-        case Left : name = "Left" ; break;  // index=-120
-    }
-    return formatter<string_view>::format(name, ctx);
-  }
-};
-// Generated formatter for PUBLIC enum number of type ULONG scoped False
-template <>
-struct fmt::formatter<number>: formatter<string_view> {
-  template <typename FormatContext>
-  auto format(number val, FormatContext& ctx) const {
-    string_view name = "<unknown>";
-    switch (val) {
-        case one  : name = "one"  ; break;  // index=100
-        case two  : name = "two"  ; break;  // index=200
-        case three: name = "three"; break;  // index=300
-        case four : name = "four" ; break;  // index=400
-    }
-    return formatter<string_view>::format(name, ctx);
-  }
-};
-// Generated formatter for PUBLIC enum crc_hack of type INT scoped True
-template <>
-struct fmt::formatter<crc_hack>: formatter<string_view> {
-  template <typename FormatContext>
-  auto format(crc_hack val, FormatContext& ctx) const {
-    string_view name = "<unknown>";
-    switch (val) {
-        case crc_hack::b5a7b602ab754d7ab30fb42c4fb28d82: name = "b5a7b602ab754d7ab30fb42c4fb28d82"; break;  // index=0
-    }
-    return formatter<string_view>::format(name, ctx);
-  }
-};
-// Generated formatter for PUBLIC enum crc_hack_2 of type INT scoped True
-template <>
-struct fmt::formatter<crc_hack_2>: formatter<string_view> {
-  template <typename FormatContext>
-  auto format(crc_hack_2 val, FormatContext& ctx) const {
-    string_view name = "<unknown>";
-    switch (val) {
-        case crc_hack_2::b5a7b602ab754d7ab30fb42c4fb28d82: name = "b5a7b602ab754d7ab30fb42c4fb28d82"; break;  // index=0
-        case crc_hack_2::d19f2e9e82d14b96be4fa12b8a27ee9f: name = "d19f2e9e82d14b96be4fa12b8a27ee9f"; break;  // index=1
-    }
-    return formatter<string_view>::format(name, ctx);
-  }
-};
-// Generated formatter for PUBLIC enum MaxUsedAsInvalid of type INT scoped True
-template <>
-struct fmt::formatter<MaxUsedAsInvalid>: formatter<string_view> {
-  template <typename FormatContext>
-  auto format(MaxUsedAsInvalid val, FormatContext& ctx) const {
-    string_view name = "<unknown>";
-    switch (val) {
-        case MaxUsedAsInvalid::ONE    : name = "ONE"    ; break;  // index=0
-        case MaxUsedAsInvalid::TWO    : name = "TWO"    ; break;  // index=63
-        case MaxUsedAsInvalid::INVALID: name = "INVALID"; break;  // index=64
-    }
-    return formatter<string_view>::format(name, ctx);
-  }
-};
-// Generated formatter for PUBLIC enum Binary of type BOOL scoped True
-template <>
-struct fmt::formatter<Binary>: formatter<string_view> {
-  template <typename FormatContext>
-  auto format(Binary val, FormatContext& ctx) const {
-    string_view name = "<unknown>";
-    switch (val) {
-        case Binary::ONE: name = "ONE"; break;  // index=0
-        case Binary::TWO: name = "TWO"; break;  // index=-1
-    }
-    return formatter<string_view>::format(name, ctx);
-  }
-};
-// Generated formatter for PUBLIC enum Numbers2 of type INT scoped True
-template <>
-struct fmt::formatter<Numbers2>: formatter<string_view> {
-  template <typename FormatContext>
-  auto format(Numbers2 val, FormatContext& ctx) const {
-    string_view name = "<unknown>";
-    switch (val) {
-        case Numbers2::one  : name = "one"  ; break;  // index=2
-        case Numbers2::two  : name = "two"  ; break;  // index=4
-        case Numbers2::three: name = "three"; break;  // index=8
-        case Numbers2::many : name = "many" ; break;  // index=1073741824
-    }
-    return formatter<string_view>::format(name, ctx);
-  }
-};
-// Generated formatter for PUBLIC enum Dir of type INT scoped False
-template <>
-struct fmt::formatter<Dir>: formatter<string_view> {
-  template <typename FormatContext>
-  auto format(Dir val, FormatContext& ctx) const {
-    string_view name = "<unknown>";
-    switch (val) {
-        case L: name = "L"; break;  // index=0
-        case D: name = "D"; break;  // index=1
-        case U: name = "U"; break;  // index=2
-        case R: name = "R"; break;  // index=3
-    }
-    return formatter<string_view>::format(name, ctx);
-  }
-};
+
