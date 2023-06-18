@@ -99,7 +99,7 @@ constexpr auto format_as(const Color1 obj) {
   }
   return name;
 }
-// Generated formatter for PUBLIC enum Color2 of type INT 
+// Generated formatter for PUBLIC enum Color2 of type INT
 constexpr auto format_as(const Color2 obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -120,7 +120,7 @@ constexpr auto format_as(const Numbers obj) {
   }
   return name;
 }
-// Generated formatter for PUBLIC enum Directions of type INT 
+// Generated formatter for PUBLIC enum Directions of type INT
 constexpr auto format_as(const Directions obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -131,7 +131,7 @@ constexpr auto format_as(const Directions obj) {
   }
   return name;
 }
-// Generated formatter for PUBLIC enum number of type ULONG 
+// Generated formatter for PUBLIC enum number of type ULONG
 constexpr auto format_as(const number obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -189,7 +189,7 @@ constexpr auto format_as(const Numbers2 obj) {
   }
   return name;
 }
-// Generated formatter for PUBLIC enum Dir of type INT 
+// Generated formatter for PUBLIC enum Dir of type INT
 constexpr auto format_as(const Dir obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -200,5 +200,3 @@ constexpr auto format_as(const Dir obj) {
   }
   return name;
 }
-
-

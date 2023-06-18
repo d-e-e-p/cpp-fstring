@@ -142,7 +142,7 @@ and libclang:
 Usage: What Works
 =================
 
-See `demo_misc.cpp <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/demo_misc.cpp>`__ 
+See `demo_misc.cpp <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/demo_misc.cpp>`__
 for a demo of Format Specifiers, Dates, Expressions and Ranges:
 
 .. code-block:: CPP
@@ -254,8 +254,8 @@ Usage: What Doesn't Work
 
 4 underlying reasons behind stuff that doesn't work:
 
-1. Bugs in libclang, eg 
-   
+1. Bugs in libclang, eg
+
 * iterator class variables are incorrectly parsed. See this `issue <https://github.com/llvm/llvm-project/issues/63277>`__ :
 
 .. code-block:: cpp
@@ -275,13 +275,13 @@ Usage: What Doesn't Work
       int y = 13;
     };
 
-* missing vector variable in class, see `issue <https://github.com/llvm/llvm-project/issues/63372>`__ 
+* missing vector variable in class, see `issue <https://github.com/llvm/llvm-project/issues/63372>`__
 
 .. code-block:: cpp
 
 struct Map {
   std::map<int, std::vector<int>> m_is_invisible;
-}; 
+};
 
 
 2. Limitations in fmt:: library, eg wchar_t is not supported:
@@ -304,7 +304,7 @@ struct Map {
       return 0;
     }
 
-3. C++ features, eg inside functions we can't have other functions or template struct so 
+3. C++ features, eg inside functions we can't have other functions or template struct so
    there is no way to define a formatter for enum line in :
 
 .. code-block:: cpp
@@ -314,12 +314,12 @@ struct Map {
         enum class line { words, spaces };
     }
 
-4. Bugs/limitations of cpp-fstring.  
+4. Bugs/limitations of cpp-fstring.
 
-* majority of bugs are of course in this section. 
-  
-  
-  Perfect segway to contributing. 
+* majority of bugs are of course in this section.
+
+
+  Perfect segway to contributing.
 
 Making Changes & Contributing
 =============================

@@ -526,7 +526,7 @@ class ParseCPP:
         if node is None:
             return var_records
 
-        #if "Map" in node.spelling:
+        # if "Map" in node.spelling:
         #    for fd in node.get_children():
         #        print(f" {self.get_qualified_name(fd)} {fd.kind.name} {fd.type.spelling}")
         #    bpdb.set_trace()
