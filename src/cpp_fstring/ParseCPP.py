@@ -89,6 +89,7 @@ class ClassVar:
     is_template_type: bool = False
     is_pointer = False
     parent_node = None
+    out: str = ""
 
 
 @dataclass

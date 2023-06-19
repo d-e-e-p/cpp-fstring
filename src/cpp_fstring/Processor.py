@@ -228,8 +228,9 @@ class Processor:
         out = f"""// Generated to_string for {rec.access_specifier} {rec.class_kind} {decl}
   public:
   auto to_string() const {{
-    return fstr::format(R"( {decl}:
-"""
+    return fstr::format(R"( {decl}: """
+
+        last_vartype = None
         for var in vars:
             prefix = " " * var.indent
             # vartype='T *' should still end up with description
@@ -237,22 +238,31 @@ class Processor:
             vtype = vlist[0]
             decoration = "" if (len(vlist) == 1) else vlist[1]
             if vtype in ttvars:
-                vartype = f"{vtype}={{}}{decoration}"
+                # vartype = f"{vtype}={{}}{decoration}"
+                vartype = f"<{{}}{decoration}>"
             else:
                 vartype = var.vartype
+            if vartype == last_vartype:
+                var.out = f"{var.name}={{}}"
+            else:
+                var.out = f"{vartype} {var.name}={{}}"
+            last_vartype = vartype
 
-            out += f" {prefix}   {var.access_specifier} {vartype} {var.name}: {{}} \n"
-
-        out += ')"'
+        out += ', '.join([var.out for var in vars])
+        out += '\n)"'
+        #bpdb.set_trace()
 
         # deal with pointers using fmt::ptr
         # deal with special cases of derived variables in class templates using this->
         # TODO: only use this-> for class templates
         varlist = []
+        last_vtype = None
         for var in vars:
             vtype = var.vartype.split()[0]
             if vtype in ttvars:
-                varlist.append(f"typeid({vtype}).name()")
+                if vtype != last_vtype:
+                    varlist.append(f"typeid({vtype}).name()")
+            last_vtype = vtype
 
             if var.indent > 0:
                 name = f"this->{var.name}"

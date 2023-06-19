@@ -139,6 +139,17 @@ and libclang:
 
     pip install libclang
 
+libclang installs the dynamic c++ library file (`libclang.dylib`, `libclang.dll` or `libclang.so`)
+in a path like `/opt/homebrew/lib/python3.11/site-packages/clang/native/libclang.dylib` .
+If an incorrect version of library file is installed, you can get a strange error like `this <https://github.com/sighingnow/libclang/issues/54>`__ 
+You can download a more recent version of libclang library from:
+
+.. code-block:: sh
+
+    https://github.com/llvm/llvm-project/releases/
+
+The only file you need is one of (`libclang.dylib`, `libclang.dll` or `libclang.so`) for your architecture.
+
 Usage: What Works
 =================
 
@@ -316,7 +327,8 @@ struct Map {
 
 4. Bugs/limitations of cpp-fstring.
 
-* majority of bugs are of course in this section.
+* majority of bugs are of course in this section, eg:
+  * ambiguous partial specializations
 
 
   Perfect segway to contributing.

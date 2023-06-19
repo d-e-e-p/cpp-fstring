@@ -1,13 +1,13 @@
 /**
  * @file fstr.h
  * Companion utilities for cpp-fstring, which brings python-style fstring to C++
- *
+ * 
  * This file contains 2 different routines:
  *   1. If a class has a member function called to_string(void), then a custom formatter is inferred for
- *   that class giving fmt::format the ability to display the stringified version of that class.
+ *   that class giving fmt::format the ability to display the stringified version of that class. 
  *   the cpp-fstring routine from https://github.com/d-e-e-p/cpp-fstring automatically generates these
  *   to_string() calls. eg loading fstr.h allows fmt::print to format Foo using it's to_string() function:
- *
+ *   
  *   @code{.cpp}
  *      #include "fstr.h"
  *      struct Foo {
@@ -19,9 +19,9 @@
  *      Foo f;
  *      fmt::print("f={}\n", f);
  *   @endcode
- *
- *   produces the result:
- *
+ *  
+ *   produces the result:  
+ *  
  *   @code{.sh}
  *    Foo: PUBLIC int a: 32
  *   @endcode
@@ -36,13 +36,13 @@
  *        int a[10] = {};
  *        enum class example {yes, no};
  *        example e = example::yes;
- *
+ *      
  *        std::cout << fstr::format("i={}, v={}, a={}, e={}\n", i, v, a, e);
  *      }
  *   @endcode
  *
- *   produces the result:
- *
+ *   produces the result:  
+ *  
  *   @code{.sh}
  *   i=0, v=[1, 3, 4], a=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0], e=<unknown>
  *   @endcode
@@ -60,6 +60,7 @@
 #include <type_traits>
 #include <fmt/ranges.h>
 #include <fmt/std.h>
+#include <fmt/xchar.h>
 
 namespace fstr {
 
@@ -106,3 +107,4 @@ std::string format(const std::string& fmt_string, const Args&... args) {
 }
 
 } // namespace fstr
+
