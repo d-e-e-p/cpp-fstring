@@ -1,4 +1,4 @@
-exclude: '^docs/conf.py'
+exclude: "docs/conf.py|src/cpp_fstring/clang/cindex.py|tests/input/|tests/actual/|tests/expect/"
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -23,7 +23,6 @@ repos:
   hooks:
   - id: pyupgrade
     args: ['--py39-plus']
-    exclude: 'src/cpp_fstring/clang/cindex.py'
 
 
 ## If you want to avoid flake8 errors due to unused vars or imports:
@@ -41,14 +40,12 @@ repos:
   rev: 5.12.0
   hooks:
   - id: isort
-    exclude: 'src/cpp_fstring/clang/cindex.py'
 
 - repo: https://github.com/psf/black
   rev: 23.3.0
   hooks:
   - id: black
     language_version: python3
-    exclude: "src/cpp_fstring/clang/cindex.py tests/input tests/actual tests/expect"
 
 ## If like to embrace black styles even in the docs:
 # - repo: https://github.com/asottile/blacken-docs
@@ -61,7 +58,6 @@ repos:
   rev: 6.0.0
   hooks:
   - id: flake8
-    exclude: 'src/cpp_fstring/clang/cindex.py'
   ## You can add flake8 plugins via `additional_dependencies`:
   #  additional_dependencies: [flake8-bugbear]
 
