@@ -38,7 +38,7 @@ struct Xstruct {
   }
   return name;
 }
-// Generated formatter for PUBLIC enum Xstruct::dir of type UINT
+// Generated formatter for PUBLIC enum Xstruct::dir of type UINT 
  friend constexpr auto format_as(const Xstruct::dir obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -62,7 +62,7 @@ class Xclass {
   }
   return name;
 }
-// Generated formatter for PUBLIC enum Xclass::dir of type UINT
+// Generated formatter for PUBLIC enum Xclass::dir of type UINT 
  friend constexpr auto format_as(const Xclass::dir obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -135,7 +135,7 @@ constexpr auto format_as(const cdir obj) {
   }
   return name;
 }
-// Generated formatter for PUBLIC enum dir of type UINT
+// Generated formatter for PUBLIC enum dir of type UINT 
 constexpr auto format_as(const dir obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -153,7 +153,7 @@ constexpr auto format_as(const ecdir obj) {
   }
   return name;
 }
-// Generated formatter for PUBLIC enum edir of type UINT
+// Generated formatter for PUBLIC enum edir of type UINT 
 constexpr auto format_as(const edir obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -162,7 +162,7 @@ constexpr auto format_as(const edir obj) {
   }
   return name;
 }
-// Generated formatter for PUBLIC enum Xnamespace::dir of type UINT
+// Generated formatter for PUBLIC enum Xnamespace::dir of type UINT 
 constexpr auto format_as(const Xnamespace::dir obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -196,5 +196,6 @@ constexpr auto format_as(const roman::sym obj) {
 }
 
 namespace  {using ::format_as;}
-namespace roman {using ::format_as;}
 namespace Xnamespace {using ::format_as;}
+namespace roman {using ::format_as;}
+

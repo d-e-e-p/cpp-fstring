@@ -67,3 +67,6 @@ int main()
   cout << fmt::format(" Class(1)={} ", Class(1));
   cout << fmt::format(" Class(0.1)={} ", Class(0.1));
 }
+
+
+

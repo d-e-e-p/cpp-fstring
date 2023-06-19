@@ -1044,3 +1044,4 @@ constexpr auto format_as(const tinyply::Type obj) {
 }
 
 namespace tinyply {using ::format_as;}
+

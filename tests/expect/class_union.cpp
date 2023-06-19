@@ -21,10 +21,10 @@ struct Base {
     int i;
     double d;
     char c;
-  // Generated to_string for PUBLIC UNION_DECL Base::(unnamed union at /Users/deep/build/tf/fstring_in_cpp/cpp-fstring-examples/examples/psrc/class_union.cpp:20:3)
+  // Generated to_string for PUBLIC UNION_DECL Base::(unnamed union)
   public:
   auto to_string() const {
-    return fstr::format(R"( Base::(unnamed union at /Users/deep/build/tf/fstring_in_cpp/cpp-fstring-examples/examples/psrc/class_union.cpp:20:3): int i={}, double d={}, char c={}
+    return fstr::format(R"( Base::(unnamed union): int i={}, double d={}, char c={}
 )", i, d, c);
   }
 } u;
@@ -62,3 +62,6 @@ int main()
   cout << "u.i = " << u.i <<  " u.d = " << u.d <<  " u.c = " << u.c << " \n";
   cout << fmt::format(" u={} \n", u);
 }
+
+
+

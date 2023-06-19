@@ -36,7 +36,7 @@ class BaseSampleClass {
   Elephant el_base = EL_TWO ;
 
   friend class SampleClass;
-// Generated formatter for PRIVATE enum BaseSampleClass::Elephant of type UINT
+// Generated formatter for PRIVATE enum BaseSampleClass::Elephant of type UINT 
  friend constexpr auto format_as(const BaseSampleClass::Elephant obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -93,7 +93,7 @@ namespace Alpha
          Z_E = '9',
          Z_F = 9,
     	} Zebra;
-    // Generated formatter for PROTECTED enum Alpha::AlphaClass::Zebra of type UINT
+    // Generated formatter for PROTECTED enum Alpha::AlphaClass::Zebra of type UINT 
  friend constexpr auto format_as(const Alpha::AlphaClass::Zebra obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -135,7 +135,7 @@ namespace Alpha
 				/// item four
 				RI_FOUR,
 			} Rino;
-		// Generated formatter for PROTECTED enum Alpha::Omega::OmegaClass::Rino of type UINT
+		// Generated formatter for PROTECTED enum Alpha::Omega::OmegaClass::Rino of type UINT 
  friend constexpr auto format_as(const Alpha::Omega::OmegaClass::Rino obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -186,7 +186,7 @@ namespace Citrus
   class BloodOrange {
     public:
       int bo=1;
-
+  
   friend class ExcellentCake;
 // Generated to_string for PUBLIC CLASS_DECL Citrus::BloodOrange
   public:
@@ -307,10 +307,10 @@ void f();
 struct AnonHolderClass {
 struct {
 int x;
-// Generated to_string for PUBLIC STRUCT_DECL AnonHolderClass::(unnamed struct at /Users/deep/build/tf/fstring_in_cpp/cpp-fstring-examples/examples/psrc/class_include.h.fake.cpp:196:1)
+// Generated to_string for PUBLIC STRUCT_DECL AnonHolderClass::(unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format(R"( AnonHolderClass::(unnamed struct at /Users/deep/build/tf/fstring_in_cpp/cpp-fstring-examples/examples/psrc/class_include.h.fake.cpp:196:1): int x={}
+    return fstr::format(R"( AnonHolderClass::(unnamed struct): int x={}
 )", x);
   }
 } a;
@@ -348,30 +348,30 @@ struct FrogClass {
 
     struct {
         int a;
-    // Generated to_string for PUBLIC STRUCT_DECL FrogClass::(unnamed struct at /Users/deep/build/tf/fstring_in_cpp/cpp-fstring-examples/examples/psrc/class_include.h.fake.cpp:219:5)
+    // Generated to_string for PUBLIC STRUCT_DECL FrogClass::(unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format(R"( FrogClass::(unnamed struct at /Users/deep/build/tf/fstring_in_cpp/cpp-fstring-examples/examples/psrc/class_include.h.fake.cpp:219:5): int a={}
+    return fstr::format(R"( FrogClass::(unnamed struct): int a={}
 )", a);
   }
 } x;
 
     struct {
         int b;
-    // Generated to_string for PUBLIC STRUCT_DECL FrogClass::(unnamed struct at /Users/deep/build/tf/fstring_in_cpp/cpp-fstring-examples/examples/psrc/class_include.h.fake.cpp:223:5)
+    // Generated to_string for PUBLIC STRUCT_DECL FrogClass::(unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format(R"( FrogClass::(unnamed struct at /Users/deep/build/tf/fstring_in_cpp/cpp-fstring-examples/examples/psrc/class_include.h.fake.cpp:223:5): int b={}
+    return fstr::format(R"( FrogClass::(unnamed struct): int b={}
 )", b);
   }
 } y;
 
     struct {
         int c;
-    // Generated to_string for PUBLIC STRUCT_DECL FrogClass::(unnamed struct at /Users/deep/build/tf/fstring_in_cpp/cpp-fstring-examples/examples/psrc/class_include.h.fake.cpp:227:5)
+    // Generated to_string for PUBLIC STRUCT_DECL FrogClass::(unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format(R"( FrogClass::(unnamed struct at /Users/deep/build/tf/fstring_in_cpp/cpp-fstring-examples/examples/psrc/class_include.h.fake.cpp:227:5): int c={}
+    return fstr::format(R"( FrogClass::(unnamed struct): int c={}
 )", c);
   }
 } z;
@@ -467,7 +467,7 @@ public:
 // Generated to_string for PUBLIC CLASS_TEMPLATE CherryClass<ID>
   public:
   auto to_string() const {
-    return fstr::format(R"( CherryClass<ID>:
+    return fstr::format(R"( CherryClass<ID>: 
 )");
   }
 };
@@ -483,7 +483,7 @@ public:
 // Generated to_string for PUBLIC CLASS_TEMPLATE GarlicClass<T>
   public:
   auto to_string() const {
-    return fstr::format(R"( GarlicClass<T>:
+    return fstr::format(R"( GarlicClass<T>: 
 )");
   }
 };
@@ -624,3 +624,6 @@ public:
         Joey();
     };
 };
+
+
+

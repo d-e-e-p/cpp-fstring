@@ -83,3 +83,6 @@ int main() {
   //bar.dumb(B{}); // error for clang++, ok for g++
   return 0;
 }
+
+
+

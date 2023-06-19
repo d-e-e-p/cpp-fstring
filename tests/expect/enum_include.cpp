@@ -41,3 +41,6 @@ int main() {
 )", Foo::b, Foo::e, Color::yellow, X::left, X::right, e1, Fruit::apple, S::apple, E11::x, vc, mc);
 
 }
+
+
+

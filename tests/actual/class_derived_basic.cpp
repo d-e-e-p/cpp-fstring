@@ -55,3 +55,6 @@ int main()
   cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
   cout << fmt::format(" Foo()={} Bar()={} \n", Foo(), Bar());
 }
+
+
+

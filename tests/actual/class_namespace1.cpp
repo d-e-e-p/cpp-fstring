@@ -14,10 +14,10 @@
 // Anonymous Class : Class is not having any name
 struct {
     int i;
-// Generated to_string for PUBLIC STRUCT_DECL (unnamed struct at input/class_namespace1.cpp:15:1)
+// Generated to_string for PUBLIC STRUCT_DECL (unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format(R"( (unnamed struct at input/class_namespace1.cpp:15:1): int i={}
+    return fstr::format(R"( (unnamed struct): int i={}
 )", i);
   }
 } obj0;
@@ -71,3 +71,6 @@ int main() {
     cout << fmt::format(" a::b::c::obj1={} \n", a::b::c::obj1);
     return 0;
 }
+
+
+

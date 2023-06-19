@@ -59,10 +59,10 @@ class Outer {
     int a = 12;
     int b = 24;
     Rectangle r;
-  // Generated to_string for PRIVATE STRUCT_DECL Outer::(unnamed struct at /Users/deep/build/tf/fstring_in_cpp/cpp-fstring-examples/examples/psrc/class_basic.cpp:40:3)
+  // Generated to_string for PRIVATE STRUCT_DECL Outer::(unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format(R"( Outer::(unnamed struct at /Users/deep/build/tf/fstring_in_cpp/cpp-fstring-examples/examples/psrc/class_basic.cpp:40:3): int a={}, b={}, Rectangle r={}
+    return fstr::format(R"( Outer::(unnamed struct): int a={}, b={}, Rectangle r={}
 )", a, b, r);
   }
 } anon;
@@ -85,3 +85,6 @@ int main()
 
   cout << fmt::format("Outer()={}", Outer());
 }
+
+
+

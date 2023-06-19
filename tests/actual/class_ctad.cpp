@@ -73,10 +73,10 @@ struct A {
 
     struct {
         long a, b;
-    // Generated to_string for PUBLIC STRUCT_DECL A<T>::(unnamed struct at input/class_ctad.cpp:62:5)
+    // Generated to_string for PUBLIC STRUCT_DECL A<T>::(unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format(R"( A<T>::(unnamed struct at input/class_ctad.cpp:62:5): long a={}, b={}
+    return fstr::format(R"( A<T>::(unnamed struct): long a={}, b={}
 )", a, b);
   }
 } u;
@@ -111,3 +111,6 @@ int main() {
   cout << "\n";
 
 }
+
+
+

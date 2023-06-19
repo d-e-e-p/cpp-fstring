@@ -79,7 +79,7 @@ template<typename T>
 class my_array {// Generated to_string for PUBLIC CLASS_TEMPLATE my_array<T>
   public:
   auto to_string() const {
-    return fstr::format(R"( my_array<T>:
+    return fstr::format(R"( my_array<T>: 
 )");
   }
 };
@@ -221,3 +221,5 @@ constexpr auto format_as(const Cowboys obj) {
   }
   return name;
 }
+
+

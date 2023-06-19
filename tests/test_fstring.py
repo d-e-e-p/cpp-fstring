@@ -35,10 +35,6 @@ def filter_lines(input):
             continue
         if line == "":
             continue
-        if "unnamed struct at " in line:
-            continue
-        if "unnamed union at " in line:
-            continue
         output.append(line)
 
     return output
