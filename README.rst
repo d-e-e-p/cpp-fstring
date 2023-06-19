@@ -141,7 +141,7 @@ and libclang:
 
 libclang installs the dynamic c++ library file (`libclang.dylib`, `libclang.dll` or `libclang.so`)
 in a path like `/opt/homebrew/lib/python3.11/site-packages/clang/native/libclang.dylib` .
-If an incorrect version of library file is installed, you can get a strange error like `this <https://github.com/sighingnow/libclang/issues/54>`__ 
+If an incorrect version of library file is installed, you can get a strange error like `this <https://github.com/sighingnow/libclang/issues/54>`__
 You can download a more recent version of libclang library from:
 
 .. code-block:: sh

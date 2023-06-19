@@ -248,9 +248,9 @@ class Processor:
                 var.out = f"{vartype} {var.name}={{}}"
             last_vartype = vartype
 
-        out += ', '.join([var.out for var in vars])
+        out += ", ".join([var.out for var in vars])
         out += '\n)"'
-        #bpdb.set_trace()
+        # bpdb.set_trace()
 
         # deal with pointers using fmt::ptr
         # deal with special cases of derived variables in class templates using this->
