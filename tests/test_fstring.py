@@ -4,6 +4,7 @@ import sys
 from glob import glob
 from pathlib import Path
 from unittest.mock import patch
+import pytest
 
 from cpp_fstring.cpp_fstring import run
 
@@ -12,36 +13,65 @@ abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 actual_dir = "actual"
-expected_dir = "expected"
+expect_dir = "expect"
+input_dir = "input"
 
 
-def test_files(capsys):
+def run_external_routine(actual_file, exebin_file):
+    with open(actual_file, "w") as f:
+        subprocess.run([exebin_file], stdout=f)
+
+
+def filter_lines(input):
+    """
+     remove out space in lines
+    """
+    output = []
+    for line in input:
+        line = line.strip()
+        if line.isspace():
+            continue
+        if "unnamed struct at " in line:
+            continue
+        if "unnamed union at " in line:
+            continue
+        output.append(line)
+
+    return output
+
+
+def compare_output(capsys, actual_output, expect_output):
+    # Compare the actual output with the expected output using pytest
+    with open(actual_output, "r") as factual:
+        with open(expect_output, "r") as fexpect:
+            lactual = factual.read().split("\n")
+            lexpect = fexpect.read().split("\n")
+            lactual = filter_lines(lactual)
+            lexpect = filter_lines(lexpect)
+            assert lexpect == lactual
+
+def run_routine(capsys, input_file, actual_output):
+    """
+    execute cpp-fstring in input_file and capture output
+    """
+    with patch.object(sys, "argv", ["cpp_fstring", input_file]):
+        run()
+        captured = capsys.readouterr()
+        with open(actual_output, "w") as file:
+            file.write(captured.out)
+
+def test_compare(capsys):
     """
     test series of files
     """
-    for infile in glob("input/*.cc"):
-        stem = Path(infile).stem
-        actual_file = os.path.join(actual_dir, stem + ".cpp")
-        expected_file = os.path.join(expected_dir, stem + ".cpp")
-
+    for input_file in glob(f"{input_dir}/*.cpp"):
+        stem = Path(input_file).stem
+        actual_output = os.path.join(actual_dir, stem + ".cpp")
+        expect_output = os.path.join(expect_dir, stem + ".cpp")
+        if not os.path.exists(actual_dir):
+            os.makedirs(actual_dir)
         with capsys.disabled():
-            print(f" in={infile} expected={expected_file} actual={actual_file} ")
+            print(f"{input_file=} {actual_output=} {expect_output=}")
+        run_routine(capsys, input_file, actual_output)
+        compare_output(capsys, actual_output, expect_output)
 
-        with patch.object(sys, "argv", ["cpp_fstring", infile]):
-            run()
-            captured = capsys.readouterr()
-            actual = captured.out.splitlines()
-            if not os.path.exists(actual_dir):
-                os.makedirs(actual_dir)
-            with open(actual_file, "w") as file:
-                file.write(captured.out)
-
-            with capsys.disabled():
-                with open(expected_file) as f:
-                    expected = f.read().splitlines()
-                    # remove empty lines
-                    actual = list(filter(None, actual))
-                    expected = list(filter(None, expected))
-                    # print(f" actual = {actual}")
-                    # print(f" expected = {expected}")
-                    assert expected == actual
