@@ -16,9 +16,9 @@
 #include "fstr.h"
 
 
-struct Base { 
+struct Base {
   std::string bname = "base";
-  int a = 4; 
+  int a = 4;
 // Generated to_string for PUBLIC STRUCT_DECL Base
   public:
   auto to_string() const {
@@ -55,6 +55,3 @@ int main()
   cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
   cout << fmt::format(" Foo()={} Bar()={} \n", Foo(), Bar());
 }
-
-
-

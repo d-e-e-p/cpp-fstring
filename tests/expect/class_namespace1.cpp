@@ -13,7 +13,7 @@
 
 // Anonymous Class : Class is not having any name
 struct {
-    int i; 
+    int i;
 // Generated to_string for PUBLIC STRUCT_DECL (unnamed struct at /Users/deep/build/tf/fstring_in_cpp/cpp-fstring-examples/examples/psrc/class_namespace1.cpp:15:1)
   public:
   auto to_string() const {
@@ -23,7 +23,7 @@ struct {
 } obj0;
 
 struct Base {
-    int i; 
+    int i;
 // Generated to_string for PUBLIC STRUCT_DECL Base
   public:
   auto to_string() const {
@@ -62,7 +62,7 @@ struct enclose {
 } obj1;
 
 } // end namespace a::b::c
-int a::b::c::enclose::outer::inner::x = 42; 
+int a::b::c::enclose::outer::inner::x = 42;
 
 int main() {
   using std::cout;
@@ -71,6 +71,3 @@ int main() {
     cout << fmt::format(" a::b::c::obj1={} \n", a::b::c::obj1);
     return 0;
 }
-
-
-

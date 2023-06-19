@@ -32,7 +32,7 @@ public:
 };
 
 template<auto n>
-struct Auto { 
+struct Auto {
   int v = 1;
 };
 
@@ -53,7 +53,7 @@ struct Const {
 
 template<typename T>
 class my_array {};
- 
+
 // two type template parameters and one template template parameter:
 template<typename K, typename V, template<typename> typename C = my_array>
 class Map {
@@ -68,7 +68,7 @@ struct A {
     int C;
     int Y;
 };
- 
+
 template<class B>
 struct X : A {
     B b; // A's B
@@ -118,7 +118,7 @@ int main() {
   cout << "{LimitedInt<uint16_t, 0, 4094>(10)=}";
   cout << "{Auto<'a'>()=}";
 
-  S<bool,10> s; 
+  S<bool,10> s;
   s.a[9] = true;
   cout << "{s=}";
 

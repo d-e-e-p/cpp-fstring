@@ -21,6 +21,3 @@ int main() {
   const std::vector<int>::const_iterator i_iter_becomes_const_iterator;
   return 0;
 }
-
-
-

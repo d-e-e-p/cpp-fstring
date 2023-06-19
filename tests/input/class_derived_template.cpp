@@ -19,7 +19,7 @@ class A {
   int a = 32;
 };
 
-class B : public A { 
+class B : public A {
   int b = 13;
 };
 
@@ -29,7 +29,7 @@ template <typename T> class X {
   T x;
 };
 
-class Y : public X<bool> { 
+class Y : public X<bool> {
   int y = 13;
 };
 
@@ -87,15 +87,12 @@ int main() {
     m.map3["key5"] = {{600}};
     m.map3["key6"] = {{700}, {800}};
 
-    // TODO(deep): fix derived template class missing map3 
+    // TODO(deep): fix derived template class missing map3
     // TODO(deep): map2 print is very ugly
     cout << "Map {m=}";
 
     cout << "{Helper<int>()=}";
     cout << "{Helper<char>()=}";
-    
+
     return 0;
 }
-
-
-

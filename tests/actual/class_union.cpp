@@ -15,8 +15,8 @@
 
 #include "fstr.h"
 
-struct Base { 
-  int a; 
+struct Base {
+  int a;
   union {
     int i;
     double d;
@@ -62,6 +62,3 @@ int main()
   cout << "u.i = " << u.i <<  " u.d = " << u.d <<  " u.c = " << u.c << " \n";
   cout << fmt::format(" u={} \n", u);
 }
-
-
-

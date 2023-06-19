@@ -13,7 +13,7 @@
 enum { x, y = x + 2 };
 enum class Foo { a, b, c = 10, d, e = 1, f, g = f + c };
 enum class Color { red, yellow, green = 20, blue };
-struct X { enum direction { left = 'l', right = 'r' }; // Generated formatter for PUBLIC enum X::direction of type UINT 
+struct X { enum direction { left = 'l', right = 'r' }; // Generated formatter for PUBLIC enum X::direction of type UINT
  friend constexpr auto format_as(const X::direction obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -23,7 +23,7 @@ struct X { enum direction { left = 'l', right = 'r' }; // Generated formatter fo
   return name;
 }
 };
-struct Y { enum E1 : int {}; // Generated formatter for PUBLIC enum Y::E1 of type INT 
+struct Y { enum E1 : int {}; // Generated formatter for PUBLIC enum Y::E1 of type INT
  friend constexpr auto format_as(const Y::E1 obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -33,7 +33,7 @@ struct Y { enum E1 : int {}; // Generated formatter for PUBLIC enum Y::E1 of typ
 };
 enum E2 { e1 };
 enum class Fruit { orange, apple, banana };
-struct S { using enum Fruit; }; 
+struct S { using enum Fruit; };
 enum struct E11 { x, y };
 
 std::vector<Foo> vc = {Foo::a, Foo::b, Foo::c, Foo::d, Foo::e, Foo::f, Foo::g};
@@ -41,7 +41,6 @@ std::map<Color, std::vector<Fruit>> mc = {
   {Color::red,    {Fruit::apple}},
   {Color::yellow, {Fruit::apple, Fruit::banana}},
 };
-
 
 // Generated formatter for PUBLIC enum Foo of type INT scoped
 constexpr auto format_as(const Foo obj) {
@@ -68,7 +67,7 @@ constexpr auto format_as(const Color obj) {
   }
   return name;
 }
-// Generated formatter for PUBLIC enum E2 of type UINT 
+// Generated formatter for PUBLIC enum E2 of type UINT
 constexpr auto format_as(const E2 obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -95,5 +94,3 @@ constexpr auto format_as(const E11 obj) {
   }
   return name;
 }
-
-

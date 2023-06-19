@@ -4441,7 +4441,7 @@ longest_prefix_match(scoped_dfs_traverser pos, const arg_string& arg,
                         return match_t{arg, std::move(pos)};
                     }
                     else if(match.length() > longest.length()) {
-                        longest = match_t{arg.substr(match.at(), match.length()), 
+                        longest = match_t{arg.substr(match.at(), match.length()),
                                           pos};
                     }
                 }
@@ -7022,4 +7022,3 @@ void print(OStream& os, const group& g, int level)
 } //namespace clipp
 
 #endif
-

@@ -260,7 +260,7 @@ struct is_input_range :
 {// Generated to_string for PUBLIC CLASS_TEMPLATE clipp::traits::is_input_range<T>
   public:
   auto to_string() const {
-    return fstr::format(R"( clipp::traits::is_input_range<T>: 
+    return fstr::format(R"( clipp::traits::is_input_range<T>:
 )");
   }
 };
@@ -287,7 +287,7 @@ struct has_size_getter :
 {// Generated to_string for PUBLIC CLASS_TEMPLATE clipp::traits::has_size_getter<T>
   public:
   auto to_string() const {
-    return fstr::format(R"( clipp::traits::has_size_getter<T>: 
+    return fstr::format(R"( clipp::traits::has_size_getter<T>:
 )");
   }
 };
@@ -343,7 +343,7 @@ struct limits_clamped {
 // Generated to_string for PUBLIC CLASS_TEMPLATE clipp::detail::limits_clamped<T, V, bool>
   public:
   auto to_string() const {
-    return fstr::format(R"( clipp::detail::limits_clamped<T, V, bool>: 
+    return fstr::format(R"( clipp::detail::limits_clamped<T, V, bool>:
 )");
   }
 };
@@ -382,7 +382,7 @@ struct make {
 // Generated to_string for PUBLIC CLASS_TEMPLATE clipp::detail::make<T>
   public:
   auto to_string() const {
-    return fstr::format(R"( clipp::detail::make<T>: 
+    return fstr::format(R"( clipp::detail::make<T>:
 )");
   }
 };
@@ -4603,7 +4603,7 @@ longest_prefix_match(scoped_dfs_traverser pos, const arg_string& arg,
                         return match_t{arg, std::move(pos)};
                     }
                     else if(match.length() > longest.length()) {
-                        longest = match_t{arg.substr(match.at(), match.length()), 
+                        longest = match_t{arg.substr(match.at(), match.length()),
                                           pos};
                     }
                 }
@@ -7266,7 +7266,6 @@ void print(OStream& os, const group& g, int level)
 
 #endif
 
-
 // Generated formatter for PUBLIC enum clipp::tri of type CHAR_S scoped
 constexpr auto format_as(const clipp::tri obj) {
   fmt::string_view name = "<missing>";
@@ -7279,4 +7278,3 @@ constexpr auto format_as(const clipp::tri obj) {
 }
 
 namespace clipp {using ::format_as;}
-

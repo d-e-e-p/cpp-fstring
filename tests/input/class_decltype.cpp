@@ -51,10 +51,10 @@ int main() {
 
   Bar<A, B> bar1 = {};
   bar1.dumb(A{}); // ok for everyone
-  fmt::print(" {bar1=} ");    
+  fmt::print(" {bar1=} ");
 
   Bar<C, D> bar2 = {};
-  fmt::print(" {bar2=} ");    
+  fmt::print(" {bar2=} ");
 
   //bar.dumb(B{}); // error for clang++, ok for g++
   return 0;

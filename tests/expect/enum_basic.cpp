@@ -42,7 +42,7 @@ enum { a, b, c = 0, d = a + 2 }; // defines a = 0, b = 1, c = 0, d = 2
 
 struct X {
     enum direction3 { left = 'l', right = 'r' };
-// Generated formatter for PUBLIC enum X::direction3 of type UINT 
+// Generated formatter for PUBLIC enum X::direction3 of type UINT
  friend constexpr auto format_as(const X::direction3 obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -52,7 +52,7 @@ struct X {
   return name;
 }
 };
-                                 
+
 // test cases from:
 // https://github.com/Neargye/magic_enum/blob/master/test/test.cpp
 // Copyright (c) 2019 - 2023 Daniil Goncharov <neargye@gmail.com>
@@ -118,8 +118,8 @@ int main() {
   Color1::GREEN={}
   GREEN={}
   L={} D={} U={} R={}
-  Number1::many={} 
-  Number2::many={} 
+  Number1::many={}
+  Number2::many={}
   Number3::one={} Number3::two={} Number3::three={} Number3::many={}
   Binary::ONE={}
   space::rangers::humans={}
@@ -147,7 +147,7 @@ constexpr auto format_as(const Color1 obj) {
   }
   return name;
 }
-// Generated formatter for PUBLIC enum Color2 of type INT 
+// Generated formatter for PUBLIC enum Color2 of type INT
 constexpr auto format_as(const Color2 obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -167,7 +167,7 @@ constexpr auto format_as(const Color3 obj) {
   }
   return name;
 }
-// Generated formatter for PUBLIC enum Directions of type INT 
+// Generated formatter for PUBLIC enum Directions of type INT
 constexpr auto format_as(const Directions obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -225,7 +225,7 @@ constexpr auto format_as(const Number1 obj) {
   }
   return name;
 }
-// Generated formatter for PUBLIC enum Number2 of type INT 
+// Generated formatter for PUBLIC enum Number2 of type INT
 constexpr auto format_as(const Number2 obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -248,7 +248,7 @@ constexpr auto format_as(const Number3 obj) {
   }
   return name;
 }
-// Generated formatter for PUBLIC enum Dir of type INT 
+// Generated formatter for PUBLIC enum Dir of type INT
 constexpr auto format_as(const Dir obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -273,4 +273,3 @@ constexpr auto format_as(const space::rangers obj) {
 }
 
 namespace space {using ::format_as;}
-

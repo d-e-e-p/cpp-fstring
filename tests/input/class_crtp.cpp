@@ -15,7 +15,7 @@
 
 #include "fstr.h"
 
-// 
+//
 // from:
 // https://stackoverflow.com/questions/42795408/can-libclang-parse-the-crtp-pattern
 // https://stackoverflow.com/questions/41333185/python-clang-getting-template-arguments
@@ -26,7 +26,7 @@
 namespace A {
 
 template<class T>
-class TBase { 
+class TBase {
   public:
   int tbase = 0;
 };
@@ -41,14 +41,14 @@ class CBase {
 class X2 : public CBase {
   public:
   int x2=0;
-}; 
+};
 
 } // end namespace A
-  
+
 namespace B {
 
 template<class T>
-class TBase { 
+class TBase {
   int tbase = 0;
 };
 class Y1 : public TBase<Y1> {
@@ -59,7 +59,7 @@ class CBase {
 };
 class Y2 : public CBase {
   int y2=0;
-}; 
+};
 
 } // end namespace B
 
@@ -85,6 +85,3 @@ int main() {
 
   return 0;
 }
-
-
-

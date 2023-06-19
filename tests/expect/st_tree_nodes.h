@@ -46,7 +46,7 @@ struct node_base {
     protected:
     typedef typename cs_type::iterator cs_iterator;
     typedef typename cs_type::const_iterator cs_const_iterator;
-    
+
     public:
     typedef typename valmap_iterator_dispatch<cs_iterator, typename vmap_dispatch<node_type, typename cs_iterator::value_type>::vmap, typename cs_iterator::iterator_category>::adaptor_type iterator;
     typedef typename valmap_iterator_dispatch<cs_const_iterator, typename vmap_dispatch<node_type, typename cs_const_iterator::value_type>::vmap, typename cs_const_iterator::iterator_category>::adaptor_type const_iterator;
@@ -136,7 +136,7 @@ struct node_base {
     }
     const node_type& parent() const {
         if (is_root()) throw parent_exception("parent(): node has no parent");
-        return *(_parent); 
+        return *(_parent);
     }
 
     size_type size() const { return _children.size(); }
@@ -232,7 +232,7 @@ struct node_base {
         node_type* q = static_cast<node_type*>(this);
         n->_parent = q;
         n->_tree = NULL;
- 
+
         // percolate the new subtree size up the chain of parents
         size_type dd = 1;
         while (true) {
@@ -305,7 +305,7 @@ struct node_raw: public node_base<Tree, node_raw<Tree, Data>, vector<node_raw<Tr
         // this is to do the right then when calling allocator construct() method
         if (src._default_constructed()) return;
         // otherwise, we'd want "normal" assignment logic
-        *this = src; 
+        *this = src;
     }
     node_raw& operator=(const node_raw& rhs) {
         if (this == &rhs) return *this;
@@ -357,7 +357,7 @@ struct node_raw: public node_base<Tree, node_raw<Tree, Data>, vector<node_raw<Tr
 
         if (&a == &b) return;
 
-        // this would introduce cycles 
+        // this would introduce cycles
         if (a.is_ancestor(b) || b.is_ancestor(a)) throw cycle_exception("swap(): operation introduces cycle");
 
         tree_type* ta = &a.tree();
@@ -385,7 +385,7 @@ struct node_raw: public node_base<Tree, node_raw<Tree, Data>, vector<node_raw<Tr
 
 
     void graft(node_type& src) {
-        // this would introduce cycles 
+        // this would introduce cycles
         if (this == &src) throw cycle_exception("graft(): operation introduces cycle");
         if (src.is_ancestor(*this)) throw cycle_exception("graft(): operation introduces cycle");
 
@@ -478,7 +478,7 @@ struct node_raw: public node_base<Tree, node_raw<Tree, Data>, vector<node_raw<Tr
 // Generated to_string for PUBLIC CLASS_TEMPLATE st_tree::detail::node_raw<Tree, Data>
   public:
   auto to_string() const {
-    return fstr::format(R"( st_tree::detail::node_raw<Tree, Data>: 
+    return fstr::format(R"( st_tree::detail::node_raw<Tree, Data>:
 )");
   }
 };
@@ -522,7 +522,7 @@ struct node_ordered: public node_base<Tree, node_ordered<Tree, Data, Compare>, m
         // this is to do the right then when calling allocator construct() method
         if (src._default_constructed()) return;
         // otherwise, we'd want "normal" assignment logic
-        *this = src; 
+        *this = src;
     }
     node_ordered& operator=(const node_ordered& rhs) {
         if (this == &rhs) return *this;
@@ -587,7 +587,7 @@ struct node_ordered: public node_base<Tree, node_ordered<Tree, Data, Compare>, m
 
         if (&a == &b) return;
 
-        // this would introduce cycles 
+        // this would introduce cycles
         if (a.is_ancestor(b) || b.is_ancestor(a)) throw cycle_exception("swap(): operation introduces cycle");
 
         bool ira = a.is_root();
@@ -613,7 +613,7 @@ struct node_ordered: public node_base<Tree, node_ordered<Tree, Data, Compare>, m
 
 
     void graft(node_type& src) {
-        // this would introduce cycles 
+        // this would introduce cycles
         if (this == &src) throw cycle_exception("graft(): operation introduces cycle");
         if (src.is_ancestor(*this)) throw cycle_exception("graft(): operation introduces cycle");
 
@@ -748,7 +748,7 @@ struct node_ordered: public node_base<Tree, node_ordered<Tree, Data, Compare>, m
 // Generated to_string for PUBLIC CLASS_TEMPLATE st_tree::detail::node_ordered<Tree, Data, Compare>
   public:
   auto to_string() const {
-    return fstr::format(R"( st_tree::detail::node_ordered<Tree, Data, Compare>: 
+    return fstr::format(R"( st_tree::detail::node_ordered<Tree, Data, Compare>:
 )");
   }
 };
@@ -792,11 +792,11 @@ struct node_keyed: public node_base<Tree, node_keyed<Tree, Data, Key, Compare>, 
     node_keyed() : base_type(), _key() {}
     virtual ~node_keyed() {}
 
-    node_keyed(const node_keyed& src) : base_type(), _key() { 
+    node_keyed(const node_keyed& src) : base_type(), _key() {
         // this is to do the right then when calling allocator construct() method
         if (src._default_constructed()) return;
         // otherwise, we'd want "normal" assignment logic
-        *this = src; 
+        *this = src;
     }
     node_keyed& operator=(const node_keyed& rhs) {
         if (this == &rhs) return *this;
@@ -911,7 +911,7 @@ struct node_keyed: public node_base<Tree, node_keyed<Tree, Data, Key, Compare>, 
             this->tree()._delete_node(n);
             return rr;
         }
-        // do this work if we know we actually inserted 
+        // do this work if we know we actually inserted
         n->_data = data_type(std::forward<Args>(args) ... );
         n->_depth.insert(1);
         this->_graft(n);
@@ -949,7 +949,7 @@ struct node_keyed: public node_base<Tree, node_keyed<Tree, Data, Key, Compare>, 
 
         if (&a == &b) return;
 
-        // this would introduce cycles 
+        // this would introduce cycles
         if (a.is_ancestor(b) || b.is_ancestor(a)) throw cycle_exception("swap(): operation introduces cycle");
 
         bool ira = a.is_root();
@@ -978,7 +978,7 @@ struct node_keyed: public node_base<Tree, node_keyed<Tree, Data, Key, Compare>, 
 
 
     void graft(const key_type& key, node_type& src) {
-        // this would introduce cycles 
+        // this would introduce cycles
         if (this == &src) throw cycle_exception("graft(): operation introduces cycle");
         if (src.is_ancestor(*this)) throw cycle_exception("graft(): operation introduces cycle");
 
@@ -1030,6 +1030,3 @@ struct node_keyed: public node_base<Tree, node_keyed<Tree, Data, Key, Compare>, 
 } // namespace st_tree
 
 #endif
-
-
-

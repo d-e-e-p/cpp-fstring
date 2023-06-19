@@ -232,7 +232,7 @@ class Processor:
 
         last_vartype = None
         for var in vars:
-            prefix = " " * var.indent
+            prefix = " " * var.indent  # # noqa: F841
             # vartype='T *' should still end up with description
             vlist = var.vartype.split(None, 1)
             vtype = vlist[0]

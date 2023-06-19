@@ -43,7 +43,7 @@ class SampleClass: public BaseSampleClass
     bool prop3;     /*!< prop6 description */
     double prop4;   //!< prop7 description
                     //!< with two lines
-    
+
     /// prop8 description
     int prop5;
     Elephant el_derived = EL_TEN;
@@ -109,7 +109,7 @@ class Bug_3488053
 // Bug 3488360
 namespace Citrus
 {
-  class BloodOrange { 
+  class BloodOrange {
     public:
       int bo=1;
   };
@@ -386,5 +386,3 @@ public:
         Joey();
     };
 };
-
-

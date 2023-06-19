@@ -75,14 +75,11 @@ int main() {
 
   Bar<A, B> bar1 = {};
   bar1.dumb(A{}); // ok for everyone
-  fmt::print(fmt::format(" bar1={} ", bar1));    
+  fmt::print(fmt::format(" bar1={} ", bar1));
 
   Bar<C, D> bar2 = {};
-  fmt::print(fmt::format(" bar2={} ", bar2));    
+  fmt::print(fmt::format(" bar2={} ", bar2));
 
   //bar.dumb(B{}); // error for clang++, ok for g++
   return 0;
 }
-
-
-

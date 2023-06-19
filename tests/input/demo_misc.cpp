@@ -11,7 +11,7 @@
 /**
  * @file demo_misc.cpp
  * misc demo of cpp-fstring for STL variables
- * 
+ *
  * Examples of:
  *   1. Format Specifiers
  *   2. Dates
@@ -146,8 +146,8 @@ It was a sunny {time:%A} in {time:%B} around {time:%OI}{time:%p}
   Maps:
     map<string, int> {m1=}
     map<int, vector<int>> {m2=}
-    
-  Tuples: 
+
+  Tuples:
     tuple<double, char, string> {t1=}
 
    )" ;
@@ -186,4 +186,3 @@ It was a sunny {time:%A} in {time:%B} around {time:%OI}{time:%p}
 
 
 }
-

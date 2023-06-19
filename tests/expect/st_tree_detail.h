@@ -124,7 +124,7 @@ struct max_maintainer {
 template <typename DR> struct dr_value {// Generated to_string for PUBLIC CLASS_TEMPLATE st_tree::detail::dr_value<DR>
   public:
   auto to_string() const {
-    return fstr::format(R"( st_tree::detail::dr_value<DR>: 
+    return fstr::format(R"( st_tree::detail::dr_value<DR>:
 )");
   }
 };
@@ -136,7 +136,7 @@ struct dr_value<V*> {
 
 template <typename DR>
 struct dref_vmap {
-    // DR is a type that is de-referenceable: supports the unary "*" dereference operator 
+    // DR is a type that is de-referenceable: supports the unary "*" dereference operator
     typedef typename dr_value<DR>::value_type value_type;
 
     // These both return a non-const reference -- this enables me to handle
@@ -151,7 +151,7 @@ struct dref_vmap {
 // Generated to_string for PUBLIC CLASS_TEMPLATE st_tree::detail::dref_vmap<DR>
   public:
   auto to_string() const {
-    return fstr::format(R"( st_tree::detail::dref_vmap<DR>: 
+    return fstr::format(R"( st_tree::detail::dref_vmap<DR>:
 )");
   }
 };
@@ -171,7 +171,7 @@ struct dref_second_vmap {
 // Generated to_string for PUBLIC CLASS_TEMPLATE st_tree::detail::dref_second_vmap<P>
   public:
   auto to_string() const {
-    return fstr::format(R"( st_tree::detail::dref_second_vmap<P>: 
+    return fstr::format(R"( st_tree::detail::dref_second_vmap<P>:
 )");
   }
 };
@@ -265,7 +265,7 @@ struct valmap_iterator_adaptor_random {
     public:
     valmap_iterator_adaptor_random() : _base(), _vmap() {}
     virtual ~valmap_iterator_adaptor_random() {}
-    
+
     valmap_iterator_adaptor_random(const valmap_iterator_adaptor_random& src): _base(src._base), _vmap(src._vmap) {}
     valmap_iterator_adaptor_random& operator=(const valmap_iterator_adaptor_random& src) {
         if (this == &src) return *this;
@@ -380,7 +380,7 @@ struct valmap_iterator_dispatch {
 // Generated to_string for PUBLIC CLASS_TEMPLATE st_tree::detail::valmap_iterator_dispatch<Iterator, ValMap, Category>
   public:
   auto to_string() const {
-    return fstr::format(R"( st_tree::detail::valmap_iterator_dispatch<Iterator, ValMap, Category>: 
+    return fstr::format(R"( st_tree::detail::valmap_iterator_dispatch<Iterator, ValMap, Category>:
 )");
   }
 };
@@ -435,7 +435,7 @@ struct dereferenceable_lessthan {
 // Generated to_string for PUBLIC CLASS_TEMPLATE st_tree::detail::dereferenceable_lessthan<Container>
   public:
   auto to_string() const {
-    return fstr::format(R"( st_tree::detail::dereferenceable_lessthan<Container>: 
+    return fstr::format(R"( st_tree::detail::dereferenceable_lessthan<Container>:
 )");
   }
 };
@@ -457,7 +457,7 @@ struct vmap_dispatch {
 // Generated to_string for PUBLIC CLASS_TEMPLATE st_tree::detail::vmap_dispatch<Node, Value>
   public:
   auto to_string() const {
-    return fstr::format(R"( st_tree::detail::vmap_dispatch<Node, Value>: 
+    return fstr::format(R"( st_tree::detail::vmap_dispatch<Node, Value>:
 )");
   }
 };
@@ -478,7 +478,7 @@ struct node_type_dispatch {
 // Generated to_string for PUBLIC CLASS_TEMPLATE st_tree::detail::node_type_dispatch<Tree, CSModel>
   public:
   auto to_string() const {
-    return fstr::format(R"( st_tree::detail::node_type_dispatch<Tree, CSModel>: 
+    return fstr::format(R"( st_tree::detail::node_type_dispatch<Tree, CSModel>:
 )");
   }
 };
@@ -540,6 +540,3 @@ void swap(st_tree::detail::node_keyed<Tree, Data, Key, Compare>& a, st_tree::det
 }  // namespace std
 
 #endif
-
-
-

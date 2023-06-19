@@ -16,9 +16,9 @@
 #include "fstr.h"
 
 
-struct Foo { 
-  int a = 32; 
-  int b[10] = {}; 
+struct Foo {
+  int a = 32;
+  int b[10] = {};
 };
 
 struct Bar {
@@ -50,7 +50,7 @@ int main()
   cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
   // can't print loc
   struct Local {
-    int x = 0;    
+    int x = 0;
   } loc;
 
   cout << "{Outer()=}";

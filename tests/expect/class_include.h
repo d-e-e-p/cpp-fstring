@@ -36,7 +36,7 @@ class BaseSampleClass {
   Elephant el_base = EL_TWO ;
 
   friend class SampleClass;
-// Generated formatter for PRIVATE enum BaseSampleClass::Elephant of type UINT 
+// Generated formatter for PRIVATE enum BaseSampleClass::Elephant of type UINT
  friend constexpr auto format_as(const BaseSampleClass::Elephant obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -62,7 +62,7 @@ class SampleClass: public BaseSampleClass
     bool prop3;     /*!< prop6 description */
     double prop4;   //!< prop7 description
                     //!< with two lines
-    
+
     /// prop8 description
     int prop5;
     Elephant el_derived = EL_TEN;
@@ -93,7 +93,7 @@ namespace Alpha
          Z_E = '9',
          Z_F = 9,
     	} Zebra;
-    // Generated formatter for PROTECTED enum Alpha::AlphaClass::Zebra of type UINT 
+    // Generated formatter for PROTECTED enum Alpha::AlphaClass::Zebra of type UINT
  friend constexpr auto format_as(const Alpha::AlphaClass::Zebra obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -135,7 +135,7 @@ namespace Alpha
 				/// item four
 				RI_FOUR,
 			} Rino;
-		// Generated formatter for PROTECTED enum Alpha::Omega::OmegaClass::Rino of type UINT 
+		// Generated formatter for PROTECTED enum Alpha::Omega::OmegaClass::Rino of type UINT
  friend constexpr auto format_as(const Alpha::Omega::OmegaClass::Rino obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
@@ -183,10 +183,10 @@ class Bug_3488053
 // Bug 3488360
 namespace Citrus
 {
-  class BloodOrange { 
+  class BloodOrange {
     public:
       int bo=1;
-  
+
   friend class ExcellentCake;
 // Generated to_string for PUBLIC CLASS_DECL Citrus::BloodOrange
   public:
@@ -467,7 +467,7 @@ public:
 // Generated to_string for PUBLIC CLASS_TEMPLATE CherryClass<ID>
   public:
   auto to_string() const {
-    return fstr::format(R"( CherryClass<ID>: 
+    return fstr::format(R"( CherryClass<ID>:
 )");
   }
 };
@@ -483,7 +483,7 @@ public:
 // Generated to_string for PUBLIC CLASS_TEMPLATE GarlicClass<T>
   public:
   auto to_string() const {
-    return fstr::format(R"( GarlicClass<T>: 
+    return fstr::format(R"( GarlicClass<T>:
 )");
   }
 };
@@ -624,8 +624,3 @@ public:
         Joey();
     };
 };
-
-
-
-
-

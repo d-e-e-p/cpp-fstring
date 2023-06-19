@@ -13,11 +13,11 @@
 
 // Anonymous Class : Class is not having any name
 struct {
-    int i; 
+    int i;
 } obj0;
 
 struct Base {
-    int i; 
+    int i;
 };
 
 namespace a::b::c {
@@ -32,7 +32,7 @@ struct enclose {
 } obj1;
 
 } // end namespace a::b::c
-int a::b::c::enclose::outer::inner::x = 42; 
+int a::b::c::enclose::outer::inner::x = 42;
 
 int main() {
   using std::cout;

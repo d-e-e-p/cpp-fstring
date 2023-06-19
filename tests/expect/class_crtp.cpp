@@ -15,7 +15,7 @@
 
 #include "fstr.h"
 
-// 
+//
 // from:
 // https://stackoverflow.com/questions/42795408/can-libclang-parse-the-crtp-pattern
 // https://stackoverflow.com/questions/41333185/python-clang-getting-template-arguments
@@ -26,7 +26,7 @@
 namespace A {
 
 template<class T>
-class TBase { 
+class TBase {
   public:
   int tbase = 0;
 // Generated to_string for PUBLIC CLASS_TEMPLATE A::TBase<T>
@@ -65,14 +65,14 @@ class X2 : public CBase {
     return fstr::format(R"( A::X2: int x2={}, cbase={}
 )", x2, this->cbase);
   }
-}; 
+};
 
 } // end namespace A
-  
+
 namespace B {
 
 template<class T>
-class TBase { 
+class TBase {
   int tbase = 0;
 // Generated to_string for PUBLIC CLASS_TEMPLATE B::TBase<T>
   public:
@@ -109,7 +109,7 @@ class Y2 : public CBase {
     return fstr::format(R"( B::Y2: int y2={}, cbase={}
 )", y2, this->cbase);
   }
-}; 
+};
 
 } // end namespace B
 
@@ -135,9 +135,3 @@ int main() {
 
   return 0;
 }
-
-
-
-
-
-

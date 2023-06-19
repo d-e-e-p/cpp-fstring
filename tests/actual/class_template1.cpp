@@ -38,7 +38,7 @@ public:
 };
 
 template<auto n>
-struct Auto { 
+struct Auto {
   int v = 1;
 // Generated to_string for PUBLIC CLASS_TEMPLATE Auto<n>
   public:
@@ -79,11 +79,11 @@ template<typename T>
 class my_array {// Generated to_string for PUBLIC CLASS_TEMPLATE my_array<T>
   public:
   auto to_string() const {
-    return fstr::format(R"( my_array<T>: 
+    return fstr::format(R"( my_array<T>:
 )");
   }
 };
- 
+
 // two type template parameters and one template template parameter:
 template<typename K, typename V, template<typename> typename C = my_array>
 class Map {
@@ -116,7 +116,7 @@ struct A {
 )", C, Y);
   }
 };
- 
+
 template<class B>
 struct X : A {
     B b; // A's B
@@ -190,7 +190,7 @@ int main() {
   cout << fmt::format("LimitedInt<uint16_t, 0, 4094>(10)={}", LimitedInt<uint16_t, 0, 4094>(10));
   cout << fmt::format("Auto<'a'>()={}", Auto<'a'>());
 
-  S<bool,10> s; 
+  S<bool,10> s;
   s.a[9] = true;
   cout << fmt::format("s={}", s);
 
@@ -221,5 +221,3 @@ constexpr auto format_as(const Cowboys obj) {
   }
   return name;
 }
-
-

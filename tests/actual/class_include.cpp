@@ -33,6 +33,3 @@ int main()
     cout << fmt::format("5. {}", EagleClass());
     cout << fmt::format("6. {}", FrogClass());
 }
-
-
-

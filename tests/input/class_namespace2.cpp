@@ -71,7 +71,7 @@ struct Derived1 : Base1 {
 // every object of type Derived2 includes Derived and Base as subobjects
 struct Derived2 : Derived0, Derived1 {
     int b{42}, d{42}, derived2;
-}; 
+};
 
 namespace Parent {
     inline namespace new_ns {
@@ -91,7 +91,7 @@ template<typename T>
 class my_array {
   T x;
 };
- 
+
 // two type template parameters and one template template parameter:
 template<typename K, typename V, template<typename> typename C = my_array>
 struct Map
@@ -106,7 +106,7 @@ struct Y {
     int C;
     int Y;
 };
- 
+
 template<class B>
 struct X : Y {
     B b; // A's B
@@ -130,13 +130,10 @@ int main() {
 
     Parent::C<int> c;
     cout << " {c=} \n";
-    
+
     Map<int, std::string> m1; // uses my_array as default container type
     cout << " {m1=} \n";
 
 
     return 0;
 }
-
-
-

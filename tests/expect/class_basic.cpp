@@ -16,9 +16,9 @@
 #include "fstr.h"
 
 
-struct Foo { 
-  int a = 32; 
-  int b[10] = {}; 
+struct Foo {
+  int a = 32;
+  int b[10] = {};
 // Generated to_string for PUBLIC STRUCT_DECL Foo
   public:
   auto to_string() const {
@@ -80,11 +80,8 @@ int main()
   cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
   // can't print loc
   struct Local {
-    int x = 0;    
+    int x = 0;
   } loc;
 
   cout << fmt::format("Outer()={}", Outer());
 }
-
-
-

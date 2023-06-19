@@ -16,9 +16,9 @@
 #include "fstr.h"
 
 
-struct Base { 
+struct Base {
   std::string bname = "base";
-  int a = 4; 
+  int a = 4;
 };
 
 struct Foo {

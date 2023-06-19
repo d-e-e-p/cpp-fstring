@@ -33,7 +33,7 @@ public:
 };
 
 template<auto n>
-struct Auto { 
+struct Auto {
   int v = 1;
 };
 
@@ -58,12 +58,12 @@ ValueList<42, 'A'>vl;
 template<class T>
 struct A {
     T t;
- 
+
     struct {
         long a, b;
     } u;
 };
- 
+
 
 template<class T>
 struct B {

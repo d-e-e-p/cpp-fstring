@@ -57,7 +57,7 @@ struct b1st_iterator {
     b1st_iterator operator++() {
         // if we are already past the end of elements in tree, then this is a no-op
         if (_queue.empty()) return *this;
-        
+
         // take current node off front of the queue
         node_type* f(_queue.front());
         _queue.pop_front();
@@ -178,7 +178,7 @@ struct d1st_post_iterator {
                 break;
             }
             iterator b(_stack.back().first->begin());
-            _stack.push_back(frame(&*b, iterator((b)->begin()), false));                
+            _stack.push_back(frame(&*b, iterator((b)->begin()), false));
         }
 
         return *this;
@@ -316,6 +316,3 @@ struct d1st_pre_iterator {
 
 
 #endif
-
-
-

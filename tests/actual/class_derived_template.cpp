@@ -27,7 +27,7 @@ class A {
   }
 };
 
-class B : public A { 
+class B : public A {
   int b = 13;
 // Generated to_string for PUBLIC CLASS_DECL B
   public:
@@ -49,7 +49,7 @@ template <typename T> class X {
   }
 };
 
-class Y : public X<bool> { 
+class Y : public X<bool> {
   int y = 13;
 // Generated to_string for PUBLIC CLASS_DECL Y
   public:
@@ -137,18 +137,12 @@ int main() {
     m.map3["key5"] = {{600}};
     m.map3["key6"] = {{700}, {800}};
 
-    // TODO(deep): fix derived template class missing map3 
+    // TODO(deep): fix derived template class missing map3
     // TODO(deep): map2 print is very ugly
     cout << fmt::format("Map m={}", m);
 
     cout << fmt::format("Helper<int>()={}", Helper<int>());
     cout << fmt::format("Helper<char>()={}", Helper<char>());
-    
+
     return 0;
 }
-
-
-
-
-
-

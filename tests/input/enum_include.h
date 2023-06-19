@@ -17,7 +17,7 @@ struct X { enum direction { left = 'l', right = 'r' }; };
 struct Y { enum E1 : int {}; };
 enum E2 { e1 };
 enum class Fruit { orange, apple, banana };
-struct S { using enum Fruit; }; 
+struct S { using enum Fruit; };
 enum struct E11 { x, y };
 
 std::vector<Foo> vc = {Foo::a, Foo::b, Foo::c, Foo::d, Foo::e, Foo::f, Foo::g};
@@ -25,4 +25,3 @@ std::map<Color, std::vector<Fruit>> mc = {
   {Color::red,    {Fruit::apple}},
   {Color::yellow, {Fruit::apple, Fruit::banana}},
 };
-

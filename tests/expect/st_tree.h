@@ -39,7 +39,7 @@ template <typename Unused = arg_unused>
 struct raw {// Generated to_string for PUBLIC CLASS_TEMPLATE st_tree::raw<Unused>
   public:
   auto to_string() const {
-    return fstr::format(R"( st_tree::raw<Unused>: 
+    return fstr::format(R"( st_tree::raw<Unused>:
 )");
   }
 };
@@ -48,7 +48,7 @@ template <typename Compare = arg_default>
 struct ordered {// Generated to_string for PUBLIC CLASS_TEMPLATE st_tree::ordered<Compare>
   public:
   auto to_string() const {
-    return fstr::format(R"( st_tree::ordered<Compare>: 
+    return fstr::format(R"( st_tree::ordered<Compare>:
 )");
   }
 };
@@ -57,7 +57,7 @@ template <typename Key, typename Compare = std::less<Key> >
 struct keyed {// Generated to_string for PUBLIC CLASS_TEMPLATE st_tree::keyed<Key, Compare>
   public:
   auto to_string() const {
-    return fstr::format(R"( st_tree::keyed<Key, Compare>: 
+    return fstr::format(R"( st_tree::keyed<Key, Compare>:
 )");
   }
 };
@@ -128,7 +128,7 @@ struct cycle_exception: public exception {
   }
 };
 
-// attempting operation that is undefined on an empty tree 
+// attempting operation that is undefined on an empty tree
 struct empty_exception: public exception {
     empty_exception() throw(): exception() {}
     virtual ~empty_exception() throw() {}
@@ -385,6 +385,3 @@ const typename tree<Data, CSModel, Alloc>::node_type tree<Data, CSModel, Alloc>:
 
 
 #endif  // __st_tree_h__
-
-
-

@@ -15,8 +15,8 @@
 
 #include "fstr.h"
 
-struct Base { 
-  int a; 
+struct Base {
+  int a;
   union {
     int i;
     double d;

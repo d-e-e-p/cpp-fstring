@@ -125,7 +125,7 @@ struct Derived2 : Derived0, Derived1 {
     return fstr::format(R"( Derived2: int b={}, d={}, derived2={}, a={}, derived0={}, base0={}, c={}, derived1={}, base1={}
 )", b, d, derived2, this->a, this->derived0, this->base0, this->c, this->derived1, this->base1);
   }
-}; 
+};
 
 namespace Parent {
     inline namespace new_ns {
@@ -157,7 +157,7 @@ class my_array {
 )", typeid(T).name(), x);
   }
 };
- 
+
 // two type template parameters and one template template parameter:
 template<typename K, typename V, template<typename> typename C = my_array>
 struct Map
@@ -190,7 +190,7 @@ struct Y {
 )", C, Y);
   }
 };
- 
+
 template<class B>
 struct X : Y {
     B b; // A's B
@@ -220,16 +220,10 @@ int main() {
 
     Parent::C<int> c;
     cout << fmt::format(" c={} \n", c);
-    
+
     Map<int, std::string> m1; // uses my_array as default container type
     cout << fmt::format(" m1={} \n", m1);
 
 
     return 0;
 }
-
-
-
-
-
-

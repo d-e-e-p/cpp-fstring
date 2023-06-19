@@ -39,7 +39,7 @@ public:
 };
 
 template<auto n>
-struct Auto { 
+struct Auto {
   int v = 1;
 // Generated to_string for PUBLIC CLASS_TEMPLATE Auto<n>
   public:
@@ -70,7 +70,7 @@ ValueList<42, 'A'>vl;
 template<class T>
 struct A {
     T t;
- 
+
     struct {
         long a, b;
     // Generated to_string for PUBLIC STRUCT_DECL A<T>::(unnamed struct at /Users/deep/build/tf/fstring_in_cpp/cpp-fstring-examples/examples/psrc/class_ctad.cpp:62:5)
@@ -87,7 +87,7 @@ struct A {
 )", typeid(T).name(), t, this->u.a, this->u.b);
   }
 };
- 
+
 
 template<class T>
 struct B {
@@ -111,6 +111,3 @@ int main() {
   cout << "\n";
 
 }
-
-
-

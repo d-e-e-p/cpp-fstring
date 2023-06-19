@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import os
+import subprocess
 import sys
 from glob import glob
 from pathlib import Path
 from unittest.mock import patch
-import pytest
+
+import pytest  # noqa: F401
 
 from cpp_fstring.cpp_fstring import run
 
@@ -24,12 +26,14 @@ def run_external_routine(actual_file, exebin_file):
 
 def filter_lines(input):
     """
-     remove out space in lines
+    remove out space in lines
     """
     output = []
     for line in input:
         line = line.strip()
         if line.isspace():
+            continue
+        if line == "":
             continue
         if "unnamed struct at " in line:
             continue
@@ -42,13 +46,14 @@ def filter_lines(input):
 
 def compare_output(capsys, actual_output, expect_output):
     # Compare the actual output with the expected output using pytest
-    with open(actual_output, "r") as factual:
-        with open(expect_output, "r") as fexpect:
+    with open(actual_output) as factual:
+        with open(expect_output) as fexpect:
             lactual = factual.read().split("\n")
             lexpect = fexpect.read().split("\n")
             lactual = filter_lines(lactual)
             lexpect = filter_lines(lexpect)
             assert lexpect == lactual
+
 
 def run_routine(capsys, input_file, actual_output):
     """
@@ -59,6 +64,7 @@ def run_routine(capsys, input_file, actual_output):
         captured = capsys.readouterr()
         with open(actual_output, "w") as file:
             file.write(captured.out)
+
 
 def test_compare(capsys):
     """
@@ -74,4 +80,3 @@ def test_compare(capsys):
             print(f"{input_file=} {actual_output=} {expect_output=}")
         run_routine(capsys, input_file, actual_output)
         compare_output(capsys, actual_output, expect_output)
-

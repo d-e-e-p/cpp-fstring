@@ -17,7 +17,7 @@
  * https://github.com/d-e-e-p/fixed-size-string-buffer
  * @copyright
  * Copyright (c) 2023 Sandeep <deep@tensorfield.ag>
- * 
+ *
  */
 
 
@@ -64,8 +64,8 @@ template <size_t SPACE>
 class FixedSizeStringBuffer {
 
  private:
-  // main storage for strings...search for plus1 for the reason for +1 
-  std::array<char, SPACE+1> chars_ = {}; 
+  // main storage for strings...search for plus1 for the reason for +1
+  std::array<char, SPACE+1> chars_ = {};
   // struct to store pointers to the start and length of a string in chars_.
   struct Pointer {
     size_t front;  // Position in char_ of start of string
@@ -83,9 +83,9 @@ class FixedSizeStringBuffer {
   ///  @brief Constructor that creates a string buffer of fixed character size
   ///  template value (eg <10>) has to be a constexpr, ie known at compile-time
   FixedSizeStringBuffer<SPACE>()
-      : max_chars_(SPACE) 
-  { 
-    clear(); 
+      : max_chars_(SPACE)
+  {
+    clear();
   }
 
   // ***********************************************************************
@@ -96,7 +96,7 @@ class FixedSizeStringBuffer {
   bool full() const  { return (free_chars_ == 0); }   ///< @brief every char in buffer is occupied
   size_t size() const { return ptr_.size(); }         ///< @brief number of strings in buffer
   size_t free_space() const { return free_chars_; }   ///< @brief free *char* space in buffer
-  //@} 
+  //@}
 
   // ***********************************************************************
   /// @name Modifiers
@@ -113,7 +113,7 @@ class FixedSizeStringBuffer {
   }
 
   /// @brief add elements to back of queue
-  void push(std::string_view str);  
+  void push(std::string_view str);
   /// @brief remove elements from front of queue
   std::string pop();
   /// @brief swap two queues of same character size
@@ -123,7 +123,7 @@ class FixedSizeStringBuffer {
   void emplace(Args&&... args) {
     push(std::string(std::forward<Args>(args)...));
   }
-  //@} 
+  //@}
 
 
   // ***********************************************************************
@@ -131,7 +131,7 @@ class FixedSizeStringBuffer {
   // ***********************************************************************
   //@{
   /// @brief oldest element still in buffer, rb[0]
-  inline std::string front() const { return at(0); }            
+  inline std::string front() const { return at(0); }
   /// @brief newest element pushed into buffer, rb[rb.size() - 1]
   inline std::string back() const { return at(ptr_.size() - 1); }
   /// @brief access element using rb[1] notation
@@ -151,8 +151,8 @@ class FixedSizeStringBuffer {
     std::cout << " debug set to " << std::boolalpha << debug_ << "\n";
   }
 
-  /// @brief for debugging purposes, dump internal state of queue, 
-  /// 
+  /// @brief for debugging purposes, dump internal state of queue,
+  ///
   /// both these variations show a represntation of the queue:
   /// @code
   ///   std::cout << rb;
@@ -173,11 +173,11 @@ class FixedSizeStringBuffer {
   /// @endcode
   /// @param[in] threshold determines whether to use horizontal or vertical output
   /// @param[in] os output stream, eg std::cout
-  void dump(std::ostream &os = std::cout, size_t threshold = 40) 
+  void dump(std::ostream &os = std::cout, size_t threshold = 40)
   {
     (max_chars_ > threshold) ? dump_long_str(os) : dump_short_str(os);
   }
-  //@} 
+  //@}
 
  private:
   // marker for char position used for pretty print of buffer
@@ -197,13 +197,13 @@ class FixedSizeStringBuffer {
 
 
 ///
-/// push first creates space in buffer by silently removing oldest 
-/// elements in queue until there is enough space. 
+/// push first creates space in buffer by silently removing oldest
+/// elements in queue until there is enough space.
 ///
 /// @param[in] str string to push into queue
-/// @warning attemping to push a string larger than capacity fails 
+/// @warning attemping to push a string larger than capacity fails
 /// just a with warning message, and queue is unchanged
-/// 
+///
 template <size_t SPACE>
 void FixedSizeStringBuffer<SPACE>::push(std::string_view str)
 {
@@ -241,7 +241,7 @@ void FixedSizeStringBuffer<SPACE>::push(std::string_view str)
     size_t seg2 = strlen - seg1;
 
     //
-    // str.copy and std::copy take about the same time, 
+    // str.copy and std::copy take about the same time,
     // but syntax is cleaner with str.copy
     //
     //std::copy(&str[0], &str[seg1], &chars_[start]);
@@ -258,7 +258,7 @@ void FixedSizeStringBuffer<SPACE>::push(std::string_view str)
 
 
 ///
-/// pop removes and returns the oldest string in buffer. 
+/// pop removes and returns the oldest string in buffer.
 /// eg to remove all enteries in buffer
 /// @code
 ///  while (! rb.empty()) {
@@ -269,8 +269,8 @@ void FixedSizeStringBuffer<SPACE>::push(std::string_view str)
 /// @return string at front of buffer, rb.front() or rb[0]
 /// @warning attemping to pop when the buffer is empty
 /// issues a warning message to stderr and returns a string
-/// with warning message. 
-/// 
+/// with warning message.
+///
 template <size_t SPACE>
 std::string FixedSizeStringBuffer<SPACE>::pop()
 {
@@ -293,9 +293,9 @@ std::string FixedSizeStringBuffer<SPACE>::pop()
 /// @param[in] pos valid pos values are from 0 to rb.size() - 1
 /// @return string at pos
 /// @warning attemping to retrieve a value out of range
-/// issues a warning message to stderr and also just returns 
+/// issues a warning message to stderr and also just returns
 /// a warning message instead of throwing an exception.
-/// 
+///
 
 template <size_t SPACE>
 std::string FixedSizeStringBuffer<SPACE>::at(size_t pos) const
@@ -314,7 +314,7 @@ std::string FixedSizeStringBuffer<SPACE>::at(size_t pos) const
     std::cerr << msg << "\n";
     return msg;
   }
-  // end of string marker is either 
+  // end of string marker is either
   //    - start of next string, or
   //    - _back for last string in queue
   size_t start = ptr_[pos].front;
@@ -323,8 +323,8 @@ std::string FixedSizeStringBuffer<SPACE>::at(size_t pos) const
   // str is in one segment  |   [start]-->[end]    |
   // str wraps around ring  |-->[end]   [start]--->|
   std::string str;
-  if (end > start) { 
-    str.append(&chars_[start], &chars_[end]); 
+  if (end > start) {
+    str.append(&chars_[start], &chars_[end]);
   } else {
     str.append(&chars_[start], &chars_[max_chars_]); // <-- plus1 needed because of &chars_[max_chars_])
     str.append(&chars_[0], &chars_[end]);
@@ -336,17 +336,17 @@ std::string FixedSizeStringBuffer<SPACE>::at(size_t pos) const
 /// swap can be used to exchange values between queues, eg
 /// @code
 ///   constexpr size_t size = 30;
-/// 
+///
 ///   auto buf1 = FixedSizeStringBuffer<size>();
 ///   auto buf2 = FixedSizeStringBuffer<size>();
-/// 
+///
 ///   // push/pop operations on buf1/2
-///   
+///
 ///   buf1.swap(buf2);
-///   
+///
 /// @endcode
 /// @param[in] other another buffer of exactly the same char size
-/// 
+///
 template <size_t SPACE>
 void FixedSizeStringBuffer<SPACE>::swap(FixedSizeStringBuffer<SPACE> &other)
 {
@@ -377,7 +377,7 @@ class fixed_size_string_buffer_utils {
   }
   //
 
-  
+
   // https://stackoverflow.com/questions/39262323/print-a-string-variable-with-its-special-characters
   static wchar_t escaped(const char ch) {
 
@@ -447,7 +447,7 @@ class fixed_size_string_buffer_utils {
 ///   std::cout << rb;
 ///   rb.dump(std::cout);
 /// @endcode
-/// 
+///
 template <size_t SPACE>
 std::ostream &operator<<(std::ostream &os, FixedSizeStringBuffer<SPACE> &rb)
 {
@@ -465,8 +465,8 @@ void FixedSizeStringBuffer<SPACE>::dump_long_str(std::ostream &os) const
     std::string cstr = ws2s(std::wstring{escaped(chars_[i])});
     os << "  c[" << std::setw(2) << i << "] = " << cstr;
     for (size_t k = 0; k < ptr_.size(); k++) {
-      if (ptr_[k].front == i) { 
-        os << " <-- str[" << std::setw(2) << k << "] = " << at(k) ; 
+      if (ptr_[k].front == i) {
+        os << " <-- str[" << std::setw(2) << k << "] = " << at(k) ;
       }
     }
     if (back_ == i) { os << " <-- back "; }
@@ -476,9 +476,9 @@ void FixedSizeStringBuffer<SPACE>::dump_long_str(std::ostream &os) const
 }
 
 template <size_t SPACE>
-void FixedSizeStringBuffer<SPACE>::dump_short_str(std::ostream &os) 
+void FixedSizeStringBuffer<SPACE>::dump_short_str(std::ostream &os)
 {
-    
+
   SlotState slot = mark_open_close_slots();
 
   print_box_line(os, slot, true);
@@ -491,12 +491,12 @@ void FixedSizeStringBuffer<SPACE>::dump_short_str(std::ostream &os)
 // each char has 3 slots:
 //  [open][word][close]
 //
-// open slot: marker for start of char, eg | for start of string  
+// open slot: marker for start of char, eg | for start of string
 // word slot: the character
 // clos slot: marker for end of char, eg | for end of string
 //
 template <size_t SPACE>
-typename FixedSizeStringBuffer<SPACE>::SlotState FixedSizeStringBuffer<SPACE>::mark_open_close_slots() 
+typename FixedSizeStringBuffer<SPACE>::SlotState FixedSizeStringBuffer<SPACE>::mark_open_close_slots()
 {
   // define vector (...or use map for longer strings?)
   SlotState slot;
@@ -536,8 +536,8 @@ typename FixedSizeStringBuffer<SPACE>::SlotState FixedSizeStringBuffer<SPACE>::m
 //
 //     [open][word][clos][open][word][clos]
 // top   ╭     ─     ─     ─     ─     ╮
-//                                            
-// bot   ╰     ─     ─     ─     ─     ╯ 
+//
+// bot   ╰     ─     ─     ─     ─     ╯
 //
 template <size_t SPACE>
 void FixedSizeStringBuffer<SPACE>::print_box_line(std::ostream &os, const SlotState& slot, bool is_top) const
@@ -604,7 +604,7 @@ void FixedSizeStringBuffer<SPACE>::print_box_line(std::ostream &os, const SlotSt
 //
 //     [open][word][clos][open][word][clos]
 // char  │     a                 b     │
-//                                            
+//
 //
 template <size_t SPACE>
 void FixedSizeStringBuffer<SPACE>::print_char_line(std::ostream &os, const SlotState& slot) const

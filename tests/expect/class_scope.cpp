@@ -102,6 +102,3 @@ int main() {
   cout << fmt::format(" doc={} \n", doc);
   return 0;
 }
-
-
-
