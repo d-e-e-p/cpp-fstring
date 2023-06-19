@@ -224,6 +224,11 @@ class Processor:
         template_decl_str, ttvars = self.get_template_decl(rec)
 
         decl = rec.name
+        # convert:
+        #  FrogClass::(unnamed struct at /Use...rc/class_include.h.fake.cpp:219:5)
+        # to:
+        #  FrogClass::(unnamed struct)
+        decl = re.sub(r"(.*)\(unnamed (\w+) at .*\)", r"\1(unnamed \2)", decl)
 
         out = f"""// Generated to_string for {rec.access_specifier} {rec.class_kind} {decl}
   public:
