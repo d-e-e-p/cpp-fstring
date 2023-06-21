@@ -104,37 +104,36 @@ while:
 
 .. code-block:: CPP
 
-  template <typename DataType, template<typename...> class ContainerType>
-  class Container {
-  public:
-      void addData(const DataType& data) {
-          container.push_back(data);
-      }
+    template <typename T, template<typename...> class C>
+    class Container {
+    public:
+        void addData(const T& data) {
+            container.push_back(data);
+        }
 
-  private:
-      ContainerType<DataType> container;
-  };
+    private:
+        C<T> container;
+    };
 
 gets an extra `to_string()` function:
 
 .. code-block:: CPP
 
-    template <typename DataType, template<typename...> class ContainerType>
+    template <typename T, template<typename...> class C>
     class Container {
     public:
-        void addData(const DataType& data) {
+        void addData(const T& data) {
             container.push_back(data);
         }
 
     private:
-        ContainerType<DataType> container;
-      // Generated to_string for PUBLIC CLASS_TEMPLATE Container<DataType, ContainerType>
-      public:
-      auto to_string() const {
-        return fstr::format("Container<DataType, ContainerType>: ContainerType<DataType> container={}\n", container)
+        C<T> container;
+    public:
+       // Generated to_string() for PUBLIC CLASS_TEMPLATE Container<T, C>
+       auto to_string() const {
+         return fstr::format("Container<T:={}>: C<T> container={}\n", fstr::get_type_name<T>(), container);
       }
     };
-
 
 
 
@@ -291,12 +290,7 @@ outputs:
 
 .. code-block:: sh
 
-     b= B<T>:
-         T=i t: 1
-         A<T> a:  A<T>:
-         T=i t: 2
-            long u.a: 3
-            long u.b: 4
+     b=B<T:=int>: T t=1, A<T> a=A<T:=int>: T t=2, long u.a=3, u.b=4
 
 
 Usage: What Doesn't Work
@@ -334,7 +328,7 @@ struct Map {
 };
 
 
-2. Limitations in fmt:: library, eg wchar_t is not supported:
+2. Limitations in fmt:: library, eg wchar_t is not completely supported even with xchar.h:
 
 .. code-block:: cpp
 
@@ -355,7 +349,7 @@ struct Map {
     }
 
 3. C++ features, eg inside functions we can't have other functions or template struct so
-   there is no way to define a formatter for enum line in :
+   there is no way to define a formatter for `enum line` in :
 
 .. code-block:: cpp
 
@@ -366,9 +360,10 @@ struct Map {
 
 4. Bugs/limitations of cpp-fstring.
 
-* majority of bugs are of course in this section, eg:
-  * ambiguous partial specializations
-
+* majority of bugs are of course in this section, eg code with:
+    * ambiguous partial specializations
+    * template parameter packs
+    * ...
 
   Perfect segway to contributing.
 
