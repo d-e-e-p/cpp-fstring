@@ -142,7 +142,7 @@ def dump(obj, name="obj"):
         # if isinstance(getattr(obj, attribute), str):
         if attribute.startswith("_"):
             continue
-        if attribute.startswith("objc_type_encoding"):  #   often makes dump crash
+        if attribute.startswith("objc_type_encoding"):  # often makes dump crash
             continue
 
         try:

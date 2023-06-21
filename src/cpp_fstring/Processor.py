@@ -235,8 +235,6 @@ class Processor:
             # prefix = " " * var.indent  # # noqa: F841
             # vartype='T *' should still end up with description
             vlist = var.vartype.split(None, 1)
-            vtype = vlist[0]
-            decoration = "" if (len(vlist) == 1) else vlist[1]
             vartype = var.vartype
             if vartype != last_vartype:
                 var.out = f"{var.vartype} "
