@@ -21,18 +21,16 @@ struct Base {
     int i;
     double d;
     char c;
-  // Generated to_string for PUBLIC UNION_DECL Base::(unnamed union)
+    // Generated to_string() for PUBLIC UNION_DECL Base::(unnamed union)
   public:
   auto to_string() const {
-    return fstr::format(R"( Base::(unnamed union): int i={}, double d={}, char c={}
-)", i, d, c);
+    return fstr::format(": int i={}, double d={}, char c={}\n", i, d, c);
   }
 } u;
-// Generated to_string for PUBLIC STRUCT_DECL Base
+  // Generated to_string() for PUBLIC STRUCT_DECL Base
   public:
   auto to_string() const {
-    return fstr::format(R"( Base: int a={}
-)", a);
+    return fstr::format(": int a={}\n", a);
   }
 } b;
 
@@ -41,11 +39,10 @@ union Onion {
   int i;
   double d;
   char c;
-// Generated to_string for PUBLIC UNION_DECL Onion
+  // Generated to_string() for PUBLIC UNION_DECL Onion
   public:
   auto to_string() const {
-    return fstr::format(R"( Onion: int i={}, double d={}, char c={}
-)", i, d, c);
+    return fstr::format(": int i={}, double d={}, char c={}\n", i, d, c);
   }
 } u;
 

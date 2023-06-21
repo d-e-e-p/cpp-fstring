@@ -37,11 +37,10 @@ public:
 private:
     T* t_;
     V v_;
-// Generated to_string for PUBLIC CLASS_TEMPLATE assign_value<T, V>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE assign_value<T, V>
   public:
   auto to_string() const {
-    return fstr::format(R"( assign_value<T, V>: <{}*> t_={}, <{}> v_={}
-)", typeid(T).name(), fmt::ptr(t_), typeid(V).name(), v_);
+    return fstr::format("assign_value<T:={}, V:={}>: T * t_={}, V v_={}\n", fstr::get_type_name<T>(), fstr::get_type_name<V>(), fmt::ptr(t_), v_);
   }
 };
 
@@ -56,38 +55,48 @@ private:
     private:
     std::string m_key;
     std::string m_value;
- // Generated to_string for PUBLIC CLASS_DECL KeyValue
+   // Generated to_string() for PUBLIC CLASS_DECL KeyValue
   public:
   auto to_string() const {
-    return fstr::format(R"( KeyValue: int m_key={}, m_value={}
-)", m_key, m_value);
+    return fstr::format(": int m_key={}, m_value={}\n", m_key, m_value);
   }
 };
 
 
-class documentation {
+class doc {
   public:
     int foo = 0;
   private:
-    enum class paragraph { param, group };
-    paragraph bar = paragraph::param;
+    enum class paragraph { words, punctuation };
+    paragraph bar = paragraph::words;
     // TODO(deep): find workaround for ::iterator and ::const_iterator issue with libclang
     // see https://github.com/llvm/llvm-project/issues/63277
     //std::vector<KeyValue>::const_iterator m_iter;
-// Generated formatter for PRIVATE enum documentation::paragraph of type INT scoped
- friend constexpr auto format_as(const documentation::paragraph obj) {
+  // Generated to_string() for PUBLIC CLASS_DECL doc
+  public:
+  auto to_string() const {
+    return fstr::format(": int foo={}, paragraph bar={}\n", foo, bar);
+  }
+// Generated formatter for PRIVATE enum doc::paragraph of type INT scoped
+ friend constexpr auto format_as(const doc::paragraph obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
-    case documentation::paragraph::param: name = "param"; break;  // index=0
-    case documentation::paragraph::group: name = "group"; break;  // index=1
+    case doc::paragraph::words      : name = "words"      ; break;  // index=0
+    case doc::paragraph::punctuation: name = "punctuation"; break;  // index=1
   }
   return name;
 }
-// Generated to_string for PUBLIC CLASS_DECL documentation
+};
+
+
+// from https://github.com/llvm/llvm-project/issues/48732
+struct S {
+    template <int> using N = int;
+    static constexpr int size = 5;
+  // Generated to_string() for PUBLIC STRUCT_DECL S
   public:
   auto to_string() const {
-    return fstr::format(R"( documentation: int foo={}, paragraph bar={}
-)", foo, bar);
+    return fstr::format(": const int size={}\n", size);
   }
 };
 
@@ -98,8 +107,8 @@ int main() {
   bool target = false;
   auto as = assign_value<bool>{target,true};
   cout << fmt::format(" as={} \n", as);
-  documentation doc;
-  cout << fmt::format(" doc={} \n", doc);
+  cout << fmt::format(" doc()={} \n", doc());
+  cout << fmt::format(" S()={} \n", S());
   return 0;
 }
 

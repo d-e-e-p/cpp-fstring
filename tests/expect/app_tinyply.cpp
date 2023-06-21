@@ -59,11 +59,10 @@ struct memory_buffer : public std::streambuf
     {
         return seekoff(pos, std::ios_base::beg, which);
     }
-// Generated to_string for PUBLIC STRUCT_DECL memory_buffer
+  // Generated to_string() for PUBLIC STRUCT_DECL memory_buffer
   public:
   auto to_string() const {
-    return fstr::format(R"( memory_buffer: char * p_start={}, p_end={}, int size={}
-)", fmt::ptr(p_start), fmt::ptr(p_end), size);
+    return fstr::format(": char * p_start={}, p_end={}, int size={}\n", fmt::ptr(p_start), fmt::ptr(p_end), size);
   }
 };
 
@@ -71,11 +70,10 @@ struct memory_stream : virtual memory_buffer, public std::istream
 {
     memory_stream(char const * first_elem, size_t size)
         : memory_buffer(first_elem, size), std::istream(static_cast<std::streambuf*>(this)) {}
-// Generated to_string for PUBLIC STRUCT_DECL memory_stream
+  // Generated to_string() for PUBLIC STRUCT_DECL memory_stream
   public:
   auto to_string() const {
-    return fstr::format(R"( memory_stream: char * p_start={}, p_end={}, int size={}
-)", fmt::ptr(this->p_start), fmt::ptr(this->p_end), this->size);
+    return fstr::format(": char * p_start={}, p_end={}, int size={}\n", fmt::ptr(this->p_start), fmt::ptr(this->p_end), this->size);
   }
 };
 
@@ -87,47 +85,41 @@ public:
     void start() { t0 = std::chrono::high_resolution_clock::now(); }
     void stop() { timestamp = std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - t0).count() * 1000.0; }
     const double & get() { return timestamp; }
-// Generated to_string for PUBLIC CLASS_DECL manual_timer
+  // Generated to_string() for PUBLIC CLASS_DECL manual_timer
   public:
   auto to_string() const {
-    return fstr::format(R"( manual_timer: int t0={}, double timestamp={}
-)", t0, timestamp);
+    return fstr::format(": int t0={}, double timestamp={}\n", t0, timestamp);
   }
 };
 
-struct float2 { float x, y; // Generated to_string for PUBLIC STRUCT_DECL float2
+struct float2 { float x, y;   // Generated to_string() for PUBLIC STRUCT_DECL float2
   public:
   auto to_string() const {
-    return fstr::format(R"( float2: float x={}, y={}
-)", x, y);
+    return fstr::format(": float x={}, y={}\n", x, y);
   }
 };
-struct float3 { float x, y, z; // Generated to_string for PUBLIC STRUCT_DECL float3
+struct float3 { float x, y, z;   // Generated to_string() for PUBLIC STRUCT_DECL float3
   public:
   auto to_string() const {
-    return fstr::format(R"( float3: float x={}, y={}, z={}
-)", x, y, z);
+    return fstr::format(": float x={}, y={}, z={}\n", x, y, z);
   }
 };
-struct double3 { double x, y, z; // Generated to_string for PUBLIC STRUCT_DECL double3
+struct double3 { double x, y, z;   // Generated to_string() for PUBLIC STRUCT_DECL double3
   public:
   auto to_string() const {
-    return fstr::format(R"( double3: double x={}, y={}, z={}
-)", x, y, z);
+    return fstr::format(": double x={}, y={}, z={}\n", x, y, z);
   }
 };
-struct uint3 { uint32_t x, y, z; // Generated to_string for PUBLIC STRUCT_DECL uint3
+struct uint3 { uint32_t x, y, z;   // Generated to_string() for PUBLIC STRUCT_DECL uint3
   public:
   auto to_string() const {
-    return fstr::format(R"( uint3: int x={}, y={}, z={}
-)", x, y, z);
+    return fstr::format(": int x={}, y={}, z={}\n", x, y, z);
   }
 };
-struct uint4 { uint32_t x, y, z, w; // Generated to_string for PUBLIC STRUCT_DECL uint4
+struct uint4 { uint32_t x, y, z, w;   // Generated to_string() for PUBLIC STRUCT_DECL uint4
   public:
   auto to_string() const {
-    return fstr::format(R"( uint4: int x={}, y={}, z={}, w={}
-)", x, y, z, w);
+    return fstr::format(": int x={}, y={}, z={}, w={}\n", x, y, z, w);
   }
 };
 
@@ -137,11 +129,10 @@ struct geometry
     std::vector<float3> normals;
     std::vector<float2> texcoords;
     std::vector<uint3> triangles;
-// Generated to_string for PUBLIC STRUCT_DECL geometry
+  // Generated to_string() for PUBLIC STRUCT_DECL geometry
   public:
   auto to_string() const {
-    return fstr::format(R"( geometry: int vertices={}, normals={}, texcoords={}, triangles={}
-)", vertices, normals, texcoords, triangles);
+    return fstr::format(": int vertices={}, normals={}, texcoords={}, triangles={}\n", vertices, normals, texcoords, triangles);
   }
 };
 

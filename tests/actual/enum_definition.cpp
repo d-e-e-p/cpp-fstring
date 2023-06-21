@@ -52,11 +52,10 @@ std::map<Color, std::vector<Fruit>> mc = {
 };
 
 enum class Shape { TRIANGLE, SQUARE, };
-struct Point { int x; int y; // Generated to_string for PUBLIC STRUCT_DECL Point
+struct Point { int x; int y;   // Generated to_string() for PUBLIC STRUCT_DECL Point
   public:
   auto to_string() const {
-    return fstr::format(R"( Point: int x={}, y={}
-)", x, y);
+    return fstr::format(": int x={}, y={}\n", x, y);
   }
 };
 std::map<Shape, std::vector<Point>> shapes = {

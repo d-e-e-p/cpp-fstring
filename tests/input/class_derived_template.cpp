@@ -11,6 +11,9 @@
 // from https://stackoverflow.com/questions/41333185/python-clang-getting-template-arguments
 #include <iostream>
 #include <string>
+#include <vector>
+#include <list>
+#include <map>
 
 #include "fstr.h"
 
@@ -35,8 +38,6 @@ class Y : public X<bool> {
 
 
 // set2
-#include <map>
-#include <vector>
 template<typename T>
 struct Obj {
     T value;
@@ -59,6 +60,21 @@ struct Helper {
 template <>
 struct Helper <int> {
   int value = 2;
+};
+
+//
+// simple template typename example
+//
+
+template <typename T, template<typename...> class C>
+class Container {
+public:
+    void addData(const T& data) {
+        container.push_back(data);
+    }
+
+private:
+    C<T> container;
 };
 
 
@@ -94,5 +110,16 @@ int main() {
     cout << "{Helper<int>()=}";
     cout << "{Helper<char>()=}";
 
+    Container<int, std::vector> dp1;
+    dp1.addData(10);
+    dp1.addData(20);
+    dp1.addData(30);
+    cout << "Container<int, std::vector> {dp1=}";
+
+
+    Container<std::string, std::list> dp2;
+    dp2.addData("Hello");
+    dp2.addData("World");
+    cout << "Container<std::string, std::list> {dp2=}";
     return 0;
 }

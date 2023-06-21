@@ -14,21 +14,19 @@
 // Anonymous Class : Class is not having any name
 struct {
     int i;
-// Generated to_string for PUBLIC STRUCT_DECL (unnamed struct)
+  // Generated to_string() for PUBLIC STRUCT_DECL (unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format(R"( (unnamed struct): int i={}
-)", i);
+    return fstr::format(": int i={}\n", i);
   }
 } obj0;
 
 struct Base {
     int i;
-// Generated to_string for PUBLIC STRUCT_DECL Base
+  // Generated to_string() for PUBLIC STRUCT_DECL Base
   public:
   auto to_string() const {
-    return fstr::format(R"( Base: int i={}
-)", i);
+    return fstr::format(": int i={}\n", i);
   }
 };
 
@@ -39,25 +37,22 @@ struct enclose {
       static int x;
       int y;
       Base b;
-    // Generated to_string for PUBLIC STRUCT_DECL a::b::c::enclose::outer::inner
+      // Generated to_string() for PUBLIC STRUCT_DECL a::b::c::enclose::outer::inner
   public:
   auto to_string() const {
-    return fstr::format(R"( a::b::c::enclose::outer::inner: int x={}, y={}, Base b={}
-)", x, y, b);
+    return fstr::format(": int x={}, y={}, Base b={}\n", x, y, b);
   }
 } foo;
-   // Generated to_string for PUBLIC STRUCT_DECL a::b::c::enclose::outer
+     // Generated to_string() for PUBLIC STRUCT_DECL a::b::c::enclose::outer
   public:
   auto to_string() const {
-    return fstr::format(R"( a::b::c::enclose::outer: struct inner foo={}
-)", foo);
+    return fstr::format(": struct inner foo={}\n", foo);
   }
 } bar;
-// Generated to_string for PUBLIC STRUCT_DECL a::b::c::enclose
+  // Generated to_string() for PUBLIC STRUCT_DECL a::b::c::enclose
   public:
   auto to_string() const {
-    return fstr::format(R"( a::b::c::enclose: struct outer bar={}
-)", bar);
+    return fstr::format(": struct outer bar={}\n", bar);
   }
 } obj1;
 

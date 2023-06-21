@@ -29,22 +29,20 @@ public:
    T getValue() const {
       return mValue;
    }
-// Generated to_string for PUBLIC CLASS_TEMPLATE LimitedInt<T, Min, Max>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE LimitedInt<T, Min, Max>
   public:
   auto to_string() const {
-    return fstr::format(R"( LimitedInt<T, Min, Max>: <{}> mValue={}
-)", typeid(T).name(), mValue);
+    return fstr::format("LimitedInt<T:={}, Min:={}, Max:={}>: T mValue={}\n", fstr::get_type_name<T>(), Min, Max, mValue);
   }
 };
 
 template<auto n>
 struct Auto {
   int v = 1;
-// Generated to_string for PUBLIC CLASS_TEMPLATE Auto<n>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Auto<n>
   public:
   auto to_string() const {
-    return fstr::format(R"( Auto<n>: int v={}
-)", v);
+    return fstr::format("Auto<n:={}>: int v={}\n", n, v);
   }
 };
 
@@ -53,11 +51,10 @@ struct Auto {
 template <auto... Values>
 struct ValueList {
     static constexpr auto values = std::array{Values...};
-// Generated to_string for PUBLIC CLASS_TEMPLATE ValueList<Values>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE ValueList<Values>
   public:
   auto to_string() const {
-    return fstr::format(R"( ValueList<Values>: const auto values={}
-)", values);
+    return fstr::format("ValueList<...Values>: const auto values={}\n", values);
   }
 };
 
@@ -67,20 +64,18 @@ struct Const {
   // making this static would optimize out v!
 	//static const int v = N0 + N1 + N2 + N3;
 	int v = N0 + N1 + N2 + N3;
-// Generated to_string for PUBLIC CLASS_TEMPLATE Const<N0, N1, N2, N3>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Const<N0, N1, N2, N3>
   public:
   auto to_string() const {
-    return fstr::format(R"( Const<N0, N1, N2, N3>: int v={}
-)", v);
+    return fstr::format("Const<N0:={}, N1:={}, N2:={}, N3:={}>: int v={}\n", N0, N1, N2, N3, v);
   }
 };
 
 template<typename T>
-class my_array {// Generated to_string for PUBLIC CLASS_TEMPLATE my_array<T>
+class my_array {  // Generated to_string() for PUBLIC CLASS_TEMPLATE my_array<T>
   public:
   auto to_string() const {
-    return fstr::format(R"( my_array<T>: 
-)");
+    return fstr::format("my_array<T:={}>: \n", fstr::get_type_name<T>());
   }
 };
 
@@ -89,42 +84,38 @@ template<typename K, typename V, template<typename> typename C = my_array>
 class Map {
     C<K> key;
     C<V> value;
-// Generated to_string for PUBLIC CLASS_TEMPLATE Map<K, V, C>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Map<K, V, C>
   public:
   auto to_string() const {
-    return fstr::format(R"( Map<K, V, C>: C<K> key={}, C<V> value={}
-)", key, value);
+    return fstr::format("Map<K:={}, V:={}>: C<K> key={}, C<V> value={}\n", fstr::get_type_name<K>(), fstr::get_type_name<V>(), key, value);
   }
 };
 
 struct A {
     struct B {
       int X;
-    // Generated to_string for PUBLIC STRUCT_DECL A::B
+      // Generated to_string() for PUBLIC STRUCT_DECL A::B
   public:
   auto to_string() const {
-    return fstr::format(R"( A::B: int X={}
-)", X);
+    return fstr::format(": int X={}\n", X);
   }
 };
     int C;
     int Y;
-// Generated to_string for PUBLIC STRUCT_DECL A
+  // Generated to_string() for PUBLIC STRUCT_DECL A
   public:
   auto to_string() const {
-    return fstr::format(R"( A: int C={}, Y={}
-)", C, Y);
+    return fstr::format(": int C={}, Y={}\n", C, Y);
   }
 };
 
 template<class B>
 struct X : A {
     B b; // A's B
-// Generated to_string for PUBLIC CLASS_TEMPLATE X<B>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE X<B>
   public:
   auto to_string() const {
-    return fstr::format(R"( X<B>: <{}> b={}, int C={}, Y={}
-)", typeid(B).name(), b, this->C, this->Y);
+    return fstr::format("X<B:={}>: B b={}, int C={}, Y={}\n", fstr::get_type_name<B>(), b, this->C, this->Y);
   }
 };
 
@@ -133,21 +124,19 @@ template <typename T>
 struct Pair {
     T first{};
     T second{};
-// Generated to_string for PUBLIC CLASS_TEMPLATE Pair<T>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Pair<T>
   public:
   auto to_string() const {
-    return fstr::format(R"( Pair<T>: <{}> first={}, second={}
-)", typeid(T).name(), first, second);
+    return fstr::format("Pair<T:={}>: T first={}, second={}\n", fstr::get_type_name<T>(), first, second);
   }
 };
 
 // simple non-type template parameter
 template<typename T, int N>
-struct S {T a[N] = {}; // Generated to_string for PUBLIC CLASS_TEMPLATE S<T, N>
+struct S {T a[N] = {};   // Generated to_string() for PUBLIC CLASS_TEMPLATE S<T, N>
   public:
   auto to_string() const {
-    return fstr::format(R"( S<T, N>: T[N] a={}
-)", a);
+    return fstr::format("S<T:={}, N:={}>: T[N] a={}\n", fstr::get_type_name<T>(), N, a);
   }
 };
 
@@ -171,11 +160,10 @@ public:
 
 private:
     Ty r, i;
-// Generated to_string for PUBLIC CLASS_TEMPLATE Complex<Ty>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Complex<Ty>
   public:
   auto to_string() const {
-    return fstr::format(R"( Complex<Ty>: <{}> r={}, i={}
-)", typeid(Ty).name(), r, i);
+    return fstr::format("Complex<Ty:={}>: Ty r={}, i={}\n", fstr::get_type_name<Ty>(), r, i);
   }
 };
 

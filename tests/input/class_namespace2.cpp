@@ -77,7 +77,7 @@ namespace Parent {
     inline namespace new_ns {
          template <typename T>
          struct C {
-             T member;
+             T member {};
          };
     }
     // TODO(deep): including the next line masks to_string

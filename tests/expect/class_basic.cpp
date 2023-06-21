@@ -19,11 +19,10 @@
 struct Foo {
   int a = 32;
   int b[10] = {};
-// Generated to_string for PUBLIC STRUCT_DECL Foo
+  // Generated to_string() for PUBLIC STRUCT_DECL Foo
   public:
   auto to_string() const {
-    return fstr::format(R"( Foo: int a={}, int[10] b={}
-)", a, b);
+    return fstr::format(": int a={}, int[10] b={}\n", a, b);
   }
 };
 
@@ -32,11 +31,10 @@ struct Bar {
     int i = 10;
     double f = 3.14;
     Foo foo;
-// Generated to_string for PUBLIC STRUCT_DECL Bar
+  // Generated to_string() for PUBLIC STRUCT_DECL Bar
   public:
   auto to_string() const {
-    return fstr::format(R"( Bar: char[50] name={}, int i={}, double f={}, Foo foo={}
-)", name, i, f, foo);
+    return fstr::format(": char[50] name={}, int i={}, double f={}, Foo foo={}\n", name, i, f, foo);
   }
 };
 
@@ -46,11 +44,10 @@ class Rectangle {
     void set_values (int,int);
     int area (void);
     Bar bar;
-// Generated to_string for PUBLIC CLASS_DECL Rectangle
+  // Generated to_string() for PUBLIC CLASS_DECL Rectangle
   public:
   auto to_string() const {
-    return fstr::format(R"( Rectangle: int width={}, height={}, Bar bar={}
-)", width, height, bar);
+    return fstr::format(": int width={}, height={}, Bar bar={}\n", width, height, bar);
   }
 } rect;
 
@@ -59,18 +56,16 @@ class Outer {
     int a = 12;
     int b = 24;
     Rectangle r;
-  // Generated to_string for PRIVATE STRUCT_DECL Outer::(unnamed struct)
+    // Generated to_string() for PRIVATE STRUCT_DECL Outer::(unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format(R"( Outer::(unnamed struct): int a={}, b={}, Rectangle r={}
-)", a, b, r);
+    return fstr::format(": int a={}, b={}, Rectangle r={}\n", a, b, r);
   }
 } anon;
-// Generated to_string for PUBLIC CLASS_DECL Outer
+  // Generated to_string() for PUBLIC CLASS_DECL Outer
   public:
   auto to_string() const {
-    return fstr::format(R"( Outer: int anon.a={}, anon.b={}, Rectangle anon.r={}
-)", this->anon.a, this->anon.b, this->anon.r);
+    return fstr::format(": int anon.a={}, anon.b={}, Rectangle anon.r={}\n", this->anon.a, this->anon.b, this->anon.r);
   }
 } out;
 

@@ -11,6 +11,9 @@
 // from https://stackoverflow.com/questions/41333185/python-clang-getting-template-arguments
 #include <iostream>
 #include <string>
+#include <vector>
+#include <list>
+#include <map>
 
 #include "fstr.h"
 
@@ -19,21 +22,19 @@ class A {
   int a = 32;
 
   friend class B;
-// Generated to_string for PUBLIC CLASS_DECL A
+  // Generated to_string() for PUBLIC CLASS_DECL A
   public:
   auto to_string() const {
-    return fstr::format(R"( A: int a={}
-)", a);
+    return fstr::format(": int a={}\n", a);
   }
 };
 
 class B : public A {
   int b = 13;
-// Generated to_string for PUBLIC CLASS_DECL B
+  // Generated to_string() for PUBLIC CLASS_DECL B
   public:
   auto to_string() const {
-    return fstr::format(R"( B: int b={}, a={}
-)", b, this->a);
+    return fstr::format(": int b={}, a={}\n", b, this->a);
   }
 };
 
@@ -41,36 +42,31 @@ class B : public A {
 template <typename T> class X {
   public:
   T x;
-// Generated to_string for PUBLIC CLASS_TEMPLATE X<T>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE X<T>
   public:
   auto to_string() const {
-    return fstr::format(R"( X<T>: <{}> x={}
-)", typeid(T).name(), x);
+    return fstr::format("X<T:={}>: T x={}\n", fstr::get_type_name<T>(), x);
   }
 };
 
 class Y : public X<bool> {
   int y = 13;
-// Generated to_string for PUBLIC CLASS_DECL Y
+  // Generated to_string() for PUBLIC CLASS_DECL Y
   public:
   auto to_string() const {
-    return fstr::format(R"( Y: int y={}
-)", y);
+    return fstr::format(": int y={}\n", y);
   }
 };
 
 
 // set2
-#include <map>
-#include <vector>
 template<typename T>
 struct Obj {
     T value;
-// Generated to_string for PUBLIC CLASS_TEMPLATE Obj<T>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Obj<T>
   public:
   auto to_string() const {
-    return fstr::format(R"( Obj<T>: <{}> value={}
-)", typeid(T).name(), value);
+    return fstr::format("Obj<T:={}>: T value={}\n", fstr::get_type_name<T>(), value);
   }
 };
 
@@ -80,11 +76,10 @@ struct Map {
   std::map<K, Obj<T>> map2;
   // map3 is not found by libclang
   std::map<K, std::vector<Obj<T>>> map3;
-// Generated to_string for PUBLIC CLASS_TEMPLATE Map<K, T>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Map<K, T>
   public:
   auto to_string() const {
-    return fstr::format(R"( Map<K, T>: int map1={}, map2={}
-)", map1, map2);
+    return fstr::format("Map<K:={}, T:={}>: int map1={}, map2={}\n", fstr::get_type_name<K>(), fstr::get_type_name<T>(), map1, map2);
   }
 };
 
@@ -92,22 +87,40 @@ struct Map {
 template <class T>
 struct Helper {
   int value = 1;
-// Generated to_string for PUBLIC CLASS_TEMPLATE Helper<T>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Helper<T>
   public:
   auto to_string() const {
-    return fstr::format(R"( Helper<T>: int value={}
-)", value);
+    return fstr::format("Helper<T:={}>: int value={}\n", fstr::get_type_name<T>(), value);
   }
 };
 
 template <>
 struct Helper <int> {
   int value = 2;
-// Generated to_string for PUBLIC STRUCT_DECL Helper<int>
+  // Generated to_string() for PUBLIC STRUCT_DECL Helper<int>
   public:
   auto to_string() const {
-    return fstr::format(R"( Helper<int>: int value={}
-)", value);
+    return fstr::format(": int value={}\n", value);
+  }
+};
+
+//
+// simple template typename example
+//
+
+template <typename T, template<typename...> class C>
+class Container {
+public:
+    void addData(const T& data) {
+        container.push_back(data);
+    }
+
+private:
+    C<T> container;
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Container<T, C>
+  public:
+  auto to_string() const {
+    return fstr::format("Container<T:={}>: C<T> container={}\n", fstr::get_type_name<T>(), container);
   }
 };
 
@@ -144,6 +157,17 @@ int main() {
     cout << fmt::format("Helper<int>()={}", Helper<int>());
     cout << fmt::format("Helper<char>()={}", Helper<char>());
 
+    Container<int, std::vector> dp1;
+    dp1.addData(10);
+    dp1.addData(20);
+    dp1.addData(30);
+    cout << fmt::format("Container<int, std::vector> dp1={}", dp1);
+
+
+    Container<std::string, std::list> dp2;
+    dp2.addData("Hello");
+    dp2.addData("World");
+    cout << fmt::format("Container<std::string, std::list> dp2={}", dp2);
     return 0;
 }
 

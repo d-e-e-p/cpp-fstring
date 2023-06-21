@@ -25,11 +25,10 @@ struct Foo
         u.echo_dumb(v);
     }
     U u;
-// Generated to_string for PUBLIC CLASS_TEMPLATE Foo<U>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Foo<U>
   public:
   auto to_string() const {
-    return fstr::format(R"( Foo<U>: <{}> u={}
-)", typeid(U).name(), u);
+    return fstr::format("Foo<U:={}>: U u={}\n", fstr::get_type_name<U>(), u);
   }
 };
 
@@ -45,28 +44,25 @@ struct Bar
         t.echo_dumb(v);
     }
     T t;
-// Generated to_string for PUBLIC CLASS_TEMPLATE Bar<T, U>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Bar<T, U>
   public:
   auto to_string() const {
-    return fstr::format(R"( Bar<T, U>: <{}> t={}, u={}
-)", typeid(T).name(), t, typeid(U).name(), this->u);
+    return fstr::format("Bar<T:={}, U:={}>: T t={}, U u={}\n", fstr::get_type_name<T>(), fstr::get_type_name<U>(), t, this->u);
   }
 };
 
 struct A { void echo_dumb(A const &) {} };
 struct B { void echo_dumb(B const &) {} };
-struct C { int c = 42; void echo_dumb(C const &) {} // Generated to_string for PUBLIC STRUCT_DECL C
+struct C { int c = 42; void echo_dumb(C const &) {}   // Generated to_string() for PUBLIC STRUCT_DECL C
   public:
   auto to_string() const {
-    return fstr::format(R"( C: int c={}
-)", c);
+    return fstr::format(": int c={}\n", c);
   }
 };
-struct D { int d = 24; void echo_dumb(D const &) {} // Generated to_string for PUBLIC STRUCT_DECL D
+struct D { int d = 24; void echo_dumb(D const &) {}   // Generated to_string() for PUBLIC STRUCT_DECL D
   public:
   auto to_string() const {
-    return fstr::format(R"( D: int d={}
-)", d);
+    return fstr::format(": int d={}\n", d);
   }
 };
 

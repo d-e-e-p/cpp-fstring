@@ -75,6 +75,11 @@ class FixedSizeStringBuffer {
    };
 
     void print_box_line();
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE fssb::FixedSizeStringBuffer<SPACE>
+  public:
+  auto to_string() const {
+    return fstr::format("fssb::FixedSizeStringBuffer<SPACE:={}>: int chars_={}, max_chars_={}, const int box_top={}, box_bot={}\n", SPACE, chars_, max_chars_, box_top, box_bot);
+  }
 // Generated formatter for PUBLIC enum fssb::FixedSizeStringBuffer<SPACE>::CT of type INT scoped
  friend constexpr auto format_as(const fssb::FixedSizeStringBuffer<SPACE>::CT obj) {
   fmt::string_view name = "<missing>";
@@ -88,12 +93,6 @@ class FixedSizeStringBuffer {
   }
   return name;
 }
-// Generated to_string for PUBLIC CLASS_TEMPLATE fssb::FixedSizeStringBuffer<SPACE>
-  public:
-  auto to_string() const {
-    return fstr::format(R"( fssb::FixedSizeStringBuffer<SPACE>: int chars_={}, max_chars_={}, const int box_top={}, box_bot={}
-)", chars_, max_chars_, box_top, box_bot);
-  }
 };
 
 template <size_t SPACE>
