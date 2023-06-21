@@ -33,8 +33,10 @@ def filter_lines(input):
         line = line.strip()
         if line.isspace():
             continue
-        # TODO: fix false error due to ordering of namespace 
-        if line.startswith("namespace Xnamespace {using ::format_as;}") or line.startswith("namespace roman {using ::format_as;}"):
+        # TODO: fix false error due to ordering of namespace
+        if line.startswith("namespace Xnamespace {using ::format_as;}") or line.startswith(
+            "namespace roman {using ::format_as;}"
+        ):
             continue
         if line == "":
             continue

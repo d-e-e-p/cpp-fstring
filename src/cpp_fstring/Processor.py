@@ -253,7 +253,6 @@ class Processor:
         # TODO: only use this-> for class templates
         paramlist = tvars
         for var in vars:
-
             if var.indent > 0:
                 name = f"this->{var.name}"
             else:
@@ -478,11 +477,11 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
         return out, tvarlist
 
     def extract_template_list_items(self, text):
-        pattern = r'<(.*?)>'
+        pattern = r"<(.*?)>"
         matches = re.findall(pattern, text)
-        items = [item.strip() for item in matches[0].split(',')] if matches else []
+        items = [item.strip() for item in matches[0].split(",")] if matches else []
 
-        match = re.search(r'(.*)<', text)
+        match = re.search(r"(.*)<", text)
         prefix = match.group(1) if match else ""
 
         return prefix, items
@@ -562,7 +561,6 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
         template_decl_str, tvars = self.get_template_decl(rec)
 
         decl = rec.name
-
 
         out = f"""// Generated formatter for {rec.access_specifier} {rec.class_kind} {decl}
 template <{template_decl_str}>

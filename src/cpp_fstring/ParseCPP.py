@@ -86,7 +86,7 @@ class ClassVar:
     vartype: str
     access_specifier: str = "PUBLIC"
     indent: int = 0
-    template_type: str = ""      # TODO: use enum for valid values type, non_type, template ?
+    template_type: str = ""  # TODO: use enum for valid values type, non_type, template ?
     is_pointer: bool = False
     is_param_pack: bool = False
     parent_node = None
@@ -142,7 +142,7 @@ def dump(obj, name="obj"):
         # if isinstance(getattr(obj, attribute), str):
         if attribute.startswith("_"):
             continue
-        if attribute.startswith("objc_type_encoding"): #   often makes dump crash
+        if attribute.startswith("objc_type_encoding"):  #   often makes dump crash
             continue
 
         try:
@@ -660,7 +660,7 @@ class ParseCPP:
                 template_type_map = {
                     is_template_type_param: "type",
                     is_template_non_type_param: "non_type",
-                    is_template_template_param: "template"
+                    is_template_template_param: "template",
                 }
 
                 # print(f" {fd.kind} {fd.spelling} type:{fd.type.spelling} is_def:{fd.is_definition()}
