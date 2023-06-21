@@ -221,53 +221,38 @@ class Processor:
         # if len(vars) == 0:
         #    return f"{rec.name}"
 
-        template_decl_str, ttvars = self.get_template_decl(rec)
+        decl_str, tvars = self.expand_template_decl(rec)
 
-        decl = rec.name
-        # convert:
-        #  FrogClass::(unnamed struct at /Use...rc/class_include.h.fake.cpp:219:5)
-        # to:
-        #  FrogClass::(unnamed struct)
-        decl = re.sub(r"(.*)\(unnamed (\w+) at .*\)", r"\1(unnamed \2)", decl)
-
-        out = f"""// Generated to_string for {rec.access_specifier} {rec.class_kind} {decl}
+        out = f"""  // Generated to_string() for {rec.access_specifier} {rec.class_kind} {rec.name}
   public:
   auto to_string() const {{
-    return fstr::format(R"( {decl}: """
+    return fstr::format("{decl_str}: """
 
+        # produce the list of vars
+        #   var.out : stores either 'foo =' or 'int foo = '
         last_vartype = None
         for var in vars:
-            prefix = " " * var.indent  # # noqa: F841
+            # prefix = " " * var.indent  # # noqa: F841
             # vartype='T *' should still end up with description
             vlist = var.vartype.split(None, 1)
             vtype = vlist[0]
             decoration = "" if (len(vlist) == 1) else vlist[1]
-            if vtype in ttvars:
-                # vartype = f"{vtype}={{}}{decoration}"
-                vartype = f"<{{}}{decoration}>"
-            else:
-                vartype = var.vartype
-            if vartype == last_vartype:
-                var.out = f"{var.name}={{}}"
-            else:
-                var.out = f"{vartype} {var.name}={{}}"
-            last_vartype = vartype
+            vartype = var.vartype
+            if vartype != last_vartype:
+                var.out = f"{var.vartype} "
+            var.out += f"{var.name}={{}}"
+            last_vartype = var.vartype
 
-        out += ", ".join([var.out for var in vars])
-        out += '\n)"'
+        vars_outlist = [var.out for var in vars]
+        out += ", ".join(vars_outlist)
+        out += '\\n"'
         # bpdb.set_trace()
 
         # deal with pointers using fmt::ptr
         # deal with special cases of derived variables in class templates using this->
         # TODO: only use this-> for class templates
-        varlist = []
-        last_vtype = None
+        paramlist = tvars
         for var in vars:
-            vtype = var.vartype.split()[0]
-            if vtype in ttvars:
-                if vtype != last_vtype:
-                    varlist.append(f"typeid({vtype}).name()")
-            last_vtype = vtype
 
             if var.indent > 0:
                 name = f"this->{var.name}"
@@ -275,12 +260,12 @@ class Processor:
                 name = var.name
 
             if var.is_pointer:
-                varlist.append(f"fmt::ptr({name})")
+                paramlist.append(f"fmt::ptr({name})")
             else:
-                varlist.append(name)
+                paramlist.append(name)
 
-        if varlist:
-            out += ", " + ", ".join(varlist)
+        if paramlist:
+            out += ", " + ", ".join(paramlist)
 
         out += """);
   }
@@ -435,6 +420,73 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
             changes += self.gen_one_class(rec)
         return changes
 
+    def expand_template_decl(self, rec):
+        """
+        look thru decl for template arguments, eg:
+
+                LimitedInt<T, Min, Max>
+
+        for these template arguments, replace decl with:
+
+                LimitedInt<T{int}, Min{0}, Max{100}>
+
+        also varlist becomes:
+
+            typeid(T).name(), Min, Max
+
+        """
+
+        decl = rec.name
+        # convert:
+        #  FrogClass::(unnamed struct at /Use...rc/class_include.h.fake.cpp:219:5)
+        # to:
+        #  FrogClass::(unnamed struct)
+        decl = re.sub(r"(.*)\(unnamed (\w+) at .*\)", r"\1(unnamed \2)", decl)
+
+        # ok stop here if we're not a template
+        if rec.class_kind != "CLASS_TEMPLATE":
+            return decl, []
+
+        # LimitedInt<T, Min, Max> -> "LimitedInt",  ["T", "Min", "Max"]
+        # 3 types of template params: type, non_type and template
+        #   non_type can have no name..
+        toutlist = []
+        tvarlist = []
+        prefix, bracket_vars = self.extract_template_list_items(rec.name)
+        out = f"{prefix}<"
+
+        # sometimes names in brackets don't exist as template names, eg
+        #   template<class T, class V, bool = (sizeof(V) > sizeof(T))>
+        # here bool will end up as a non template var of name = ''
+        for bvar in bracket_vars:
+            tvar = next((tvar for tvar in rec.tvars if tvar.name == bvar), None)
+            if tvar is None:
+                continue
+            if tvar.template_type == "type":
+                toutlist.append(f"{bvar}:={{}}")
+                tvarlist.append(f"fstr::get_type_name<{bvar}>()")
+            elif tvar.template_type == "non_type":
+                if tvar.is_param_pack:
+                    toutlist.append(f"...{bvar}")
+                else:
+                    toutlist.append(f"{bvar}:={{}}")
+                    tvarlist.append(bvar)
+
+        out += ", ".join(toutlist)
+        out += ">"
+        log.debug(f" template_decl_str = {out}")
+        return out, tvarlist
+
+    def extract_template_list_items(self, text):
+        pattern = r'<(.*?)>'
+        matches = re.findall(pattern, text)
+        items = [item.strip() for item in matches[0].split(',')] if matches else []
+
+        match = re.search(r'(.*)<', text)
+        prefix = match.group(1) if match else ""
+
+        return prefix, items
+
     def get_template_decl(self, rec):
         """
         look thru definitions and produce list that goes inside template <>, eg
@@ -510,6 +562,7 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
         template_decl_str, tvars = self.get_template_decl(rec)
 
         decl = rec.name
+
 
         out = f"""// Generated formatter for {rec.access_specifier} {rec.class_kind} {decl}
 template <{template_decl_str}>

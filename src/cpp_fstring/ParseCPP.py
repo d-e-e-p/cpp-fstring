@@ -86,8 +86,9 @@ class ClassVar:
     vartype: str
     access_specifier: str = "PUBLIC"
     indent: int = 0
-    is_template_type: bool = False
-    is_pointer = False
+    template_type: str = ""      # TODO: use enum for valid values type, non_type, template ?
+    is_pointer: bool = False
+    is_param_pack: bool = False
     parent_node = None
     out: str = ""
 
@@ -140,6 +141,8 @@ def dump(obj, name="obj"):
     for attribute in dir(obj):
         # if isinstance(getattr(obj, attribute), str):
         if attribute.startswith("_"):
+            continue
+        if attribute.startswith("objc_type_encoding"): #   often makes dump crash
             continue
 
         try:
@@ -358,10 +361,10 @@ class ParseCPP:
 
     # from https://gist.github.com/scturtle/a7b5349028c249f2e9eeb5688d3e0c5e
     def visit(self, node: Cursor, indent: int, saw: set, callback: Callable[[], str]):
-        kind = node.kind
-        # skip printting UNEXPOSED_*
-        if not kind.is_unexposed():
-            callback(node, indent)
+        # skip printting UNEXPOSED_* ?
+        # kind = node.kind
+        # if not kind.is_unexposed():
+        callback(node, indent)
         saw.add(node.hash)
         if node.referenced is not None and node.referenced.hash not in saw:
             self.visit(node.referenced, indent + self.INDENT, saw, callback)
@@ -383,7 +386,13 @@ class ParseCPP:
             if num_temp_args > 0:
                 line += f"  ta={num_temp_args}"
 
-        log.debug(line)
+        if hasattr(node, "get_tokens"):
+            tokens = ""
+            for fd in node.get_tokens():
+                tokens += " " + fd.spelling
+            line += f"  tok={tokens}"
+
+            log.debug(line)
 
     def extract_enum_records(self):
         """
@@ -648,17 +657,26 @@ class ParseCPP:
                 is_template_type_param = fd.kind == CK.TEMPLATE_TYPE_PARAMETER
                 is_template_non_type_param = fd.kind == CK.TEMPLATE_NON_TYPE_PARAMETER
                 is_template_template_param = fd.kind == CK.TEMPLATE_TEMPLATE_PARAMETER
+                template_type_map = {
+                    is_template_type_param: "type",
+                    is_template_non_type_param: "non_type",
+                    is_template_template_param: "template"
+                }
+
                 # print(f" {fd.kind} {fd.spelling} type:{fd.type.spelling} is_def:{fd.is_definition()}
                 # as:{fd.access_specifier.name} dn:{fd.displayname} ")
-                if is_template_type_param or is_template_non_type_param:
+                if is_template_type_param or is_template_non_type_param or is_template_template_param:
                     qualified_name = self.get_qualified_name(fd)
                     tvar_record = ClassVar(
                         fd.spelling, qualified_name, fd.displayname, fd.type.spelling, fd.access_specifier.name, 0
                     )
-                    tvar_record.is_template_type = is_template_type_param
+                    tvar_record.template_type = template_type_map[True]
+                    # detect param packs like in template < auto ... Values >
+                    for tok in fd.get_tokens():
+                        if tok.kind == TokenKind.PUNCTUATION and tok.spelling == "...":
+                            tvar_record.is_param_pack = True
+
                     class_record.tvars.append(tvar_record)
-                if is_template_template_param:
-                    pass
 
         class_record.vars = self.extract_vars_from_class(node, prefix="", indent=0)
         self.mark_base_classes_with_protected_vars(class_record)

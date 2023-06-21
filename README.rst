@@ -42,14 +42,14 @@ which produces the output:
 
     fruit by colors: mc = {red: [apple], yellow: [apple, banana]}
 
-cpp-fstring generates the boilerplate code to display a variety of containers including
+cpp-fstring generates the boilerplate code to display enum, as well as a variety of containers including
 enums, structs and classes.
 
 Credits
 =======
 
 -  This project has been set up using `PyScaffold <https://pyscaffold.org/>`__
--  Posts explaining `C++ template <https://victor-istomin.github.io/c-with-crosses/posts/templates-are-easy/>`__
+-  Post explaining `C++ template <https://victor-istomin.github.io/c-with-crosses/posts/templates-are-easy/>`__
 -  C++ formatting library `{fmt} <https://fmt.dev/latest/index.html>`__
 -  Python interface to the `Clang indexing library <https://libclang.readthedocs.io/en/latest/>`__
 -  Packaged version of Clang Python Bindings `libclang <https://pypi.org/project/libclang/>`__
@@ -99,6 +99,45 @@ explodes into:
       }
       return name;
     }
+
+while:
+
+.. code-block:: CPP
+
+  template <typename DataType, template<typename...> class ContainerType>
+  class Container {
+  public:
+      void addData(const DataType& data) {
+          container.push_back(data);
+      }
+
+  private:
+      ContainerType<DataType> container;
+  };
+
+gets an extra `to_string()` function:
+
+.. code-block:: CPP
+
+    template <typename DataType, template<typename...> class ContainerType>
+    class Container {
+    public:
+        void addData(const DataType& data) {
+            container.push_back(data);
+        }
+
+    private:
+        ContainerType<DataType> container;
+      // Generated to_string for PUBLIC CLASS_TEMPLATE Container<DataType, ContainerType>
+      public:
+      auto to_string() const {
+        return fstr::format("Container<DataType, ContainerType>: ContainerType<DataType> container={}\n", container)
+      }
+    };
+
+
+
+
 
 Install
 =======
