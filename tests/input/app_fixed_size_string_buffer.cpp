@@ -1,11 +1,12 @@
 
-#include "fixed_size_string_buffer.h"
-#include "fstr.h"
-
 #include <iostream>
 #include <sstream>
 
-int main() {
+#include "fixed_size_string_buffer.h"
+#include "fstr.h"
+
+int main()
+{
   using std::cout;
   cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
 
@@ -17,8 +18,6 @@ int main() {
   const std::string str = "The Quick Brown Fox Jumped Over The Lazy Dog";
   std::istringstream ss(str);
   std::string word;
-  while (ss >> word) {
-    rb.push(word);
-  }
+  while (ss >> word) { rb.push(word); }
   cout << " {rb=} ";
 }

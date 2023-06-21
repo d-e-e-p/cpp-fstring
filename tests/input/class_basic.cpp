@@ -9,12 +9,8 @@
    @license MIT License
 */
 #include <iostream>
-#include <map>
-#include <string>
-#include <vector>
 
 #include "fstr.h"
-
 
 struct Foo {
   int a = 32;
@@ -22,18 +18,19 @@ struct Foo {
 };
 
 struct Bar {
-    char name[50] = "foo" ;
-    int i = 10;
-    double f = 3.14;
-    Foo foo;
+  char name[50] = "foo";
+  int i = 10;
+  double f = 3.14;
+  Foo foo;
 };
 
 class Rectangle {
-    int width, height;
+  int width, height;
+
   public:
-    void set_values (int,int);
-    int area (void);
-    Bar bar;
+  void set_values(int, int);
+  int area(void);
+  Bar bar;
 } rect;
 
 class Outer {

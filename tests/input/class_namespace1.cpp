@@ -9,15 +9,16 @@
    @license MIT License
 */
 #include <iostream>
+
 #include "fstr.h"
 
 // Anonymous Class : Class is not having any name
 struct {
-    int i;
+  int i;
 } obj0;
 
 struct Base {
-    int i;
+  int i;
 };
 
 namespace a::b::c {
@@ -28,16 +29,17 @@ struct enclose {
       int y;
       Base b;
     } foo;
-   } bar;
+  } bar;
 } obj1;
 
-} // end namespace a::b::c
+}  // end namespace a::b::c
 int a::b::c::enclose::outer::inner::x = 42;
 
-int main() {
+int main()
+{
   using std::cout;
   cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
-    a::b::c::obj1.bar.foo.y = 24;
-    cout << " {a::b::c::obj1=} \n";
-    return 0;
+  a::b::c::obj1.bar.foo.y = 24;
+  cout << " {a::b::c::obj1=} \n";
+  return 0;
 }

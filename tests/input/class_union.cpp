@@ -24,13 +24,11 @@ struct Base {
   } u;
 } b;
 
-
 union Onion {
   int i;
   double d;
   char c;
 } u;
-
 
 int main()
 {
@@ -41,6 +39,6 @@ int main()
   u.i = 10;
   u.d = 4.2;
   u.c = 'u';
-  cout << "u.i = " << u.i <<  " u.d = " << u.d <<  " u.c = " << u.c << " \n";
+  cout << "u.i = " << u.i << " u.d = " << u.d << " u.c = " << u.c << " \n";
   cout << " {u=} \n";
 }

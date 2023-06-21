@@ -20,58 +20,61 @@
 //
 
 namespace A {
-    template <typename T>
-    class Base {
-    public:
-        T x;
-      // Generated to_string() for PUBLIC CLASS_TEMPLATE A::Base<T>
+template <typename T>
+class Base {
+ public:
+  T x;
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE A::Base<T>
   public:
   auto to_string() const {
     return fstr::format("A::Base<T:={}>: T x={}\n", fstr::get_type_name<T>(), x);
   }
 };
 
-    template <typename T>
-    class Derived : public Base<T> {
-    public:
-        T y;
-      // Generated to_string() for PUBLIC CLASS_TEMPLATE A::Derived<T>
+template <typename T>
+class Derived : public Base<T> {
+ public:
+  T y;
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE A::Derived<T>
   public:
   auto to_string() const {
     return fstr::format("A::Derived<T:={}>: T y={}, x={}\n", fstr::get_type_name<T>(), y, this->x);
   }
 };
-} // end namespace A
-
+}  // end namespace A
 
 // from https://learn.microsoft.com/en-us/cpp/cpp/namespaces-cpp?view=msvc-170
 // test inline namespace
 namespace Test {
-    namespace old_ns {
-        auto Func() { return std::string("Hello from old"); }
-        struct S { int a{0};   // Generated to_string() for PUBLIC STRUCT_DECL Test::old_ns::S
+namespace old_ns {
+auto Func() { return std::string("Hello from old"); }
+struct S {
+  int a{0};
+  // Generated to_string() for PUBLIC STRUCT_DECL Test::old_ns::S
   public:
   auto to_string() const {
     return fstr::format(": int a={}\n", a);
   }
 } s;
-    }
+}  // namespace old_ns
 
-    inline namespace new_ns {
-        auto Func() { return std::string("Hello from new"); }
-        struct S { int a{1};   // Generated to_string() for PUBLIC STRUCT_DECL Test::new_ns::S
+inline namespace new_ns {
+auto Func() { return std::string("Hello from new"); }
+struct S {
+  int a{1};
+  // Generated to_string() for PUBLIC STRUCT_DECL Test::new_ns::S
   public:
   auto to_string() const {
     return fstr::format(": int a={}\n", a);
   }
 } s;
-    }
-}
+}  // namespace new_ns
+}  // namespace Test
 
 //
 // from https://devdocs.io/cpp/language/derived_class
 struct Base0 {
-    int a, b , base0;
+  int a, b, base0;
   // Generated to_string() for PUBLIC STRUCT_DECL Base0
   public:
   auto to_string() const {
@@ -80,7 +83,7 @@ struct Base0 {
 };
 
 struct Base1 {
-    int c, d , base1;
+  int c, d, base1;
   // Generated to_string() for PUBLIC STRUCT_DECL Base1
   public:
   auto to_string() const {
@@ -90,7 +93,7 @@ struct Base1 {
 
 // every object of type Derived includes Base as a subobject
 struct Derived0 : Base0 {
-    int a {10}, derived0;
+  int a{10}, derived0;
   // Generated to_string() for PUBLIC STRUCT_DECL Derived0
   public:
   auto to_string() const {
@@ -99,7 +102,7 @@ struct Derived0 : Base0 {
 };
 
 struct Derived1 : Base1 {
-    int c {21}, derived1;
+  int c{21}, derived1;
   // Generated to_string() for PUBLIC STRUCT_DECL Derived1
   public:
   auto to_string() const {
@@ -107,10 +110,9 @@ struct Derived1 : Base1 {
   }
 };
 
-
 // every object of type Derived2 includes Derived and Base as subobjects
 struct Derived2 : Derived0, Derived1 {
-    int b{42}, d{42}, derived2;
+  int b{42}, d{42}, derived2;
   // Generated to_string() for PUBLIC STRUCT_DECL Derived2
   public:
   auto to_string() const {
@@ -119,25 +121,25 @@ struct Derived2 : Derived0, Derived1 {
 };
 
 namespace Parent {
-    inline namespace new_ns {
-         template <typename T>
-         struct C {
-             T member {};
-           // Generated to_string() for PUBLIC CLASS_TEMPLATE Parent::new_ns::C<T>
+inline namespace new_ns {
+template <typename T>
+struct C {
+  T member{};
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Parent::new_ns::C<T>
   public:
   auto to_string() const {
     return fstr::format("Parent::new_ns::C<T:={}>: T member={}\n", fstr::get_type_name<T>(), member);
   }
 };
-    }
-    // TODO(deep): including the next line masks to_string
-    // template<> class C<int> {};
-}
+}  // namespace new_ns
+   // TODO(deep): including the next line masks to_string
+   // template<> class C<int> {};
+}  // namespace Parent
 
 //
 // from https://en.cppreference.com/w/cpp/language/template_parameters
 //
-template<typename T>
+template <typename T>
 class my_array {
   T x;
   // Generated to_string() for PUBLIC CLASS_TEMPLATE my_array<T>
@@ -148,11 +150,10 @@ class my_array {
 };
 
 // two type template parameters and one template template parameter:
-template<typename K, typename V, template<typename> typename C = my_array>
-struct Map
-{
-    C<K> key = {};
-    C<V> value = {};
+template <typename K, typename V, template <typename> typename C = my_array>
+struct Map {
+  C<K> key = {};
+  C<V> value = {};
   // Generated to_string() for PUBLIC CLASS_TEMPLATE Map<K, V, C>
   public:
   auto to_string() const {
@@ -160,16 +161,16 @@ struct Map
   }
 };
 struct Y {
-    struct B {
-      int X;
-      // Generated to_string() for PUBLIC STRUCT_DECL Y::B
+  struct B {
+    int X;
+    // Generated to_string() for PUBLIC STRUCT_DECL Y::B
   public:
   auto to_string() const {
     return fstr::format(": int X={}\n", X);
   }
 };
-    int C;
-    int Y;
+  int C;
+  int Y;
   // Generated to_string() for PUBLIC STRUCT_DECL Y
   public:
   auto to_string() const {
@@ -177,9 +178,9 @@ struct Y {
   }
 };
 
-template<class B>
+template <class B>
 struct X : Y {
-    B b; // A's B
+  B b;  // A's B
   // Generated to_string() for PUBLIC CLASS_TEMPLATE X<B>
   public:
   auto to_string() const {
@@ -187,30 +188,29 @@ struct X : Y {
   }
 };
 
-
-int main() {
+int main()
+{
   using namespace Test;
   using std::cout;
   cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
 
-    cout << fmt::format(" old Func()=old_ns::Func()={} s = old_ns::s={} \n", old_ns::Func(), old_ns::s);
-    cout << fmt::format(" new Func()=Func()={} s = {} \n", Func(), s);
-    cout << fmt::format(" Base0()={} Base1()={} Derived0()={} Derived1()={} Derived2()={}\n", Base0(), Base1(), Derived0(), Derived1(), Derived2());
+  cout << fmt::format(" old Func()=old_ns::Func()={} s = old_ns::s={} \n", old_ns::Func(), old_ns::s);
+  cout << fmt::format(" new Func()=Func()={} s = {} \n", Func(), s);
+  cout << fmt::format(" Base0()={} Base1()={} Derived0()={} Derived1()={} Derived2()={}\n", Base0(), Base1(), Derived0(), Derived1(), Derived2());
 
-    //A::Derived<int> obj;
-    //obj.x = 12;
-    //obj.y = 21;
-    A::Derived<int> obj{1, 2};
-    cout << fmt::format(" obj={} \n", obj);
+  // A::Derived<int> obj;
+  // obj.x = 12;
+  // obj.y = 21;
+  A::Derived<int> obj{1, 2};
+  cout << fmt::format(" obj={} \n", obj);
 
-    Parent::C<int> c;
-    cout << fmt::format(" c={} \n", c);
+  Parent::C<int> c;
+  cout << fmt::format(" c={} \n", c);
 
-    Map<int, std::string> m1; // uses my_array as default container type
-    cout << fmt::format(" m1={} \n", m1);
+  Map<int, std::string> m1;  // uses my_array as default container type
+  cout << fmt::format(" m1={} \n", m1);
 
-
-    return 0;
+  return 0;
 }
 
 

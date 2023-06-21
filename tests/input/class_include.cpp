@@ -13,6 +13,8 @@
 // Copyright (C) 2011, Jashua R. Cloutier
 // License: BSD
 
+#include "class_include.h"
+
 #include <iostream>
 #include <map>
 #include <string>
@@ -20,16 +22,14 @@
 
 #include "fstr.h"
 
-#include "class_include.h"
-
 int main()
 {
   using std::cout;
   cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
-    cout << "1. {SampleClass()}";
-    cout << "2. {Bug_3488053()}";
-    cout << "3. {Bananna()}";
-    cout << "4. {Bird()}";
-    cout << "5. {EagleClass()}";
-    cout << "6. {FrogClass()}";
+  cout << "1. {SampleClass()}";
+  cout << "2. {Bug_3488053()}";
+  cout << "3. {Bananna()}";
+  cout << "4. {Bird()}";
+  cout << "5. {EagleClass()}";
+  cout << "6. {FrogClass()}";
 }

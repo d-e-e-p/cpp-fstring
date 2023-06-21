@@ -9,8 +9,9 @@
    @license MIT License
 */
 
-#include <map>
 #include <iostream>
+#include <map>
+
 #include "fstr.h"
 
 using namespace std::string_literals;
@@ -23,33 +24,30 @@ namespace {
 enum class ecdir { left, right };
 enum edir { eleft, eright };
 
-}
+}  // namespace
 
 struct Xstruct {
-  public:
-    enum dir { left, right };
-    enum class cdir { left, right };
+ public:
+  enum dir { left, right };
+  enum class cdir { left, right };
 };
 
 class Xclass {
-  public:
-    enum dir { left, right };
-    enum class cdir { left, right };
-};
-
-
-namespace Xnamespace {
+ public:
   enum dir { left, right };
   enum class cdir { left, right };
-}
+};
+
+namespace Xnamespace {
+enum dir { left, right };
+enum class cdir { left, right };
+}  // namespace Xnamespace
 
 //
 // see https://wgml.pl/blog/formatting-user-defined-types-fmt.html
 //
 namespace roman {
-
-  enum class sym {M, D, C, L, X, V, I};
-
+  enum class sym { M, D, C, L, X, V, I };
   std::map<sym, int> numerals = {
     {sym::M, 1000},
     {sym::D,  500},
@@ -59,12 +57,10 @@ namespace roman {
     {sym::V,    5},
     {sym::I,    1}
   };
-
 }  // namespace roman
 
-
-
-int main() {
+int main()
+{
   using std::cout;
   cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
 
@@ -87,5 +83,4 @@ Test enum namespaces
      std::map<sym, int> {roman::numerals=}
 
   )";
-
 }

@@ -25,31 +25,32 @@
    @license MIT License
 */
 
-#include <ctime>             // for tm
-#include <cwchar>            // for tm
-#include <iostream>          // for operator<<, cout, basic_ostream
-#include <map>               // for operator!=, map
-#include <string>            // for basic_string, char_traits, operator""s, operator<, string_literals
-#include <tuple>             // for tuple
-#include <valarray>          // for __val_expr, pow, begin, end, operator+, valarray
-#include <variant>           // for variant
-#include <vector>            // for vector
-#include <cmath>
 #include <chrono>
+#include <cmath>
+#include <ctime>     // for tm
+#include <cwchar>    // for tm
+#include <iostream>  // for operator<<, cout, basic_ostream
 #include <list>
+#include <map>  // for operator!=, map
+#include <string>  // for basic_string, char_traits, operator""s, operator<, string_literals
+#include <tuple>     // for tuple
+#include <valarray>  // for __val_expr, pow, begin, end, operator+, valarray
+#include <variant>   // for variant
+#include <vector>    // for vector
 
-#include "fstr.h"
 #include "fmt/chrono.h"
+#include "fstr.h"
 
 using namespace std::string_literals;
 
-int main() {
+int main()
+{
   using std::cout;
   cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
 
   std::string str;
   int num = 97;
-  cout <<  fmt::format(R"(
+  cout << fmt::format(R"(
 Overview of f-strings in C++
 ============================
 
@@ -85,10 +86,10 @@ Overview of f-strings in C++
 
 )", num, num, num, num, num, num, num, num, num, num, num, M_PI, M_PI, M_PI, M_PI, M_PI);
 
-  struct tm time = {.tm_year=2023-1900, .tm_mday=1};
-   // int large = 10'000'000;
+  struct tm time = {.tm_year = 2023 - 1900, .tm_mday = 1};
+  // int large = 10'000'000;
 
-  cout <<  fmt::format(R"(
+  cout << fmt::format(R"(
 2. Dates
 ---------
 
@@ -98,7 +99,7 @@ It was a sunny {:%A} in {:%B} around {:%OI}{:%p}
 
 )", time, time, time, time);
 
-  cout <<  R"(
+  cout << R"(
 3. Expressions
 --------------
 )";
@@ -106,8 +107,8 @@ It was a sunny {:%A} in {:%B} around {:%OI}{:%p}
   auto va = std::vector<float>{5, M_PI, 10'000'000};
   int xb = 10;
 
-  for (auto & ia : va) {
-    cout <<  fmt::format(R"(
+  for (auto& ia : va) {
+    cout << fmt::format(R"(
 
   when a={}, b={} =>
 
@@ -115,12 +116,15 @@ It was a sunny {:%A} in {:%B} around {:%OI}{:%p}
       {} * {} = {}
       {} ^ {} = {}
 
-     )", ia, xb, ia, xb, ia+xb, ia, xb, ia*xb, ia, xb, std::pow(ia, xb)); // cout
+     )", ia, xb, ia, xb, ia+xb, ia, xb, ia*xb, ia, xb, std::pow(ia, xb));  // cout
   }
 
-
   int arr[] = {3, 2, 1};
-  auto v1 = std::vector<int>{1, 2, 3,};
+  auto v1 = std::vector<int>{
+      1,
+      2,
+      3,
+  };
   auto v2 = std::vector<std::vector<int>>{{1, 2}, {3, 5}, {7, 11}};
   std::vector<std::vector<int>> v3 = {{1, 2, 3}, {4, 5}, {6}};
 
@@ -130,7 +134,7 @@ It was a sunny {:%A} in {:%B} around {:%OI}{:%p}
   auto p1 = std::pair<int, float>(42, 1.5F);
   std::tuple<double, char, std::string> t1 = {3.8, 'A', "Lisa Simpson"};
 
-  cout <<  fmt::format(R"(
+  cout << fmt::format(R"(
 
 4. Ranges
 ---------
@@ -150,30 +154,30 @@ It was a sunny {:%A} in {:%B} around {:%OI}{:%p}
   Tuples:
     tuple<double, char, string> t1={}
 
-   )", v1, v2, v3, p1, m1, m2, t1) ;
+   )", v1, v2, v3, p1, m1, m2, t1);
 
   using Var = std::variant<int, float, std::string, char>;
   Var r0(42);
   Var r1(1.5f);
   Var r2("hello");
   Var r3('i');
-  cout <<  fmt::format(R"(
+  cout << fmt::format(R"(
 
   Variants:
     r0={}
     r1={}
     r2={}
     r3={}
-   )", r0, r1, r2, r3) ;
+   )", r0, r1, r2, r3);
 
-  using IArr =  std::valarray<int>;
-  IArr a {1,2,3};
-  IArr b {4,5,6};
+  using IArr = std::valarray<int>;
+  IArr a{1, 2, 3};
+  IArr b{4, 5, 6};
   IArr ab = std::pow(a, b);
   IArr ba = std::pow(b, a);
-  IArr abba = ab+ba;
+  IArr abba = ab + ba;
 
-  cout <<  fmt::format(R"(
+  cout << fmt::format(R"(
     Valarray:
       a^b + b^a = {}^{} + {}^{}
                 = {} + {}
@@ -182,9 +186,7 @@ It was a sunny {:%A} in {:%B} around {:%OI}{:%p}
       min({}) = {}
       sum({}) = {}
       max({}) = {}
-   )", a, b, b, a, ab, ba, abba, abba, abba.min(), abba, abba.sum(), abba, abba.max()) ;
-
-
+   )", a, b, b, a, ab, ba, abba, abba, abba.min(), abba, abba.sum(), abba, abba.max());
 }
 
 

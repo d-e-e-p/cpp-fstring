@@ -9,15 +9,15 @@
    @license MIT License
 */
 
+#include "enum_include.h"
 
 #include <iostream>
 #include <map>
 
 #include "fstr.h"
 
-#include "enum_include.h"
-
-int main() {
+int main()
+{
   using std::cout;
   cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
 
@@ -39,7 +39,6 @@ int main() {
   map<Color, vector<Fruit>> mc = {}
 
 )", Foo::b, Foo::e, Color::yellow, X::left, X::right, e1, Fruit::apple, S::apple, E11::x, vc, mc);
-
 }
 
 

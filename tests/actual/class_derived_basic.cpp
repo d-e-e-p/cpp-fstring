@@ -15,7 +15,6 @@
 
 #include "fstr.h"
 
-
 struct Base {
   std::string bname = "base";
   int a = 4;
@@ -27,7 +26,7 @@ struct Base {
 };
 
 struct Foo {
-  char name[50] = "foo" ;
+  char name[50] = "foo";
   Base b;
   // Generated to_string() for PUBLIC STRUCT_DECL Foo
   public:
@@ -36,15 +35,14 @@ struct Foo {
   }
 };
 
-struct Bar: Base {
-  char name[50] = "bar" ;
+struct Bar : Base {
+  char name[50] = "bar";
   // Generated to_string() for PUBLIC STRUCT_DECL Bar
   public:
   auto to_string() const {
     return fstr::format(": char[50] name={}, int bname={}, a={}\n", name, this->bname, this->a);
   }
 };
-
 
 int main()
 {

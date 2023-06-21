@@ -34,7 +34,6 @@ struct Base {
   }
 } b;
 
-
 union Onion {
   int i;
   double d;
@@ -46,7 +45,6 @@ union Onion {
   }
 } u;
 
-
 int main()
 {
   using std::cout;
@@ -56,7 +54,7 @@ int main()
   u.i = 10;
   u.d = 4.2;
   u.c = 'u';
-  cout << "u.i = " << u.i <<  " u.d = " << u.d <<  " u.c = " << u.c << " \n";
+  cout << "u.i = " << u.i << " u.d = " << u.d << " u.c = " << u.c << " \n";
   cout << fmt::format(" u={} \n", u);
 }
 

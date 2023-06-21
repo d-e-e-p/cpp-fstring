@@ -9,11 +9,12 @@
    @license MIT License
 */
 #include <iostream>
+
 #include "fstr.h"
 
 // Anonymous Class : Class is not having any name
 struct {
-    int i;
+  int i;
   // Generated to_string() for PUBLIC STRUCT_DECL (unnamed struct)
   public:
   auto to_string() const {
@@ -22,7 +23,7 @@ struct {
 } obj0;
 
 struct Base {
-    int i;
+  int i;
   // Generated to_string() for PUBLIC STRUCT_DECL Base
   public:
   auto to_string() const {
@@ -43,7 +44,7 @@ struct enclose {
     return fstr::format(": int x={}, y={}, Base b={}\n", x, y, b);
   }
 } foo;
-     // Generated to_string() for PUBLIC STRUCT_DECL a::b::c::enclose::outer
+    // Generated to_string() for PUBLIC STRUCT_DECL a::b::c::enclose::outer
   public:
   auto to_string() const {
     return fstr::format(": struct inner foo={}\n", foo);
@@ -56,15 +57,16 @@ struct enclose {
   }
 } obj1;
 
-} // end namespace a::b::c
+}  // end namespace a::b::c
 int a::b::c::enclose::outer::inner::x = 42;
 
-int main() {
+int main()
+{
   using std::cout;
   cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
-    a::b::c::obj1.bar.foo.y = 24;
-    cout << fmt::format(" a::b::c::obj1={} \n", a::b::c::obj1);
-    return 0;
+  a::b::c::obj1.bar.foo.y = 24;
+  cout << fmt::format(" a::b::c::obj1={} \n", a::b::c::obj1);
+  return 0;
 }
 
 

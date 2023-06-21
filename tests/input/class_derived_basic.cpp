@@ -15,21 +15,19 @@
 
 #include "fstr.h"
 
-
 struct Base {
   std::string bname = "base";
   int a = 4;
 };
 
 struct Foo {
-  char name[50] = "foo" ;
+  char name[50] = "foo";
   Base b;
 };
 
-struct Bar: Base {
-  char name[50] = "bar" ;
+struct Bar : Base {
+  char name[50] = "bar";
 };
-
 
 int main()
 {

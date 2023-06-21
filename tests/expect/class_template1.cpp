@@ -15,20 +15,16 @@
 
 #include "fstr.h"
 
-// from https://stackoverflow.com/questions/65781641/im-trying-to-format-a-template-using-fmt
+// from
+// https://stackoverflow.com/questions/65781641/im-trying-to-format-a-template-using-fmt
 template <typename T, T Min, T Max>
 class LimitedInt {
-   T mValue{Min};
-public:
-   explicit LimitedInt(const T value) {
-      setValue(value);
-   }
-   void setValue(const T value) {
-      mValue = value;
-   }
-   T getValue() const {
-      return mValue;
-   }
+  T mValue{Min};
+
+ public:
+  explicit LimitedInt(const T value) { setValue(value); }
+  void setValue(const T value) { mValue = value; }
+  T getValue() const { return mValue; }
   // Generated to_string() for PUBLIC CLASS_TEMPLATE LimitedInt<T, Min, Max>
   public:
   auto to_string() const {
@@ -36,7 +32,7 @@ public:
   }
 };
 
-template<auto n>
+template <auto n>
 struct Auto {
   int v = 1;
   // Generated to_string() for PUBLIC CLASS_TEMPLATE Auto<n>
@@ -46,24 +42,22 @@ struct Auto {
   }
 };
 
-
 #include <array>
 template <auto... Values>
 struct ValueList {
-    static constexpr auto values = std::array{Values...};
+  static constexpr auto values = std::array{Values...};
   // Generated to_string() for PUBLIC CLASS_TEMPLATE ValueList<Values>
   public:
   auto to_string() const {
-    return fstr::format("ValueList<...Values>: const auto values={}\n", values);
+    return fstr::format("ValueList<Values...>: const auto values={}\n", values);
   }
 };
 
-
-template<int N0,int N1,int N2,int N3>
+template <int N0, int N1, int N2, int N3>
 struct Const {
   // making this static would optimize out v!
-	//static const int v = N0 + N1 + N2 + N3;
-	int v = N0 + N1 + N2 + N3;
+  // static const int v = N0 + N1 + N2 + N3;
+  int v = N0 + N1 + N2 + N3;
   // Generated to_string() for PUBLIC CLASS_TEMPLATE Const<N0, N1, N2, N3>
   public:
   auto to_string() const {
@@ -71,7 +65,7 @@ struct Const {
   }
 };
 
-template<typename T>
+template <typename T>
 class my_array {  // Generated to_string() for PUBLIC CLASS_TEMPLATE my_array<T>
   public:
   auto to_string() const {
@@ -80,10 +74,10 @@ class my_array {  // Generated to_string() for PUBLIC CLASS_TEMPLATE my_array<T>
 };
 
 // two type template parameters and one template template parameter:
-template<typename K, typename V, template<typename> typename C = my_array>
+template <typename K, typename V, template <typename> typename C = my_array>
 class Map {
-    C<K> key;
-    C<V> value;
+  C<K> key;
+  C<V> value;
   // Generated to_string() for PUBLIC CLASS_TEMPLATE Map<K, V, C>
   public:
   auto to_string() const {
@@ -92,16 +86,16 @@ class Map {
 };
 
 struct A {
-    struct B {
-      int X;
-      // Generated to_string() for PUBLIC STRUCT_DECL A::B
+  struct B {
+    int X;
+    // Generated to_string() for PUBLIC STRUCT_DECL A::B
   public:
   auto to_string() const {
     return fstr::format(": int X={}\n", X);
   }
 };
-    int C;
-    int Y;
+  int C;
+  int Y;
   // Generated to_string() for PUBLIC STRUCT_DECL A
   public:
   auto to_string() const {
@@ -109,9 +103,9 @@ struct A {
   }
 };
 
-template<class B>
+template <class B>
 struct X : A {
-    B b; // A's B
+  B b;  // A's B
   // Generated to_string() for PUBLIC CLASS_TEMPLATE X<B>
   public:
   auto to_string() const {
@@ -119,11 +113,10 @@ struct X : A {
   }
 };
 
-
 template <typename T>
 struct Pair {
-    T first{};
-    T second{};
+  T first{};
+  T second{};
   // Generated to_string() for PUBLIC CLASS_TEMPLATE Pair<T>
   public:
   auto to_string() const {
@@ -132,34 +125,34 @@ struct Pair {
 };
 
 // simple non-type template parameter
-template<typename T, int N>
-struct S {T a[N] = {};   // Generated to_string() for PUBLIC CLASS_TEMPLATE S<T, N>
+template <typename T, int N>
+struct S {
+  T a[N] = {};
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE S<T, N>
   public:
   auto to_string() const {
     return fstr::format("S<T:={}, N:={}>: T[N] a={}\n", fstr::get_type_name<T>(), N, a);
   }
 };
 
-enum class Cowboys {good, bad, ugly};
+enum class Cowboys { good, bad, ugly };
 
 // from https://codereview.stackexchange.com/questions/279379/template-complex-class
-#include <type_traits>
 #include <iostream>
+#include <type_traits>
 
-template<typename Ty>
+template <typename Ty>
 class Complex {
-    static_assert(std::is_arithmetic_v<Ty>, "Complex requires an arithmetic type.");
+  static_assert(std::is_arithmetic_v<Ty>, "Complex requires an arithmetic type.");
 
-public:
-    Complex(const Ty& r, const Ty& i) noexcept :
-        r(r), i(i)
-    {}
+ public:
+  Complex(const Ty& r, const Ty& i) noexcept : r(r), i(i) {}
 
-    Ty real() const noexcept { return r; }
-    Ty imag() const noexcept { return i; }
+  Ty real() const noexcept { return r; }
+  Ty imag() const noexcept { return i; }
 
-private:
-    Ty r, i;
+ private:
+  Ty r, i;
   // Generated to_string() for PUBLIC CLASS_TEMPLATE Complex<Ty>
   public:
   auto to_string() const {
@@ -167,8 +160,8 @@ private:
   }
 };
 
-
-int main() {
+int main()
+{
   using std::cout;
   cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
 
@@ -178,25 +171,24 @@ int main() {
   cout << fmt::format("LimitedInt<uint16_t, 0, 4094>(10)={}", LimitedInt<uint16_t, 0, 4094>(10));
   cout << fmt::format("Auto<'a'>()={}", Auto<'a'>());
 
-  S<bool,10> s;
+  S<bool, 10> s;
   s.a[9] = true;
   cout << fmt::format("s={}", s);
 
-  S<Cowboys,10> cb;
+  S<Cowboys, 10> cb;
   cb.a[0] = Cowboys::bad;
   cout << fmt::format("cb={}", cb);
 
-  Pair<double> pd{ 7.8, 9.0 };
+  Pair<double> pd{7.8, 9.0};
   cout << fmt::format("pd={}", pd);
 
-  Pair<Cowboys> pc{ Cowboys::bad, Cowboys::good };
+  Pair<Cowboys> pc{Cowboys::bad, Cowboys::good};
   cout << fmt::format("pc={}", pc);
 
   Complex<double> xa(1.2, 2.25);
   Complex<int> xb(2, -1);
   cout << fmt::format("Complex<double> xa={}", xa);
   cout << fmt::format("Complex<int> xb={}", xb);
-
 }
 
 // Generated formatter for PUBLIC enum Cowboys of type INT scoped

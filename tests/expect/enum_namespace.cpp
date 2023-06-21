@@ -9,8 +9,9 @@
    @license MIT License
 */
 
-#include <map>
 #include <iostream>
+#include <map>
+
 #include "fstr.h"
 
 using namespace std::string_literals;
@@ -23,12 +24,12 @@ namespace {
 enum class ecdir { left, right };
 enum edir { eleft, eright };
 
-}
+}  // namespace
 
 struct Xstruct {
-  public:
-    enum dir { left, right };
-    enum class cdir { left, right };
+ public:
+  enum dir { left, right };
+  enum class cdir { left, right };
 // Generated formatter for PUBLIC enum Xstruct::cdir of type INT scoped
  friend constexpr auto format_as(const Xstruct::cdir obj) {
   fmt::string_view name = "<missing>";
@@ -50,9 +51,9 @@ struct Xstruct {
 };
 
 class Xclass {
-  public:
-    enum dir { left, right };
-    enum class cdir { left, right };
+ public:
+  enum dir { left, right };
+  enum class cdir { left, right };
 // Generated formatter for PUBLIC enum Xclass::cdir of type INT scoped
  friend constexpr auto format_as(const Xclass::cdir obj) {
   fmt::string_view name = "<missing>";
@@ -73,19 +74,16 @@ class Xclass {
 }
 };
 
-
 namespace Xnamespace {
-  enum dir { left, right };
-  enum class cdir { left, right };
-}
+enum dir { left, right };
+enum class cdir { left, right };
+}  // namespace Xnamespace
 
 //
 // see https://wgml.pl/blog/formatting-user-defined-types-fmt.html
 //
 namespace roman {
-
-  enum class sym {M, D, C, L, X, V, I};
-
+  enum class sym { M, D, C, L, X, V, I };
   std::map<sym, int> numerals = {
     {sym::M, 1000},
     {sym::D,  500},
@@ -95,12 +93,10 @@ namespace roman {
     {sym::V,    5},
     {sym::I,    1}
   };
-
 }  // namespace roman
 
-
-
-int main() {
+int main()
+{
   using std::cout;
   cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
 
@@ -123,7 +119,6 @@ Test enum namespaces
      std::map<sym, int> roman::numerals={}
 
   )", right, left, cdir::right, cdir::left, eright, eleft, ecdir::right, ecdir::left, Xstruct::right, Xstruct::left, Xstruct::cdir::right, Xstruct::cdir::left, Xclass::right, Xclass::left, Xclass::cdir::right, Xclass::cdir::left, Xnamespace::right, Xnamespace::left, Xnamespace::cdir::right, Xnamespace::cdir::left, roman::numerals);
-
 }
 
 // Generated formatter for PUBLIC enum cdir of type INT scoped

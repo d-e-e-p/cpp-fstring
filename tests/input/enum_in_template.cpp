@@ -17,97 +17,77 @@
  *
  */
 
-
 #ifdef _MSC_VER
 #pragma execution_character_set("utf-8")
 #endif
 
-#include <string>
-#include <string_view>
 #include <array>
-#include <vector>
-#include <unordered_map>
+#include <cctype>  // for isprint
+#include <codecvt>
+#include <cstddef>  // for size_t
 #include <deque>
 #include <iomanip>
-#include <codecvt>
 #include <iostream>
-#include <cstddef>          // for size_t
-#include <cctype>           // for isprint
-                            //
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <vector>
+//
 #include "fstr.h"
 
 namespace fssb {
 
 template <size_t SPACE>
 class FixedSizeStringBuffer {
-
  private:
   // main storage for strings...search for plus1 for the reason for +1
-  std::array<char, SPACE+1> chars_ = {};
+  std::array<char, SPACE + 1> chars_ = {};
   size_t max_chars_;
-   public:
+
+ public:
   ///  @brief Constructor that creates a string buffer of fixed character size
   ///  template value (eg <10>) has to be a constexpr, ie known at compile-time
-  FixedSizeStringBuffer<SPACE>()
-      : max_chars_(SPACE)
-  {
-  }
+  FixedSizeStringBuffer<SPACE>() : max_chars_(SPACE) {}
 
-   enum class CT {left, open, close, dash, space, right};
-   using BOX = std::unordered_map<CT,char>;
+  enum class CT { left, open, close, dash, space, right };
+  using BOX = std::unordered_map<CT, char>;
 
   const BOX box_top = {
-      {CT::left,  L'⎧'},
-      {CT::open,  L'╭'},
-      {CT::close, L'╮'},
-      {CT::dash,  L'─'},
-      {CT::space, L' '},
-      {CT::right, L'⎫'},
-   };
+      {CT::left, L'⎧'}, {CT::open, L'╭'},  {CT::close, L'╮'},
+      {CT::dash, L'─'}, {CT::space, L' '}, {CT::right, L'⎫'},
+  };
 
   const BOX box_bot = {
-      {CT::left,  L'⎩'},
-      {CT::open,  L'╰'},
-      {CT::close, L'╯'},
-      {CT::dash,  L'─'},
-      {CT::space, L' '},
-      {CT::right, L'⎭'},
-   };
+      {CT::left, L'⎩'}, {CT::open, L'╰'},  {CT::close, L'╯'},
+      {CT::dash, L'─'}, {CT::space, L' '}, {CT::right, L'⎭'},
+  };
 
-    void print_box_line();
+  void print_box_line();
 };
 
 template <size_t SPACE>
 void FixedSizeStringBuffer<SPACE>::print_box_line()
 {
-  enum class CB {left, open, close, dash, space, right};
-  typedef std::unordered_map<CB,wchar_t> BOX;
+  enum class CB { left, open, close, dash, space, right };
+  typedef std::unordered_map<CB, wchar_t> BOX;
 
   static const BOX box_top = {
-      {CB::left,  L'⎧'},
-      {CB::open,  L'╭'},
-      {CB::close, L'╮'},
-      {CB::dash,  L'─'},
-      {CB::space, L' '},
-      {CB::right, L'⎫'},
-   };
+      {CB::left, L'⎧'}, {CB::open, L'╭'},  {CB::close, L'╮'},
+      {CB::dash, L'─'}, {CB::space, L' '}, {CB::right, L'⎫'},
+  };
 
   static const BOX box_bot = {
-      {CB::left,  L'⎩'},
-      {CB::open,  L'╰'},
-      {CB::close, L'╯'},
-      {CB::dash,  L'─'},
-      {CB::space, L' '},
-      {CB::right, L'⎭'},
-   };
-
+      {CB::left, L'⎩'}, {CB::open, L'╰'},  {CB::close, L'╯'},
+      {CB::dash, L'─'}, {CB::space, L' '}, {CB::right, L'⎭'},
+  };
 };
 
-} // end namespace fssb
+}  // end namespace fssb
 
 #include <iostream>
 
-int main() {
+int main()
+{
   using std::cout;
   cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
 

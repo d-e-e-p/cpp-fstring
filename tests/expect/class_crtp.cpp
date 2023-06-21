@@ -9,9 +9,7 @@
    @license MIT License
 */
 #include <iostream>
-#include <map>
 #include <string>
-#include <vector>
 
 #include "fstr.h"
 
@@ -22,12 +20,11 @@
 //
 //
 
-
 namespace A {
 
-template<class T>
+template <class T>
 class TBase {
-  public:
+ public:
   int tbase = 0;
   // Generated to_string() for PUBLIC CLASS_TEMPLATE A::TBase<T>
   public:
@@ -36,8 +33,8 @@ class TBase {
   }
 };
 class X1 : public TBase<X1> {
-  public:
-  int x1=0;
+ public:
+  int x1 = 0;
   // Generated to_string() for PUBLIC CLASS_DECL A::X1
   public:
   auto to_string() const {
@@ -45,8 +42,8 @@ class X1 : public TBase<X1> {
   }
 };
 class CBase {
-  public:
-  int cbase=0;
+ public:
+  int cbase = 0;
   // Generated to_string() for PUBLIC CLASS_DECL A::CBase
   public:
   auto to_string() const {
@@ -54,8 +51,8 @@ class CBase {
   }
 };
 class X2 : public CBase {
-  public:
-  int x2=0;
+ public:
+  int x2 = 0;
   // Generated to_string() for PUBLIC CLASS_DECL A::X2
   public:
   auto to_string() const {
@@ -63,11 +60,11 @@ class X2 : public CBase {
   }
 };
 
-} // end namespace A
+}  // end namespace A
 
 namespace B {
 
-template<class T>
+template <class T>
 class TBase {
   int tbase = 0;
   // Generated to_string() for PUBLIC CLASS_TEMPLATE B::TBase<T>
@@ -77,7 +74,7 @@ class TBase {
   }
 };
 class Y1 : public TBase<Y1> {
-  int y1=0;
+  int y1 = 0;
   // Generated to_string() for PUBLIC CLASS_DECL B::Y1
   public:
   auto to_string() const {
@@ -85,7 +82,7 @@ class Y1 : public TBase<Y1> {
   }
 };
 class CBase {
-  int cbase=0;
+  int cbase = 0;
 
   friend class Y2;
   // Generated to_string() for PUBLIC CLASS_DECL B::CBase
@@ -95,7 +92,7 @@ class CBase {
   }
 };
 class Y2 : public CBase {
-  int y2=0;
+  int y2 = 0;
   // Generated to_string() for PUBLIC CLASS_DECL B::Y2
   public:
   auto to_string() const {
@@ -103,9 +100,10 @@ class Y2 : public CBase {
   }
 };
 
-} // end namespace B
+}  // end namespace B
 
-int main() {
+int main()
+{
   using std::cout;
   cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
 
@@ -123,7 +121,6 @@ int main() {
   // see https://cplusplus.com/doc/tutorial/inheritance/
   cout << fmt::format(" base y1={} ", y1);
   cout << fmt::format(" derived y2={} ", y2);
-
 
   return 0;
 }
