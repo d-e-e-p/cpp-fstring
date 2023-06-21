@@ -221,12 +221,12 @@ class Processor:
         # if len(vars) == 0:
         #    return f"{rec.name}"
 
-        decl_str, tvars = self.expand_template_decl(rec)
+        decl_str, decl_expand, tvars = self.expand_template_decl(rec)
 
-        out = f"""  // Generated to_string() for {rec.access_specifier} {rec.class_kind} {rec.name}
+        out = f"""  // Generated to_string() for {rec.access_specifier} {rec.class_kind} {decl_str}
   public:
   auto to_string() const {{
-    return fstr::format("{decl_str}: """
+    return fstr::format("{decl_expand}: """
 
         # produce the list of vars
         #   var.out : stores either 'foo =' or 'int foo = '
@@ -441,7 +441,7 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
 
         # ok stop here if we're not a template
         if rec.class_kind != "CLASS_TEMPLATE":
-            return decl, []
+            return decl, "", []
 
         # LimitedInt<T, Min, Max> -> "LimitedInt",  ["T", "Min", "Max"]
         # 3 types of template params: type, non_type and template
@@ -471,7 +471,7 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
         out += ", ".join(toutlist)
         out += ">"
         log.debug(f" template_decl_str = {out}")
-        return out, tvarlist
+        return decl, out, tvarlist
 
     def extract_template_list_items(self, text):
         pattern = r"<(.*?)>"
