@@ -58,11 +58,42 @@
 
 #include <string>
 #include <type_traits>
+#include <typeinfo>
+#include <cxxabi.h>
+
 #include <fmt/ranges.h>
 #include <fmt/std.h>
 #include <fmt/xchar.h>
 
+
 namespace fstr {
+
+// return typename in human readable form
+void _remove_substring (std::string& str, const std::string& substr) {
+    size_t pos = str.find(substr);
+    while (pos != std::string::npos) {
+        str.erase(pos, substr.length());
+        pos = str.find(substr, pos);
+    }
+}
+
+template <typename T>
+std::string get_type_name() {
+    const char* mangledName = typeid(T).name();
+    int status {};
+    const std::unique_ptr<char[], decltype(&std::free)> demangledName{
+        abi::__cxa_demangle(mangledName, nullptr, nullptr, &status),
+        std::free
+    };
+    std::string result = (status == 0) ? demangledName.get() : mangledName;
+    const std::string substr = "std::__1::";
+    _remove_substring(result, substr);
+
+    return result;
+}
+
+
+
 
 // Helper function to check if a type has a to_string member function
 template <typename T>
