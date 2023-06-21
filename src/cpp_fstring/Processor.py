@@ -463,7 +463,7 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
                 tvarlist.append(f"fstr::get_type_name<{bvar}>()")
             elif tvar.template_type == "non_type":
                 if tvar.is_param_pack:
-                    toutlist.append(f"...{bvar}")
+                    toutlist.append(f"{bvar}...")
                 else:
                     toutlist.append(f"{bvar}:={{}}")
                     tvarlist.append(bvar)
