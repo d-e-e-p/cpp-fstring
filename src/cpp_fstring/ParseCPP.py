@@ -203,7 +203,7 @@ class ParseCPP:
         self.extraargs = extraargs
         self.interesting_kinds = [
             CK.COMPOUND_STMT,  # for strings
-            CK.ENUM_DECL,      # for enum
+            CK.ENUM_DECL,  # for enum
             # for structs+classes
             CK.STRUCT_DECL,
             CK.CLASS_DECL,
@@ -376,13 +376,12 @@ class ParseCPP:
 
     def remove_loc_from_name(self, name):
         """
-         convert:
-          FrogClass::(unnamed struct at /Us/c/clde.h.fake.cpp:219:5)
-         to:
-          FrogClass::(unnamed struct)
+        convert:
+         FrogClass::(unnamed struct at /Us/c/clde.h.fake.cpp:219:5)
+        to:
+         FrogClass::(unnamed struct)
         """
         return re.sub(r"\(unnamed (\w+) at .*\)", r"(unnamed \1)", name)
-
 
     # from https://gist.github.com/scturtle/a7b5349028c249f2e9eeb5688d3e0c5e
     def visit(self, node: Cursor, indent: int, saw: set, callback: Callable[[], str]):

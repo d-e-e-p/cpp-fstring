@@ -223,7 +223,7 @@ class Processor:
 
         decl_str, decl_expand, tvars = self.expand_template_decl(rec)
 
-        out = f"""  // Generated to_string() for {rec.access_specifier} {rec.class_kind} {decl_str} 
+        out = f"""  // Generated to_string() for {rec.access_specifier} {rec.class_kind} {decl_str}
   public:
   auto to_string() const {{
     return fstr::format("{decl_expand}: """
