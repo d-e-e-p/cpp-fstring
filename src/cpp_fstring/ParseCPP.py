@@ -121,6 +121,7 @@ class ClassRecord:
     is_external: bool = False
     needs_to_string: bool = False
     access_specifier: str = "PUBLIC"
+    is_anonymous: bool = False
     bases: list[BaseClassRecord] = field(default_factory=list)
     vars: list[ClassVar] = field(default_factory=list)
     tvars: list[ClassVar] = field(default_factory=list)
@@ -202,7 +203,7 @@ class ParseCPP:
         self.extraargs = extraargs
         self.interesting_kinds = [
             CK.COMPOUND_STMT,  # for strings
-            CK.ENUM_DECL,  # for enum
+            CK.ENUM_DECL,      # for enum
             # for structs+classes
             CK.STRUCT_DECL,
             CK.CLASS_DECL,
@@ -358,6 +359,30 @@ class ParseCPP:
         for rec in self.class_records:
             rec.vars = self.dup_vars_remover(rec.vars)
             rec.tvars = self.dup_vars_remover(rec.tvars)
+
+    def strip_location_from_unnamed_struct(self):
+        """
+        unnamed struct and class and union get a long description of location
+        make it short!
+        """
+        for rec in self.class_records:
+            rec.name = self.remove_loc_from_name(rec.name)
+            rec.displayname = self.remove_loc_from_name(rec.displayname)
+            for var in rec.vars:
+                var.name = self.remove_loc_from_name(var.name)
+                var.displayname = self.remove_loc_from_name(var.displayname)
+                var.qualified_name = self.remove_loc_from_name(var.qualified_name)
+                var.vartype = self.remove_loc_from_name(var.vartype)
+
+    def remove_loc_from_name(self, name):
+        """
+         convert:
+          FrogClass::(unnamed struct at /Us/c/clde.h.fake.cpp:219:5)
+         to:
+          FrogClass::(unnamed struct)
+        """
+        return re.sub(r"\(unnamed (\w+) at .*\)", r"(unnamed \1)", name)
+
 
     # from https://gist.github.com/scturtle/a7b5349028c249f2e9eeb5688d3e0c5e
     def visit(self, node: Cursor, indent: int, saw: set, callback: Callable[[], str]):
@@ -526,11 +551,24 @@ class ParseCPP:
 
     def extract_vars_from_class(self, node, prefix, indent):
         """
+        Example function with types documented in the docstring.
+
+        :pep:`484` type annotations are supported. If attribute, parameter, and
+        return types are annotated according to `PEP 484`_, they do not need to be
+        included in the docstring:
+
+        Args:
+            param1 (int): The first parameter.
+            param2 (str): The second parameter.
+
+        Returns:
+            bool: The return value. True for success, False otherwise.
+        """
+        """
         if the class definition node has base class, then add the vars to list to print
         for nested classes:
             - if class has name => just stop at this level
                 - for templates need to calculate specialization name
-            - anon class => don't print var associated with anon class: decend one level deeper
         """
         var_records = []
         if node is None:
@@ -542,28 +580,21 @@ class ParseCPP:
         #    bpdb.set_trace()
         for fd in node.get_children():
             if fd.kind == CK.FIELD_DECL or fd.kind == CK.VAR_DECL:
-                if not fd.is_anonymous():
-                    name = fd.spelling
-                    qualified_name = self.get_qualified_name(fd)
+                name = fd.spelling
+                qualified_name = self.get_qualified_name(fd)
 
-                    var_record = ClassVar(
-                        prefix + name,
-                        prefix + qualified_name,
-                        fd.displayname,
-                        fd.type.spelling,
-                        fd.access_specifier.name,
-                        indent,
-                    )
-                    var_record.is_pointer = fd.type.kind == TypeKind.POINTER
-                    var_record.parent_node = node
-                    var_records.append(var_record)
-
-                else:  # is_anonymous() so decend
-                    for ft in fd.get_children():
-                        if ft.kind == CK.CLASS_DECL or ft.kind == CK.STRUCT_DECL:
-                            child_prefix = f"{prefix}{fd.displayname}."
-                            child_var_records = self.extract_vars_from_class(ft, child_prefix, indent + 1)
-                            var_records.extend(child_var_records)
+                var_record = ClassVar(
+                    prefix + name,
+                    prefix + qualified_name,
+                    fd.displayname,
+                    fd.type.spelling,
+                    fd.access_specifier.name,
+                    indent,
+                )
+                var_record.is_anonymous = fd.is_anonymous()
+                var_record.is_pointer = fd.type.kind == TypeKind.POINTER
+                var_record.parent_node = node
+                var_records.append(var_record)
 
         # both cases need to deal with inheritance
         # see https://stackoverflow.com/questions/42795408/can-libclang-parse-the-crtp-pattern
@@ -735,6 +766,11 @@ class ParseCPP:
         remove duplicate vars and tvars
         """
         self.remove_duplicate_class_vars()
+
+        """
+        get rid of (unnamed struct at examples/psrc/class_namespace1.cpp:16:1) in names
+        """
+        self.strip_location_from_unnamed_struct()
 
         for rec in self.class_records:
             log.debug(f"class_record = {rec}")

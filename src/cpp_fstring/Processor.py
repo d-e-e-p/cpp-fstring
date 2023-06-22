@@ -223,7 +223,7 @@ class Processor:
 
         decl_str, decl_expand, tvars = self.expand_template_decl(rec)
 
-        out = f"""  // Generated to_string() for {rec.access_specifier} {rec.class_kind} {decl_str}
+        out = f"""  // Generated to_string() for {rec.access_specifier} {rec.class_kind} {decl_str} 
   public:
   auto to_string() const {{
     return fstr::format("{decl_expand}: """
@@ -433,15 +433,10 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
         """
 
         decl = rec.name
-        # convert:
-        #  FrogClass::(unnamed struct at /Use...rc/class_include.h.fake.cpp:219:5)
-        # to:
-        #  FrogClass::(unnamed struct)
-        decl = re.sub(r"(.*)\(unnamed (\w+) at .*\)", r"\1(unnamed \2)", decl)
 
         # ok stop here if we're not a template
         if rec.class_kind != "CLASS_TEMPLATE":
-            return decl, "", []
+            return decl, decl, []
 
         # LimitedInt<T, Min, Max> -> "LimitedInt",  ["T", "Min", "Max"]
         # 3 types of template params: type, non_type and template
