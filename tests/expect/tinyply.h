@@ -60,10 +60,10 @@ namespace tinyply
             : stride(stride), str(str) {}
         int stride {0};
         std::string str;
-      // Generated to_string() for PUBLIC STRUCT_DECL tinyply::PropertyInfo
+      // Generated to_string() for PUBLIC STRUCT_DECL tinyply::PropertyInfo 
   public:
   auto to_string() const {
-    return fstr::format(": int stride={}, str={}\n", stride, str);
+    return fstr::format("tinyply::PropertyInfo: int stride={}, str={}\n", stride, str);
   }
 };
 
@@ -93,10 +93,10 @@ namespace tinyply
         uint8_t * get() { return alias; }
         const uint8_t * get_const() const {return alias; }
         size_t size_bytes() const { return size; }
-      // Generated to_string() for PUBLIC CLASS_DECL tinyply::Buffer
+      // Generated to_string() for PUBLIC CLASS_DECL tinyply::Buffer 
   public:
   auto to_string() const {
-    return fstr::format(": int * alias={}, int data={}, size={}\n", fmt::ptr(alias), data, size);
+    return fstr::format("tinyply::Buffer: int * alias={}, int data={}, size={}\n", fmt::ptr(alias), data, size);
   }
 };
 
@@ -106,10 +106,10 @@ namespace tinyply
         Buffer buffer;
         size_t count {0};
         bool isList {false};
-      // Generated to_string() for PUBLIC STRUCT_DECL tinyply::PlyData
+      // Generated to_string() for PUBLIC STRUCT_DECL tinyply::PlyData 
   public:
   auto to_string() const {
-    return fstr::format(": Type t={}, Buffer buffer={}, int count={}, bool isList={}\n", t, buffer, count, isList);
+    return fstr::format("tinyply::PlyData: Type t={}, Buffer buffer={}, int count={}, bool isList={}\n", t, buffer, count, isList);
   }
 };
 
@@ -124,10 +124,10 @@ namespace tinyply
         bool isList{ false };
         Type listType{ Type::INVALID };
         size_t listCount {0};
-      // Generated to_string() for PUBLIC STRUCT_DECL tinyply::PlyProperty
+      // Generated to_string() for PUBLIC STRUCT_DECL tinyply::PlyProperty 
   public:
   auto to_string() const {
-    return fstr::format(": int name={}, Type propertyType={}, bool isList={}, Type listType={}, int listCount={}\n", name, propertyType, isList, listType, listCount);
+    return fstr::format("tinyply::PlyProperty: int name={}, Type propertyType={}, bool isList={}, Type listType={}, int listCount={}\n", name, propertyType, isList, listType, listCount);
   }
 };
 
@@ -138,10 +138,10 @@ namespace tinyply
         std::string name;
         size_t size {0};
         std::vector<PlyProperty> properties;
-      // Generated to_string() for PUBLIC STRUCT_DECL tinyply::PlyElement
+      // Generated to_string() for PUBLIC STRUCT_DECL tinyply::PlyElement 
   public:
   auto to_string() const {
-    return fstr::format(": int name={}, size={}, properties={}\n", name, size, properties);
+    return fstr::format("tinyply::PlyElement: int name={}, size={}, properties={}\n", name, size, properties);
   }
 };
 
@@ -199,10 +199,10 @@ namespace tinyply
             const uint8_t * data,
             const Type listType,
             const size_t listCount);
-      // Generated to_string() for PUBLIC STRUCT_DECL tinyply::PlyFile
+      // Generated to_string() for PUBLIC STRUCT_DECL tinyply::PlyFile 
   public:
   auto to_string() const {
-    return fstr::format(": int impl={}\n", impl);
+    return fstr::format("tinyply::PlyFile: int impl={}\n", impl);
   }
 };
 

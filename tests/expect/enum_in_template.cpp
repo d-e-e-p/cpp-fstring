@@ -63,7 +63,7 @@ class FixedSizeStringBuffer {
   };
 
   void print_box_line();
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE fssb::FixedSizeStringBuffer<SPACE>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE fssb::FixedSizeStringBuffer<SPACE> 
   public:
   auto to_string() const {
     return fstr::format("fssb::FixedSizeStringBuffer<SPACE:={}>: int chars_={}, max_chars_={}, const int box_top={}, box_bot={}\n", SPACE, chars_, max_chars_, box_top, box_bot);

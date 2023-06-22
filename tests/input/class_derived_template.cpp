@@ -6,10 +6,11 @@
  *
  * @author Sandeep M
  * @copyright Copyright 2023 Sandeep M<deep@tensorfield.ag>
-   @license MIT License
-*/
+ *   @license MIT License
+ */
 // from
 // https://stackoverflow.com/questions/41333185/python-clang-getting-template-arguments
+//
 #include <iostream>
 #include <list>
 #include <map>
@@ -47,12 +48,14 @@ template <typename K, typename T>
 struct Map {
   std::map<K, T> map1;
   std::map<K, Obj<T>> map2;
+  // TODO(deep): find workaround
   // map3 is not found by libclang
   std::map<K, std::vector<Obj<T>>> map3;
 };
 
 // from
 // https://stackoverflow.com/questions/66949980/variadic-template-data-structures
+//
 template <class T>
 struct Helper {
   int value = 1;

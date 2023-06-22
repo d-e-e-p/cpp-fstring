@@ -6,8 +6,8 @@
  *
  * @author Sandeep M
  * @copyright Copyright 2023 Sandeep M<deep@tensorfield.ag>
-   @license MIT License
-*/
+ *   @license MIT License
+ */
 #include <iostream>
 #include <map>
 #include <string>
@@ -24,7 +24,7 @@ template <typename T>
 class Base {
  public:
   T x;
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE A::Base<T>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE A::Base<T> 
   public:
   auto to_string() const {
     return fstr::format("A::Base<T:={}>: T x={}\n", fstr::get_type_name<T>(), x);
@@ -35,7 +35,7 @@ template <typename T>
 class Derived : public Base<T> {
  public:
   T y;
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE A::Derived<T>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE A::Derived<T> 
   public:
   auto to_string() const {
     return fstr::format("A::Derived<T:={}>: T y={}, x={}\n", fstr::get_type_name<T>(), y, this->x);
@@ -50,10 +50,10 @@ namespace old_ns {
 auto Func() { return std::string("Hello from old"); }
 struct S {
   int a{0};
-  // Generated to_string() for PUBLIC STRUCT_DECL Test::old_ns::S
+  // Generated to_string() for PUBLIC STRUCT_DECL Test::old_ns::S 
   public:
   auto to_string() const {
-    return fstr::format(": int a={}\n", a);
+    return fstr::format("Test::old_ns::S: int a={}\n", a);
   }
 } s;
 }  // namespace old_ns
@@ -62,10 +62,10 @@ inline namespace new_ns {
 auto Func() { return std::string("Hello from new"); }
 struct S {
   int a{1};
-  // Generated to_string() for PUBLIC STRUCT_DECL Test::new_ns::S
+  // Generated to_string() for PUBLIC STRUCT_DECL Test::new_ns::S 
   public:
   auto to_string() const {
-    return fstr::format(": int a={}\n", a);
+    return fstr::format("Test::new_ns::S: int a={}\n", a);
   }
 } s;
 }  // namespace new_ns
@@ -75,48 +75,48 @@ struct S {
 // from https://devdocs.io/cpp/language/derived_class
 struct Base0 {
   int a, b, base0;
-  // Generated to_string() for PUBLIC STRUCT_DECL Base0
+  // Generated to_string() for PUBLIC STRUCT_DECL Base0 
   public:
   auto to_string() const {
-    return fstr::format(": int a={}, b={}, base0={}\n", a, b, base0);
+    return fstr::format("Base0: int a={}, b={}, base0={}\n", a, b, base0);
   }
 };
 
 struct Base1 {
   int c, d, base1;
-  // Generated to_string() for PUBLIC STRUCT_DECL Base1
+  // Generated to_string() for PUBLIC STRUCT_DECL Base1 
   public:
   auto to_string() const {
-    return fstr::format(": int c={}, d={}, base1={}\n", c, d, base1);
+    return fstr::format("Base1: int c={}, d={}, base1={}\n", c, d, base1);
   }
 };
 
 // every object of type Derived includes Base as a subobject
 struct Derived0 : Base0 {
   int a{10}, derived0;
-  // Generated to_string() for PUBLIC STRUCT_DECL Derived0
+  // Generated to_string() for PUBLIC STRUCT_DECL Derived0 
   public:
   auto to_string() const {
-    return fstr::format(": int a={}, derived0={}, b={}, base0={}\n", a, derived0, this->b, this->base0);
+    return fstr::format("Derived0: int a={}, derived0={}, b={}, base0={}\n", a, derived0, this->b, this->base0);
   }
 };
 
 struct Derived1 : Base1 {
   int c{21}, derived1;
-  // Generated to_string() for PUBLIC STRUCT_DECL Derived1
+  // Generated to_string() for PUBLIC STRUCT_DECL Derived1 
   public:
   auto to_string() const {
-    return fstr::format(": int c={}, derived1={}, d={}, base1={}\n", c, derived1, this->d, this->base1);
+    return fstr::format("Derived1: int c={}, derived1={}, d={}, base1={}\n", c, derived1, this->d, this->base1);
   }
 };
 
 // every object of type Derived2 includes Derived and Base as subobjects
 struct Derived2 : Derived0, Derived1 {
   int b{42}, d{42}, derived2;
-  // Generated to_string() for PUBLIC STRUCT_DECL Derived2
+  // Generated to_string() for PUBLIC STRUCT_DECL Derived2 
   public:
   auto to_string() const {
-    return fstr::format(": int b={}, d={}, derived2={}, a={}, derived0={}, base0={}, c={}, derived1={}, base1={}\n", b, d, derived2, this->a, this->derived0, this->base0, this->c, this->derived1, this->base1);
+    return fstr::format("Derived2: int b={}, d={}, derived2={}, a={}, derived0={}, base0={}, c={}, derived1={}, base1={}\n", b, d, derived2, this->a, this->derived0, this->base0, this->c, this->derived1, this->base1);
   }
 };
 
@@ -125,7 +125,7 @@ inline namespace new_ns {
 template <typename T>
 struct C {
   T member{};
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE Parent::new_ns::C<T>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Parent::new_ns::C<T> 
   public:
   auto to_string() const {
     return fstr::format("Parent::new_ns::C<T:={}>: T member={}\n", fstr::get_type_name<T>(), member);
@@ -142,7 +142,7 @@ struct C {
 template <typename T>
 class my_array {
   T x;
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE my_array<T>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE my_array<T> 
   public:
   auto to_string() const {
     return fstr::format("my_array<T:={}>: T x={}\n", fstr::get_type_name<T>(), x);
@@ -154,7 +154,7 @@ template <typename K, typename V, template <typename> typename C = my_array>
 struct Map {
   C<K> key = {};
   C<V> value = {};
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE Map<K, V, C>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Map<K, V, C> 
   public:
   auto to_string() const {
     return fstr::format("Map<K:={}, V:={}>: C<K> key={}, C<V> value={}\n", fstr::get_type_name<K>(), fstr::get_type_name<V>(), key, value);
@@ -163,25 +163,25 @@ struct Map {
 struct Y {
   struct B {
     int X;
-    // Generated to_string() for PUBLIC STRUCT_DECL Y::B
+    // Generated to_string() for PUBLIC STRUCT_DECL Y::B 
   public:
   auto to_string() const {
-    return fstr::format(": int X={}\n", X);
+    return fstr::format("Y::B: int X={}\n", X);
   }
 };
   int C;
   int Y;
-  // Generated to_string() for PUBLIC STRUCT_DECL Y
+  // Generated to_string() for PUBLIC STRUCT_DECL Y 
   public:
   auto to_string() const {
-    return fstr::format(": int C={}, Y={}\n", C, Y);
+    return fstr::format("Y: int C={}, Y={}\n", C, Y);
   }
 };
 
 template <class B>
 struct X : Y {
   B b;  // A's B
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE X<B>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE X<B> 
   public:
   auto to_string() const {
     return fstr::format("X<B:={}>: B b={}, int C={}, Y={}\n", fstr::get_type_name<B>(), b, this->C, this->Y);

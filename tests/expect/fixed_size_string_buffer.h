@@ -71,10 +71,10 @@ class FixedSizeStringBuffer {
     size_t front;  // Position in char_ of start of string
     size_t len;    // String length cache
     Pointer(size_t p_front, size_t p_len) : front(p_front), len(p_len) {}
-    // Generated to_string() for PUBLIC STRUCT_DECL fssb::FixedSizeStringBuffer<SPACE>::Pointer
+    // Generated to_string() for PUBLIC STRUCT_DECL fssb::FixedSizeStringBuffer<SPACE>::Pointer 
   public:
   auto to_string() const {
-    return fstr::format(": int front={}, len={}\n", front, len);
+    return fstr::format("fssb::FixedSizeStringBuffer<SPACE>::Pointer: int front={}, len={}\n", front, len);
   }
 };
 
@@ -190,10 +190,10 @@ class FixedSizeStringBuffer {
     std::vector<bool> bopen;
     std::vector<bool> bword;
     std::vector<bool> bclos;
-    // Generated to_string() for PUBLIC STRUCT_DECL fssb::FixedSizeStringBuffer<SPACE>::SlotState
+    // Generated to_string() for PUBLIC STRUCT_DECL fssb::FixedSizeStringBuffer<SPACE>::SlotState 
   public:
   auto to_string() const {
-    return fstr::format(": int bopen={}, bword={}, bclos={}\n", bopen, bword, bclos);
+    return fstr::format("fssb::FixedSizeStringBuffer<SPACE>::SlotState: int bopen={}, bword={}, bclos={}\n", bopen, bword, bclos);
   }
 } ;
   void dump_long_str(std::ostream &os = std::cout) const;
@@ -202,7 +202,7 @@ class FixedSizeStringBuffer {
   void print_box_line(std::ostream &os, const SlotState& slot, bool is_top) const;
   void print_char_line(std::ostream &os, const SlotState& slot) const;
 
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE fssb::FixedSizeStringBuffer<SPACE>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE fssb::FixedSizeStringBuffer<SPACE> 
   public:
   auto to_string() const {
     return fstr::format("fssb::FixedSizeStringBuffer<SPACE:={}>: int chars_={}, ptr_={}, back_={}, max_chars_={}, free_chars_={}, bool debug_={}\n", SPACE, chars_, ptr_, back_, max_chars_, free_chars_, debug_);

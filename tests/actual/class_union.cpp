@@ -6,8 +6,8 @@
  *
  * @author Sandeep M
  * @copyright Copyright 2023 Sandeep M<deep@tensorfield.ag>
-   @license MIT License
-*/
+ *   @license MIT License
+ */
 #include <iostream>
 #include <map>
 #include <string>
@@ -21,16 +21,16 @@ struct Base {
     int i;
     double d;
     char c;
-    // Generated to_string() for PUBLIC UNION_DECL Base::(unnamed union)
+    // Generated to_string() for PUBLIC UNION_DECL Base::(unnamed union) 
   public:
   auto to_string() const {
-    return fstr::format(": int i={}, double d={}, char c={}\n", i, d, c);
+    return fstr::format("Base::(unnamed union): int i={}, double d={}, char c={}\n", i, d, c);
   }
 } u;
-  // Generated to_string() for PUBLIC STRUCT_DECL Base
+  // Generated to_string() for PUBLIC STRUCT_DECL Base 
   public:
   auto to_string() const {
-    return fstr::format(": int a={}\n", a);
+    return fstr::format("Base: int a={}, union (unnamed union) u={}\n", a, u);
   }
 } b;
 
@@ -38,10 +38,10 @@ union Onion {
   int i;
   double d;
   char c;
-  // Generated to_string() for PUBLIC UNION_DECL Onion
+  // Generated to_string() for PUBLIC UNION_DECL Onion 
   public:
   auto to_string() const {
-    return fstr::format(": int i={}, double d={}, char c={}\n", i, d, c);
+    return fstr::format("Onion: int i={}, double d={}, char c={}\n", i, d, c);
   }
 } u;
 

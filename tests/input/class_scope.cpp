@@ -6,16 +6,8 @@
  *
  * @author Sandeep M
  * @copyright Copyright 2023 Sandeep M<deep@tensorfield.ag>
-   @license MIT License
-*/
-/*************************************************************************/ /**
-                                                                             *
-                                                                             * @brief
-                                                                             *tests
-                                                                             *variable
-                                                                             *scope
-                                                                             *
-                                                                             *****************************************************************************/
+ *   @license MIT License
+ */
 #include <iostream>
 
 #include "fstr.h"

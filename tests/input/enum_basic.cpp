@@ -4,25 +4,10 @@
  *
  * @ingroup examples
  *
+ * https://github.com/d-e-e-p/cpp-fstring-examples
  * @author Sandeep M
  * @copyright Copyright 2023 Sandeep M<deep@tensorfield.ag>
-   @license MIT License
-*/
-/**
- * @file  enum_basic.cpp
- * @author  sandeep <deep@tensorfield.ag>
- * @version 1.0
- *
- * @section LICENSE
- *
- * MIT License <http://opensource.org/licenses/MIT>
- *
- * @section DESCRIPTION
- *
- *
- * https://github.com/d-e-e-p/cpp-fstring-examples
- * Copyright (c) 2023 sandeep <deep@tensorfield.ag>
- *
+ * @license MIT License
  */
 
 #include <cstdint>   // for uint64_t, uint8_t
@@ -82,6 +67,14 @@ enum class Number3 : int {
   many = 1 << 30,
 };
 
+// from https://github.com/Neargye/magic_enum/blob/master/test/test_nonascii.cpp
+enum class Language : int { 日本語 = 10, 한국어 = 20, English = 30, TVÅ = 50 };
+enum class LanguageFlag : int {
+  日本語 = 1 << 1,
+  한국어 = 1 << 2,
+  English = 1 << 3,
+};
+
 enum Dir : std::uint64_t {
   L = std::uint64_t{1} << 10,
   D = std::uint64_t{1} << 20,
@@ -107,6 +100,8 @@ int main()
   {Number2::many=}
   {Number3::one=} {Number3::two=} {Number3::three=} {Number3::many==}
   {Binary::ONE=}
+  {Language::한국어=}
+  {LanguageFlag::한국어=}
   {space::rangers::humans=}
 )";
 

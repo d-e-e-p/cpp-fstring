@@ -6,10 +6,11 @@
  *
  * @author Sandeep M
  * @copyright Copyright 2023 Sandeep M<deep@tensorfield.ag>
-   @license MIT License
-*/
+ *   @license MIT License
+ */
 // from
 // https://stackoverflow.com/questions/41333185/python-clang-getting-template-arguments
+//
 #include <iostream>
 #include <list>
 #include <map>
@@ -23,19 +24,19 @@ class A {
   int a = 32;
 
   friend class B;
-  // Generated to_string() for PUBLIC CLASS_DECL A
+  // Generated to_string() for PUBLIC CLASS_DECL A 
   public:
   auto to_string() const {
-    return fstr::format(": int a={}\n", a);
+    return fstr::format("A: int a={}\n", a);
   }
 };
 
 class B : public A {
   int b = 13;
-  // Generated to_string() for PUBLIC CLASS_DECL B
+  // Generated to_string() for PUBLIC CLASS_DECL B 
   public:
   auto to_string() const {
-    return fstr::format(": int b={}, a={}\n", b, this->a);
+    return fstr::format("B: int b={}, a={}\n", b, this->a);
   }
 };
 
@@ -43,7 +44,7 @@ template <typename T>
 class X {
  public:
   T x;
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE X<T>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE X<T> 
   public:
   auto to_string() const {
     return fstr::format("X<T:={}>: T x={}\n", fstr::get_type_name<T>(), x);
@@ -52,10 +53,10 @@ class X {
 
 class Y : public X<bool> {
   int y = 13;
-  // Generated to_string() for PUBLIC CLASS_DECL Y
+  // Generated to_string() for PUBLIC CLASS_DECL Y 
   public:
   auto to_string() const {
-    return fstr::format(": int y={}\n", y);
+    return fstr::format("Y: int y={}\n", y);
   }
 };
 
@@ -63,7 +64,7 @@ class Y : public X<bool> {
 template <typename T>
 struct Obj {
   T value;
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE Obj<T>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Obj<T> 
   public:
   auto to_string() const {
     return fstr::format("Obj<T:={}>: T value={}\n", fstr::get_type_name<T>(), value);
@@ -74,9 +75,10 @@ template <typename K, typename T>
 struct Map {
   std::map<K, T> map1;
   std::map<K, Obj<T>> map2;
+  // TODO(deep): find workaround
   // map3 is not found by libclang
   std::map<K, std::vector<Obj<T>>> map3;
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE Map<K, T>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Map<K, T> 
   public:
   auto to_string() const {
     return fstr::format("Map<K:={}, T:={}>: int map1={}, map2={}\n", fstr::get_type_name<K>(), fstr::get_type_name<T>(), map1, map2);
@@ -85,10 +87,11 @@ struct Map {
 
 // from
 // https://stackoverflow.com/questions/66949980/variadic-template-data-structures
+//
 template <class T>
 struct Helper {
   int value = 1;
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE Helper<T>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Helper<T> 
   public:
   auto to_string() const {
     return fstr::format("Helper<T:={}>: int value={}\n", fstr::get_type_name<T>(), value);
@@ -98,10 +101,10 @@ struct Helper {
 template <>
 struct Helper<int> {
   int value = 2;
-  // Generated to_string() for PUBLIC STRUCT_DECL Helper<int>
+  // Generated to_string() for PUBLIC STRUCT_DECL Helper<int> 
   public:
   auto to_string() const {
-    return fstr::format(": int value={}\n", value);
+    return fstr::format("Helper<int>: int value={}\n", value);
   }
 };
 
@@ -116,7 +119,7 @@ class Container {
 
  private:
   C<T> container;
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE Container<T, C>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Container<T, C> 
   public:
   auto to_string() const {
     return fstr::format("Container<T:={}>: C<T> container={}\n", fstr::get_type_name<T>(), container);

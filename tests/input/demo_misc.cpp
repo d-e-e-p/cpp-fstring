@@ -1,15 +1,5 @@
 /**
  * @file demo_misc.cpp
- * misc demo of cpp-fstring
- *
- * @ingroup examples
- *
- * @author Sandeep M
- * @copyright Copyright 2023 Sandeep M<deep@tensorfield.ag>
-   @license MIT License
-*/
-/**
- * @file demo_misc.cpp
  * misc demo of cpp-fstring for STL variables
  *
  * Examples of:
@@ -22,8 +12,8 @@
  *
  * @author Sandeep M
  * @copyright Copyright 2023 Sandeep M<deep@tensorfield.ag> All rights reserved.
-   @license MIT License
-*/
+ *   @license MIT License
+ */
 
 #include <chrono>
 #include <cmath>
@@ -42,6 +32,8 @@
 #include "fstr.h"
 
 using namespace std::string_literals;
+
+enum vtypes {INT, FLOAT, STRING, CHAR};
 
 int main()
 {
@@ -157,17 +149,11 @@ It was a sunny {time:%A} in {time:%B} around {time:%OI}{time:%p}
    )";
 
   using Var = std::variant<int, float, std::string, char>;
-  Var r0(42);
-  Var r1(1.5f);
-  Var r2("hello");
-  Var r3('i');
-  cout << R"(
+  std::map<vtypes,Var> vmap = {{vtypes::INT, 10}, {vtypes::FLOAT, 3.14f}, {vtypes::STRING, std::string("Hello")}, {vtypes::CHAR, 'a'}};
 
+  cout << R"(
   Variants:
-    {r0=}
-    {r1=}
-    {r2=}
-    {r3=}
+    {vmap=}
    )";
 
   using IArr = std::valarray<int>;

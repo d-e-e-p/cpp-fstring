@@ -6,17 +6,27 @@
  *
  * @author Sandeep M
  * @copyright Copyright 2023 Sandeep M<deep@tensorfield.ag>
-   @license MIT License
-*/
+ *   @license MIT License
+ */
 #include <iostream>
 
 #include "fstr.h"
 
-// Anonymous Class : Class is not having any name
+// Anonymous Class : Class not having a name
 struct {
-  int i;
-} obj0;
+  int i = 3;
+  struct {
+    int j = 2;
+    struct {
+      int k = 1;
+      struct {
+        int l = 0;
+      } obj0 ;
+    } obj1 ;
+  } obj2 ;
+} obj3;
 
+// test of namespace and inheritance
 struct Base {
   int i;
 };
@@ -25,7 +35,7 @@ namespace a::b::c {
 struct enclose {
   struct outer {
     struct inner {
-      static int x;
+      static const int x;
       int y;
       Base b;
     } foo;
@@ -33,13 +43,17 @@ struct enclose {
 } obj1;
 
 }  // end namespace a::b::c
-int a::b::c::enclose::outer::inner::x = 42;
+const int a::b::c::enclose::outer::inner::x = 42;
 
 int main()
 {
   using std::cout;
   cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
+
+  // (unnamed struct) !
+  cout << "{obj3=}";
+
   a::b::c::obj1.bar.foo.y = 24;
-  cout << " {a::b::c::obj1=} \n";
+  cout << " {a::b::c::obj1=}";
   return 0;
 }

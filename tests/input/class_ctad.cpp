@@ -6,8 +6,8 @@
  *
  * @author Sandeep M
  * @copyright Copyright 2023 Sandeep M<deep@tensorfield.ag>
-   @license MIT License
-*/
+ *  @license MIT License
+ */
 #include <array>
 #include <iostream>
 
@@ -31,8 +31,8 @@ struct Auto {
 };
 
 
-// from https://en.cppreference.com/w/cpp/language/class_template_argument_deduction
 //
+// from https://en.cppreference.com/w/cpp/language/class_template_argument_deduction
 //
 template <class T>
 struct A {
@@ -48,6 +48,7 @@ struct B {
   T t;
   A<T> a;
 };
+
 
 template <auto... Values>
 struct ValueList {

@@ -6,10 +6,11 @@
  *
  * @author Sandeep M
  * @copyright Copyright 2023 Sandeep M<deep@tensorfield.ag>
-   @license MIT License
-*/
+ *   @license MIT License
+ */
 // from
 // https://stackoverflow.com/questions/48456042/base-class-c14-template-functions-are-not-visible-in-clang-on-mac-os-recursi
+//
 #include <type_traits>
 #include <utility>
 
@@ -59,13 +60,8 @@ int main()
 {
   fmt::print("file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n");
 
-  Bar<A, B> bar1 = {};
-  bar1.dumb(A{});  // ok for everyone
-  fmt::print(" {bar1=} ");
+  fmt::print("{Bar<A, B>()=}");
+  fmt::print("{Bar<C, D>()=}");
 
-  Bar<C, D> bar2 = {};
-  fmt::print(" {bar2=} ");
-
-  // bar.dumb(B{}); // error for clang++, ok for g++
   return 0;
 }

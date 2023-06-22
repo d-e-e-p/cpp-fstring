@@ -6,16 +6,8 @@
  *
  * @author Sandeep M
  * @copyright Copyright 2023 Sandeep M<deep@tensorfield.ag>
-   @license MIT License
-*/
-/*************************************************************************/ /**
-                                                                             *
-                                                                             * @brief
-                                                                             *tests
-                                                                             *variable
-                                                                             *scope
-                                                                             *
-                                                                             *****************************************************************************/
+ *   @license MIT License
+ */
 #include <iostream>
 
 #include "fstr.h"
@@ -40,7 +32,7 @@ class assign_value {
  private:
   T* t_;
   V v_;
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE assign_value<T, V>
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE assign_value<T, V> 
   public:
   auto to_string() const {
     return fstr::format("assign_value<T:={}, V:={}>: T * t_={}, V v_={}\n", fstr::get_type_name<T>(), fstr::get_type_name<V>(), fmt::ptr(t_), v_);
@@ -58,10 +50,10 @@ class KeyValue {
  private:
   std::string m_key;
   std::string m_value;
-  // Generated to_string() for PUBLIC CLASS_DECL KeyValue
+  // Generated to_string() for PUBLIC CLASS_DECL KeyValue 
   public:
   auto to_string() const {
-    return fstr::format(": int m_key={}, m_value={}\n", m_key, m_value);
+    return fstr::format("KeyValue: int m_key={}, m_value={}\n", m_key, m_value);
   }
 };
 
@@ -75,10 +67,10 @@ class doc {
   // TODO(deep): find workaround for ::iterator and ::const_iterator issue with
   // libclang see https://github.com/llvm/llvm-project/issues/63277
   // std::vector<KeyValue>::const_iterator m_iter;
-  // Generated to_string() for PUBLIC CLASS_DECL doc
+  // Generated to_string() for PUBLIC CLASS_DECL doc 
   public:
   auto to_string() const {
-    return fstr::format(": int foo={}, paragraph bar={}\n", foo, bar);
+    return fstr::format("doc: int foo={}, paragraph bar={}\n", foo, bar);
   }
 // Generated formatter for PRIVATE enum doc::paragraph of type INT scoped
  friend constexpr auto format_as(const doc::paragraph obj) {
@@ -96,10 +88,10 @@ struct S {
   template <int>
   using N = int;
   static constexpr int size = 5;
-  // Generated to_string() for PUBLIC STRUCT_DECL S
+  // Generated to_string() for PUBLIC STRUCT_DECL S 
   public:
   auto to_string() const {
-    return fstr::format(": const int size={}\n", size);
+    return fstr::format("S: const int size={}\n", size);
   }
 };
 

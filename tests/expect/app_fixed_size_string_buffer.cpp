@@ -1,4 +1,13 @@
-
+/**
+ * @file app_fixed_size_string_buffer.cpp
+ * misc demo of cpp-fstring
+ *
+ * @ingroup examples
+ *
+ * @author Sandeep M
+ * @copyright Copyright 2023 Sandeep M<deep@tensorfield.ag>
+ * @license MIT License
+ */
 #include <iostream>
 #include <sstream>
 

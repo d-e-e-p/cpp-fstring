@@ -4,25 +4,10 @@
  *
  * @ingroup examples
  *
+ * https://github.com/d-e-e-p/cpp-fstring-examples
  * @author Sandeep M
  * @copyright Copyright 2023 Sandeep M<deep@tensorfield.ag>
-   @license MIT License
-*/
-/**
- * @file  enum_basic.cpp
- * @author  sandeep <deep@tensorfield.ag>
- * @version 1.0
- *
- * @section LICENSE
- *
- * MIT License <http://opensource.org/licenses/MIT>
- *
- * @section DESCRIPTION
- *
- *
- * https://github.com/d-e-e-p/cpp-fstring-examples
- * Copyright (c) 2023 sandeep <deep@tensorfield.ag>
- *
+ * @license MIT License
  */
 
 #include <cstdint>   // for uint64_t, uint8_t
@@ -91,6 +76,14 @@ enum class Number3 : int {
   many = 1 << 30,
 };
 
+// from https://github.com/Neargye/magic_enum/blob/master/test/test_nonascii.cpp
+enum class Language : int { 日本語 = 10, 한국어 = 20, English = 30, TVÅ = 50 };
+enum class LanguageFlag : int {
+  日本語 = 1 << 1,
+  한국어 = 1 << 2,
+  English = 1 << 3,
+};
+
 enum Dir : std::uint64_t {
   L = std::uint64_t{1} << 10,
   D = std::uint64_t{1} << 20,
@@ -116,8 +109,10 @@ int main()
   Number2::many={}
   Number3::one={} Number3::two={} Number3::three={} Number3::many={}
   Binary::ONE={}
+  Language::한국어={}
+  LanguageFlag::한국어={}
   space::rangers::humans={}
-)", Color1::GREEN, GREEN, L, D, U, R, Number1::many, Number2::many, Number3::one, Number3::two, Number3::three, Number3::many, Binary::ONE, space::rangers::humans);
+)", Color1::GREEN, GREEN, L, D, U, R, Number1::many, Number2::many, Number3::one, Number3::two, Number3::three, Number3::many, Binary::ONE, Language::한국어, LanguageFlag::한국어, space::rangers::humans);
 
   std::vector<Color1> vc = {Color1::RED, Color1::GREEN, Color1::BLUE};
   std::map<Color1, std::vector<Number3>> mc = {
@@ -236,6 +231,27 @@ constexpr auto format_as(const Number3 obj) {
     case Number3::two  : name = "two"  ; break;  // index=4
     case Number3::three: name = "three"; break;  // index=8
     case Number3::many : name = "many" ; break;  // index=1073741824
+  }
+  return name;
+}
+// Generated formatter for PUBLIC enum Language of type INT scoped
+constexpr auto format_as(const Language obj) {
+  fmt::string_view name = "<missing>";
+  switch (obj) {
+    case Language::日本語    : name = "日本語"    ; break;  // index=10
+    case Language::한국어    : name = "한국어"    ; break;  // index=20
+    case Language::English: name = "English"; break;  // index=30
+    case Language::TVÅ    : name = "TVÅ"    ; break;  // index=50
+  }
+  return name;
+}
+// Generated formatter for PUBLIC enum LanguageFlag of type INT scoped
+constexpr auto format_as(const LanguageFlag obj) {
+  fmt::string_view name = "<missing>";
+  switch (obj) {
+    case LanguageFlag::日本語    : name = "日本語"    ; break;  // index=2
+    case LanguageFlag::한국어    : name = "한국어"    ; break;  // index=4
+    case LanguageFlag::English: name = "English"; break;  // index=8
   }
   return name;
 }

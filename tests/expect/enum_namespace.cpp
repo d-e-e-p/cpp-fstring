@@ -6,8 +6,8 @@
  *
  * @author Sandeep M
  * @copyright Copyright 2023 Sandeep M<deep@tensorfield.ag>
-   @license MIT License
-*/
+ *   @license MIT License
+ */
 
 #include <iostream>
 #include <map>
@@ -191,6 +191,6 @@ constexpr auto format_as(const roman::sym obj) {
 }
 
 namespace  {using ::format_as;}
-namespace Xnamespace {using ::format_as;}
 namespace roman {using ::format_as;}
+namespace Xnamespace {using ::format_as;}
 
