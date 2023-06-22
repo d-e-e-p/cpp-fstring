@@ -9,7 +9,7 @@
 
 struct Base {
   int n{};
-  // Generated to_string() for PUBLIC STRUCT_DECL Base 
+  // Generated to_string() for PUBLIC STRUCT_DECL Base
   public:
   auto to_string() const {
     return fstr::format("Base: int n={}\n", n);
@@ -56,7 +56,7 @@ struct Class : public Base {
   catch (...) {
     // exception occurred on initialization
   }
-  // Generated to_string() for PUBLIC STRUCT_DECL Class 
+  // Generated to_string() for PUBLIC STRUCT_DECL Class
   public:
   auto to_string() const {
     return fstr::format("Class: unsigned char x={}, y={}, int m={}, lg={}, f={}, s={}, n={}\n", x, y, m, lg, f, s, this->n);

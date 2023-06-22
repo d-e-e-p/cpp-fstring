@@ -191,6 +191,6 @@ constexpr auto format_as(const roman::sym obj) {
 }
 
 namespace  {using ::format_as;}
-namespace roman {using ::format_as;}
 namespace Xnamespace {using ::format_as;}
+namespace roman {using ::format_as;}
 

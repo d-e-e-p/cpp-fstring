@@ -63,7 +63,7 @@ enum class Shape {
 struct Point {
   int x;
   int y;
-  // Generated to_string() for PUBLIC STRUCT_DECL Point 
+  // Generated to_string() for PUBLIC STRUCT_DECL Point
   public:
   auto to_string() const {
     return fstr::format("Point: int x={}, y={}\n", x, y);

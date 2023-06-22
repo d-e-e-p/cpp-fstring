@@ -59,7 +59,7 @@ struct memory_buffer : public std::streambuf {
   {
     return seekoff(pos, std::ios_base::beg, which);
   }
-  // Generated to_string() for PUBLIC STRUCT_DECL memory_buffer 
+  // Generated to_string() for PUBLIC STRUCT_DECL memory_buffer
   public:
   auto to_string() const {
     return fstr::format("memory_buffer: char * p_start={}, p_end={}, int size={}\n", fmt::ptr(p_start), fmt::ptr(p_end), size);
@@ -72,7 +72,7 @@ struct memory_stream : virtual memory_buffer, public std::istream {
         std::istream(static_cast<std::streambuf *>(this))
   {
   }
-  // Generated to_string() for PUBLIC STRUCT_DECL memory_stream 
+  // Generated to_string() for PUBLIC STRUCT_DECL memory_stream
   public:
   auto to_string() const {
     return fstr::format("memory_stream: char * p_start={}, p_end={}, int size={}\n", fmt::ptr(this->p_start), fmt::ptr(this->p_end), this->size);
@@ -93,7 +93,7 @@ class manual_timer {
                 1000.0;
   }
   const double &get() { return timestamp; }
-  // Generated to_string() for PUBLIC CLASS_DECL manual_timer 
+  // Generated to_string() for PUBLIC CLASS_DECL manual_timer
   public:
   auto to_string() const {
     return fstr::format("manual_timer: int t0={}, double timestamp={}\n", t0, timestamp);
@@ -102,7 +102,7 @@ class manual_timer {
 
 struct float2 {
   float x, y;
-  // Generated to_string() for PUBLIC STRUCT_DECL float2 
+  // Generated to_string() for PUBLIC STRUCT_DECL float2
   public:
   auto to_string() const {
     return fstr::format("float2: float x={}, y={}\n", x, y);
@@ -110,7 +110,7 @@ struct float2 {
 };
 struct float3 {
   float x, y, z;
-  // Generated to_string() for PUBLIC STRUCT_DECL float3 
+  // Generated to_string() for PUBLIC STRUCT_DECL float3
   public:
   auto to_string() const {
     return fstr::format("float3: float x={}, y={}, z={}\n", x, y, z);
@@ -118,7 +118,7 @@ struct float3 {
 };
 struct double3 {
   double x, y, z;
-  // Generated to_string() for PUBLIC STRUCT_DECL double3 
+  // Generated to_string() for PUBLIC STRUCT_DECL double3
   public:
   auto to_string() const {
     return fstr::format("double3: double x={}, y={}, z={}\n", x, y, z);
@@ -126,7 +126,7 @@ struct double3 {
 };
 struct uint3 {
   uint32_t x, y, z;
-  // Generated to_string() for PUBLIC STRUCT_DECL uint3 
+  // Generated to_string() for PUBLIC STRUCT_DECL uint3
   public:
   auto to_string() const {
     return fstr::format("uint3: int x={}, y={}, z={}\n", x, y, z);
@@ -134,7 +134,7 @@ struct uint3 {
 };
 struct uint4 {
   uint32_t x, y, z, w;
-  // Generated to_string() for PUBLIC STRUCT_DECL uint4 
+  // Generated to_string() for PUBLIC STRUCT_DECL uint4
   public:
   auto to_string() const {
     return fstr::format("uint4: int x={}, y={}, z={}, w={}\n", x, y, z, w);
@@ -146,7 +146,7 @@ struct geometry {
   std::vector<float3> normals;
   std::vector<float2> texcoords;
   std::vector<uint3> triangles;
-  // Generated to_string() for PUBLIC STRUCT_DECL geometry 
+  // Generated to_string() for PUBLIC STRUCT_DECL geometry
   public:
   auto to_string() const {
     return fstr::format("geometry: int vertices={}, normals={}, texcoords={}, triangles={}\n", vertices, normals, texcoords, triangles);

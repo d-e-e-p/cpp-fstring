@@ -21,25 +21,25 @@ struct {
       int k = 1;
       struct {
         int l = 0;
-        // Generated to_string() for PUBLIC STRUCT_DECL (unnamed struct) 
+        // Generated to_string() for PUBLIC STRUCT_DECL (unnamed struct)
   public:
   auto to_string() const {
     return fstr::format("(unnamed struct): int l={}\n", l);
   }
 } obj0 ;
-      // Generated to_string() for PUBLIC STRUCT_DECL (unnamed struct) 
+      // Generated to_string() for PUBLIC STRUCT_DECL (unnamed struct)
   public:
   auto to_string() const {
     return fstr::format("(unnamed struct): int k={}, struct (unnamed struct) obj0={}\n", k, obj0);
   }
 } obj1 ;
-    // Generated to_string() for PUBLIC STRUCT_DECL (unnamed struct) 
+    // Generated to_string() for PUBLIC STRUCT_DECL (unnamed struct)
   public:
   auto to_string() const {
     return fstr::format("(unnamed struct): int j={}, struct (unnamed struct) obj1={}\n", j, obj1);
   }
 } obj2 ;
-  // Generated to_string() for PUBLIC STRUCT_DECL (unnamed struct) 
+  // Generated to_string() for PUBLIC STRUCT_DECL (unnamed struct)
   public:
   auto to_string() const {
     return fstr::format("(unnamed struct): int i={}, struct (unnamed struct) obj2={}\n", i, obj2);
@@ -49,7 +49,7 @@ struct {
 // test of namespace and inheritance
 struct Base {
   int i;
-  // Generated to_string() for PUBLIC STRUCT_DECL Base 
+  // Generated to_string() for PUBLIC STRUCT_DECL Base
   public:
   auto to_string() const {
     return fstr::format("Base: int i={}\n", i);
@@ -63,19 +63,19 @@ struct enclose {
       static const int x;
       int y;
       Base b;
-      // Generated to_string() for PUBLIC STRUCT_DECL a::b::c::enclose::outer::inner 
+      // Generated to_string() for PUBLIC STRUCT_DECL a::b::c::enclose::outer::inner
   public:
   auto to_string() const {
     return fstr::format("a::b::c::enclose::outer::inner: const int x={}, int y={}, Base b={}\n", x, y, b);
   }
 } foo;
-    // Generated to_string() for PUBLIC STRUCT_DECL a::b::c::enclose::outer 
+    // Generated to_string() for PUBLIC STRUCT_DECL a::b::c::enclose::outer
   public:
   auto to_string() const {
     return fstr::format("a::b::c::enclose::outer: struct inner foo={}\n", foo);
   }
 } bar;
-  // Generated to_string() for PUBLIC STRUCT_DECL a::b::c::enclose 
+  // Generated to_string() for PUBLIC STRUCT_DECL a::b::c::enclose
   public:
   auto to_string() const {
     return fstr::format("a::b::c::enclose: struct outer bar={}\n", bar);
