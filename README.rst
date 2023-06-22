@@ -49,7 +49,8 @@ Credits
 =======
 
 -  This project has been set up using `PyScaffold <https://pyscaffold.org/>`__
--  Post explaining `C++ template <https://victor-istomin.github.io/c-with-crosses/posts/templates-are-easy/>`__
+-  Post explaining `C++ templates <https://victor-istomin.github.io/c-with-crosses/posts/templates-are-easy/>`__
+-  Discussions on stackoverflow like `enum to string in modern C++ <https://stackoverflow.com/questions/28828957/enum-to-string-in-modern-c11-c14-c17-and-future-c20>`__
 -  C++ formatting library `{fmt} <https://fmt.dev/latest/index.html>`__
 -  Python interface to the `Clang indexing library <https://libclang.readthedocs.io/en/latest/>`__
 -  Packaged version of Clang Python Bindings `libclang <https://pypi.org/project/libclang/>`__
