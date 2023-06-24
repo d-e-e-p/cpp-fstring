@@ -36,13 +36,13 @@ to equivalent fmt::format commands. So you can do things like:
     std::cout << "fruit by colors: {mc=} \n";
 
 
-which produces the output:
+result:
 
 .. code-block:: sh
 
     fruit by colors: mc = {red: [apple], yellow: [apple, banana]}
 
-cpp-fstring generates the boilerplate code to display enum, as well as a variety of containers including
+cpp-fstring generates the boilerplate code to display a variety of containers including
 enums, structs and classes.
 
 Credits
@@ -76,7 +76,7 @@ seem to hit the "lack of reflection" brick wall.  Hopefully by C++30 we could do
       return "<unnamed>";
     }
 
-In the mean time, cpp-fstring cheats by pre-processing. so the C++17 code :
+In the mean time, cpp-fstring cheats by pre-processing C++17 code. So:
 
 .. code-block:: CPP
 
@@ -132,7 +132,7 @@ gets an extra `to_string()` function:
     public:
        // Generated to_string() for PUBLIC CLASS_TEMPLATE Container<T, C>
        auto to_string() const {
-         return fstr::format("Container<T:={}>: C<T> container={}\n", fstr::get_type_name<T>(), container);
+         return fstr::format("Container<T:={}>: C<T> container={}", fstr::get_type_name<T>(), container);
       }
     };
 
@@ -154,7 +154,7 @@ The following command then converts foo.cc into foo.cpp:
 
     cpp-fstring foo.cc -I ../include > foo.cpp
 
-You also need to add this to foo.cc:
+You also need to add this include to foo.cc:
 
 .. code-block:: CPP
 
@@ -163,7 +163,7 @@ You also need to add this to foo.cc:
 `fstr.h <src/cpp_fstring/include/fstr.h>`__ contains helper routines needed to stringify enums and classes.
 An example of using cpp-fstring in cmake environment is at `cpp-fstring-examples <https://github.com/d-e-e-p/cpp-fstring-examples>`__
 
-There are 2 dependencies: fmt and libclang. to install fmt use something like:
+There are 2 main dependencies: C++ fmt library and python libclang library. to install fmt use of of these commands:
 
 .. code-block:: sh
 
@@ -172,13 +172,13 @@ There are 2 dependencies: fmt and libclang. to install fmt use something like:
     vcpkg install fmt
     conda install -c conda-forge fmt
 
-and libclang:
+to install `libclang <https://pypi.org/project/libclang/>`__ :
 
 .. code-block:: sh
 
     pip install libclang
 
-libclang installs the dynamic c++ library file (`libclang.dylib`, `libclang.dll` or `libclang.so`)
+libclang installs the dynamic library file (`libclang.dylib`, `libclang.dll` or `libclang.so`)
 in a path like `/opt/homebrew/lib/python3.11/site-packages/clang/native/libclang.dylib` .
 If an incorrect version of library file is installed, you can get a strange error like `this <https://github.com/sighingnow/libclang/issues/54>`__
 You can download a more recent version of libclang library from:
@@ -187,7 +187,7 @@ You can download a more recent version of libclang library from:
 
     https://github.com/llvm/llvm-project/releases/
 
-The only file you need is one of (`libclang.dylib`, `libclang.dll` or `libclang.so`) for your architecture.
+The only file you need is the libclang dynamic lib for your machine:`libclang.dylib`, `libclang.dll` or `libclang.so`.
 
 Usage: What Works
 =================
@@ -229,7 +229,7 @@ outputs:
       max([5, 57, 945]) = 945
 
 
-See `enum_namespace.cpp <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/enum_namespace.cpp>`__ for example of enums:
+See `enum_namespace.cpp <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/examples/psrc/enum_namespace.cpp>`__ for examples of simple enums:
 
 .. code-block:: CPP
 
@@ -265,7 +265,6 @@ See `class_ctad.cpp <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/e
     template<class T>
     struct A {
         T t;
-
         struct {
             long a, b;
         } u;
@@ -280,11 +279,8 @@ See `class_ctad.cpp <https://github.com/d-e-e-p/cpp-fstring-examples/blob/main/e
 
     int main() {
       using std::cout;
-
-      A<int> a{1,{2,3}};
       auto b = B<int>{1, {2,{3,4}}};
       cout << " {b=}";
-
     }
 
 outputs:
@@ -320,13 +316,13 @@ Usage: What Doesn't Work
       int y = 13;
     };
 
-* missing vector variable in class, see `issue <https://github.com/llvm/llvm-project/issues/63372>`__
+* missing vector variable in class, see `issue <https://github.com/llvm/llvm-project/issues/63372>`__ :
 
 .. code-block:: cpp
 
-struct Map {
-  std::map<int, std::vector<int>> m_is_invisible;
-};
+    struct Map {
+      std::map<int, std::vector<int>> m_is_invisible;
+    };
 
 
 2. Limitations in fmt:: library, eg wchar_t is not completely supported even with xchar.h:
@@ -371,10 +367,12 @@ struct Map {
 Making Changes & Contributing
 =============================
 
-This project uses `pre-commit <https://pre-commit.com/>` :::
+This project uses `pre-commit <https://pre-commit.com/>` :
 
-    pip install pre-commit
+.. code-block:: sh
+
     cd cpp_fstring
+    pip install pre-commit
     pre-commit install
     pre-commit autoupdate
 
