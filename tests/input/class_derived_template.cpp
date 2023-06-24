@@ -21,12 +21,21 @@
 
 // set1
 class A {
-  int a = 32;
+  int a = 1;
 };
 
 class B : public A {
-  int b = 13;
+  int b = 2;
 };
+
+class C : public B {
+  int c = 3;
+};
+
+class D : public C {
+  int d = 4;
+};
+
 
 template <typename T>
 class X {
@@ -84,8 +93,8 @@ int main()
   using std::cout;
   cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
 
-  // should print both a and b
-  cout << " {B()=} \n";
+  // should print a, b, c, d
+  cout << " {D()=} \n";
 
   cout << " {X<int>()=} ";
   cout << " {X<bool>()=} ";
@@ -122,5 +131,17 @@ int main()
   dp2.addData("Hello");
   dp2.addData("World");
   cout << "Container<std::string, std::list> {dp2=}";
+
+  Container<std::tuple<int, char, double>, std::vector> dp3;
+  dp3.addData(std::make_tuple(10, 'a', 1.0));
+  dp3.addData(std::make_tuple(20, 'b', 2.0));
+  cout << "Container<std::tuple<int, char, double>, std::vector> {dp3}";
+
+  Container<D, std::vector> db4;
+  db4.addData(D());
+  db4.addData(D());
+  cout << "Container<D, std::vector> {db4}";
+
+
   return 0;
 }
