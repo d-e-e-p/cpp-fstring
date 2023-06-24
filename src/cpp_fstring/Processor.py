@@ -9,13 +9,16 @@ log = logging.getLogger(__name__)
 
 class Processor:
     """
+    processed records created by Parse class
+
     from: https://docs.python.org/3.11/reference/lexical_analysis.html#formatted-string-literals
+
+    .. code-block::
 
     f_string          ::=  (literal_char | "{{" | "}}" | replacement_field)*
     replacement_field ::=  "{" f_expression ["="] ["!" conversion] [":" format_spec] "}"
-    f_expression      ::=  (conditional_expression | "*" or_expr)
-                             ("," conditional_expression | "," "*" or_expr)* [","]
-                           | yield_expression
+    f_expression      ::=  (conditional_expression | "*" or_expr) \
+            ("," conditional_expression | "," "*" or_expr)* [","] | yield_expression
     conversion        ::=  "s" | "r" | "a"
     format_spec       ::=  (literal_char | NULL | replacement_field)*
     literal_char      ::=  <any code point except "{", "}" or NULL>
@@ -335,18 +338,20 @@ class Processor:
 
     def gen_enum_switch_statement(self, rec):
         """
-          follow example in fmt:: documentation, ie:
+        create a format_as statement based on enum definition
 
-        enum class color {red, green, blue};
-        auto format_as(const color c) {
-          fmt::string_view name = "unknown";
-          switch (c) {
-              case color::red:   name = "red";   break;
-              case color::green: name = "green"; break;
-              case color::blue:  name = "blue";  break;
-          }
-          return name;
-        };
+        .. code-block:: CPP
+
+            enum class color {red, green, blue};
+            auto format_as(const color c) {
+              fmt::string_view name = "unknown";
+              switch (c) {
+                  case color::red:   name = "red";   break;
+                  case color::green: name = "green"; break;
+                  case color::blue:  name = "blue";  break;
+              }
+              return name;
+            };
         """
         out = ""
 
@@ -480,12 +485,13 @@ struct fmt::formatter<{decl}>: formatter<string_view> {{
 
     def get_template_decl(self, rec):
         """
-        look thru definitions and produce list that goes inside template <>, eg
-                template <typename T, T Min, T Max>
+        look thru definitions and produce list that goes inside template brackets
 
-        for template typename arguments, emit extra statement showing type of template param,
-        eg, for example above:
-            typeid(T).name()
+        for template typename arguments, emit extra statement showing type of template param
+        .. code-block:: CPP
+
+            template <typename T, T Min, T Max>
+
         """
         if rec.class_kind != "CLASS_TEMPLATE":
             return "", []

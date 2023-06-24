@@ -32,6 +32,7 @@ from dataclasses import dataclass, field
 from typing import Callable
 
 import bpdb  # noqa: F401
+from cpp_fstring.DataClass import BaseClassRecord, ClassRecord, ClassVar, EnumRecord, EnumConstantDecl, dump
 from clang.cindex import AccessSpecifier, Config, Cursor
 from clang.cindex import CursorKind as CK
 from clang.cindex import Index, Token, TokenKind, TranslationUnit, TypeKind
@@ -40,146 +41,7 @@ from clang.cindex import Index, Token, TokenKind, TranslationUnit, TypeKind
 # from cpp_fstring.clang.cindex import CursorKind as CK
 # from cpp_fstring.clang.cindex import Index, Token, TokenKind, TranslationUnit
 
-
 log = logging.getLogger(__name__)
-
-"""
-storage structures for string/enum/class records
-"""
-
-
-@dataclass
-class EnumConstantDecl:
-    name: str
-    index: str
-
-
-@dataclass
-class EnumRecord:
-    """
-    store enum definition
-    """
-
-    name: str
-    enum_type: str = ""
-    is_scoped: bool = False
-    is_anonymous: bool = False
-    is_external: bool = False
-    last_tok: Token = Token()
-    access_specifier: str = "PUBLIC"
-    namespace: str = None
-    is_in_class: bool = False
-    is_in_function: bool = False
-    class_last_tok = Token()
-    values: list[EnumConstantDecl] = field(default_factory=list)
-
-
-@dataclass
-class ClassVar:
-    """
-    store class/struct variables
-    """
-
-    name: str
-    qualified_name: str
-    displayname: str
-    vartype: str
-    access_specifier: str = "PUBLIC"
-    indent: int = 0
-    template_type: str = ""  # TODO: use enum for valid values type, non_type, template ?
-    is_pointer: bool = False
-    is_param_pack: bool = False
-    parent_node = None
-    out: str = ""
-
-
-@dataclass
-class BaseClassRecord:
-    """
-    store base class/struct
-    """
-
-    name: str
-    displayname: str
-    hash: int
-    class_kind: str = "STRUCT_DECL"
-    last_tok: Token = Token()
-
-
-@dataclass
-class ClassRecord:
-    """
-    store class/struct definition
-    """
-
-    name: str
-    displayname: str
-    hash: int
-    class_kind: str = "STRUCT_DECL"
-    last_tok: Token = Token()
-    wants_to_be_friends: bool = False
-    is_external: bool = False
-    needs_to_string: bool = False
-    access_specifier: str = "PUBLIC"
-    is_anonymous: bool = False
-    bases: list[BaseClassRecord] = field(default_factory=list)
-    vars: list[ClassVar] = field(default_factory=list)
-    tvars: list[ClassVar] = field(default_factory=list)
-
-
-@dataclass
-class SelectedRecords:
-    """
-    store lists of str/enum/class tokens
-    """
-
-    tstring: list[Token]
-    tenum: list[EnumRecord]
-    tclass: list[Token]
-
-
-def dump(obj, name="obj"):
-    for attribute in dir(obj):
-        # if isinstance(getattr(obj, attribute), str):
-        if attribute.startswith("_"):
-            continue
-        if attribute.startswith("objc_type_encoding"):  # often makes dump crash
-            continue
-
-        try:
-            val = getattr(obj, attribute)
-        except:  # noqa: E722
-            val = None
-
-        if val is None:
-            print(f"{name}[{attribute}] = ERR")
-            continue
-
-        print(f"{name}[{attribute}]", end=" ")
-        # if isinstance(val, type(lambda: None))
-        if type(val) is types.MethodType:  # noqa: E721
-            try:
-                print("()", end=" ")
-                print(val())
-            except:  # noqa: E722
-                print("ERR")
-        else:
-            print(val)
-
-    attr_list = "lexical_parent type".split()
-    for attr in attr_list:
-        if hasattr(obj, attr):
-            val = getattr(obj, attr)
-            if val is not None:
-                print(f"{name}[{attr}] = {val.spelling}")
-
-    if hasattr(obj, "get_tokens"):
-        tokens = ""
-        for fd in obj.get_tokens():
-            tokens += " " + fd.spelling
-        print(f"{name}[tokens] = {tokens}")
-
-    print("------")
 
 
 class ParseCPP:
@@ -214,12 +76,16 @@ class ParseCPP:
         self.INDENT = 4
         self.file_has_existing_formatters = set()
 
-    def find_records(self):
+    def extract_interesting_records(self):
+        """
+        pick out classes, structs, unions, enums, strings
+
+        parse the c++ file using libclang and visit every node, extracting interesting objects 
+        """
         self.set_filename_for_parsing()
         args = [self.filename]
         args.extend(
             [
-                "-xc++",
                 "--std=c++17",
                 "-nobuiltininc",
                 "--no-standard-includes",
@@ -268,19 +134,21 @@ class ParseCPP:
 
     def set_filename_for_parsing(self):
         """
-        parsing has problems if the filetype looking like an include file...
-        so append a fake .cpp for these cases
-         tools/clang-format/git-clang-format looks for:
-                h hh hpp hxx
-        we just append all files with with .h* type extension with .cpp
+        deal with include files
+
+        libclang parsing has problems if the file to process is an include file
+        so append a fake .cpp for these cases.
+        tools/clang-format/git-clang-format looks for: h hh hpp hxx
+        we just blindly append all files with with .h* type extension with .fake.cpp
         """
         if re.match(r".*\.h[^.]*", self.filename):
             self.filename += ".fake.cpp"
 
     def get_libclang_file(self):
-        # from clang cindex
+        """
+        copied from clang cindex
+        """
         import platform
-
         name = platform.system()
 
         if name == "Darwin":
@@ -292,6 +160,9 @@ class ParseCPP:
         return file
 
     def find_first_file(self, file_name, dirs):
+        """
+        find first file matching file_name in list of dirs
+        """
         for dir_path in dirs:
             for root, dirs, files in os.walk(dir_path):
                 if file_name in files:
@@ -300,6 +171,9 @@ class ParseCPP:
         return None
 
     def find_newest_file(self, file_name, dirs):
+        """
+        find newest file matching file_name in list of dirs
+        """
         newest_file = None
         newest_time = 0
         for dir_path in dirs:
@@ -313,6 +187,9 @@ class ParseCPP:
         return newest_file
 
     def set_libclang_from_lib(self):
+        """
+        assume libclang.dylib/dll/so is under "native" dir of clang lib
+        """
         import clang  # noqa: E402
 
         dir = clang.__path__[0]
@@ -376,10 +253,14 @@ class ParseCPP:
 
     def remove_loc_from_name(self, name):
         """
-        convert:
-         FrogClass::(unnamed struct at /Us/c/clde.h.fake.cpp:219:5)
-        to:
-         FrogClass::(unnamed struct)
+        strip out location information in unnamed class/struct
+
+        .. code-block:: CPP
+
+            //convert:
+             FrogClass::(unnamed struct at /Us/c/clde.h.fake.cpp:219:5)
+            //to:
+             FrogClass::(unnamed struct)
         """
         return re.sub(r"\(unnamed (\w+) at .*\)", r"(unnamed \1)", name)
 
@@ -550,24 +431,13 @@ class ParseCPP:
 
     def extract_vars_from_class(self, node, prefix, indent):
         """
-        Example function with types documented in the docstring.
+        associate vars with nested classes
 
-        :pep:`484` type annotations are supported. If attribute, parameter, and
-        return types are annotated according to `PEP 484`_, they do not need to be
-        included in the docstring:
+        .. code-block::
 
-        Args:
-            param1 (int): The first parameter.
-            param2 (str): The second parameter.
-
-        Returns:
-            bool: The return value. True for success, False otherwise.
-        """
-        """
-        if the class definition node has base class, then add the vars to list to print
-        for nested classes:
-            - if class has name => just stop at this level
-                - for templates need to calculate specialization name
+        - add immediate variables
+            - for templates need to calculate specialization name
+        - then add variables from base classes
         """
         var_records = []
         if node is None:
@@ -595,7 +465,7 @@ class ParseCPP:
                 var_record.parent_node = node
                 var_records.append(var_record)
 
-        # both cases need to deal with inheritance
+        # need to deal with inheritance
         # see https://stackoverflow.com/questions/42795408/can-libclang-parse-the-crtp-pattern
         # TODO: decide between visiting all downstream nodes with fd.walk_preorder() or just
         # immediate children with fd.get_children()
@@ -619,7 +489,6 @@ class ParseCPP:
         # for fd in node.walk_preorder():
         #    print(f" {fd.spelling} {fd.type.spelling} {fd.kind} ")
         #    dump(fd, fd.spelling)
-        # bpdb.set_trace()
         return var_records
 
     def extract_one_class_record(self, node):

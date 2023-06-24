@@ -103,15 +103,17 @@ def main(args):
 
     # record all interesting snippets in source
     parser = ParseCPP(code, args.filename, extraargs)
-    string_records, enum_records, class_records = parser.find_records()
+    string_records, enum_records, class_records = parser.extract_interesting_records()
 
     # batch up changes and additions:
-    #   changes are mods to existing code
-    #   addition can be appended to the end of file
+    #   changes: in line edits to existing code
+    #   addition: can be appended to the end of file
     processor = Processor()
+    # changes
     string_changes = processor.gen_fstring_changes(string_records)
     class_changes = processor.gen_class_changes(class_records)
     enum_changes = processor.gen_enum_changes(enum_records)
+    # addition
     enum_addition = processor.gen_enum_format(enum_records)
     # class_addition = processor.gen_class_format(class_records)
 
