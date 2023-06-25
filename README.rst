@@ -160,10 +160,12 @@ You also need to add this include to foo.cc:
 
     #include "fstr.h"
 
-`fstr.h <src/cpp_fstring/include/fstr.h>`__ contains helper routines needed to stringify enums and classes.
-An example of using cpp-fstring in cmake environment is at `cpp-fstring-examples <https://github.com/d-e-e-p/cpp-fstring-examples>`__
+`fstr.h <https://github.com/d-e-e-p/cpp-fstring/blob/main/src/cpp_fstring/include/fstr.h>`__ contains helper routines 
+needed to stringify enums and classes.  An example of using cpp-fstring in cmake environment 
+is at `cpp-fstring-examples <https://github.com/d-e-e-p/cpp-fstring-examples>`__
 
-There are 2 main dependencies: C++ fmt library and python libclang library. to install fmt use of of these commands:
+There are 2 main dependencies: python libclang library to run cpp-format and C++ fmt library to display objects. 
+to install `fmt <https://fmt.dev/latest/index.html>`__ use ONE of these commands:
 
 .. code-block:: sh
 
@@ -187,7 +189,8 @@ You can download a more recent version of libclang library from:
 
     https://github.com/llvm/llvm-project/releases/
 
-The only file you need is the libclang dynamic lib for your machine:`libclang.dylib`, `libclang.dll` or `libclang.so`.
+The only file you need from binary distribution is the libclang dynamic lib for your machine, ie `libclang.dylib`, `libclang.dll` or `libclang.so`.
+You might have to copy this file to the `native` directory of python clang lib.
 
 Usage: What Works
 =================

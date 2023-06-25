@@ -27,12 +27,11 @@ token:
 import logging
 import os
 import re
-import types
-from dataclasses import dataclass, field
 from typing import Callable
 
-import bpdb  # noqa: F401
-from cpp_fstring.DataClass import BaseClassRecord, ClassRecord, ClassVar, EnumRecord, EnumConstantDecl, dump
+# import bpdb  # noqa: F401
+from cpp_fstring.DataClass import BaseClassRecord, ClassRecord, ClassVar, EnumRecord, EnumConstantDecl
+from cpp_fstring.DataClass import dump
 from clang.cindex import AccessSpecifier, Config, Cursor
 from clang.cindex import CursorKind as CK
 from clang.cindex import Index, Token, TokenKind, TranslationUnit, TypeKind
