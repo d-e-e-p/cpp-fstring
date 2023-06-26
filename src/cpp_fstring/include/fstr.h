@@ -86,8 +86,10 @@ std::string get_type_name() {
         std::free
     };
     std::string result = (status == 0) ? demangledName.get() : mangledName;
-    const std::string substr = "std::__1::";
-    _remove_substring(result, substr);
+    // std::__1::char_traits -> char_traits
+    _remove_substring(result, "std::__1::");
+    // basic_string<char, char_traits<char>, allocator<char>> -> basic_string
+    _remove_substring(result, "<char, char_traits<char>, allocator<char>>");
 
     return result;
 }
