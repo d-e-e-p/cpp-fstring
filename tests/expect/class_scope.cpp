@@ -32,10 +32,11 @@ class assign_value {
  private:
   T* t_;
   V v_;
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE assign_value<T, V> 
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE assign_value<T, V>
   public:
   auto to_string() const {
-    return fstr::format("assign_value<T:={}, V:={}>: T * t_={}, V v_={}\n", fstr::get_type_name<T>(), fstr::get_type_name<V>(), fmt::ptr(t_), v_);
+    const std::string fmt_string = "assign_value<T:={}, V:={}>: T * t_={}, V v_={}";
+    return fstr::format(fmt_string, fstr::get_type_name<T>(), fstr::get_type_name<V>(), fmt::ptr(t_), v_);
   }
 };
 
@@ -50,10 +51,11 @@ class KeyValue {
  private:
   std::string m_key;
   std::string m_value;
-  // Generated to_string() for PUBLIC CLASS_DECL KeyValue 
+  // Generated to_string() for PUBLIC CLASS_DECL KeyValue
   public:
   auto to_string() const {
-    return fstr::format("KeyValue: int m_key={}, m_value={}\n", m_key, m_value);
+    const std::string fmt_string = "KeyValue: int m_key={}, m_value={}";
+    return fstr::format(fmt_string, m_key, m_value);
   }
 };
 
@@ -67,10 +69,11 @@ class doc {
   // TODO(deep): find workaround for ::iterator and ::const_iterator issue with
   // libclang see https://github.com/llvm/llvm-project/issues/63277
   // std::vector<KeyValue>::const_iterator m_iter;
-  // Generated to_string() for PUBLIC CLASS_DECL doc 
+  // Generated to_string() for PUBLIC CLASS_DECL doc
   public:
   auto to_string() const {
-    return fstr::format("doc: int foo={}, paragraph bar={}\n", foo, bar);
+    const std::string fmt_string = "doc: int foo={}, paragraph bar={}";
+    return fstr::format(fmt_string, foo, bar);
   }
 // Generated formatter for PRIVATE enum doc::paragraph of type INT scoped
  friend constexpr auto format_as(const doc::paragraph obj) {
@@ -88,10 +91,11 @@ struct S {
   template <int>
   using N = int;
   static constexpr int size = 5;
-  // Generated to_string() for PUBLIC STRUCT_DECL S 
+  // Generated to_string() for PUBLIC STRUCT_DECL S
   public:
   auto to_string() const {
-    return fstr::format("S: const int size={}\n", size);
+    const std::string fmt_string = "S: const int size={}";
+    return fstr::format(fmt_string, size);
   }
 };
 

@@ -35,10 +35,11 @@ class BaseSampleClass {
   Elephant el_base = EL_TWO;
 
   friend class SampleClass;
-  // Generated to_string() for PUBLIC CLASS_DECL BaseSampleClass 
+  // Generated to_string() for PUBLIC CLASS_DECL BaseSampleClass
   public:
   auto to_string() const {
-    return fstr::format("BaseSampleClass: Elephant el_base={}\n", el_base);
+    const std::string fmt_string = "BaseSampleClass: Elephant el_base={}";
+    return fstr::format(fmt_string, el_base);
   }
 // Generated formatter for PRIVATE enum BaseSampleClass::Elephant of type UINT 
  friend constexpr auto format_as(const BaseSampleClass::Elephant obj) {
@@ -63,10 +64,11 @@ class SampleClass : public BaseSampleClass {
   /// prop8 description
   int prop5;
   Elephant el_derived = EL_TEN;
-  // Generated to_string() for PUBLIC CLASS_DECL SampleClass 
+  // Generated to_string() for PUBLIC CLASS_DECL SampleClass
   public:
   auto to_string() const {
-    return fstr::format("SampleClass: int prop1={}, prop2={}, bool prop3={}, double prop4={}, int prop5={}, Elephant el_derived={}, el_base={}\n", prop1, prop2, prop3, prop4, prop5, el_derived, this->el_base);
+    const std::string fmt_string = "SampleClass: int prop1={}, prop2={}, bool prop3={}, double prop4={}, int prop5={}, Elephant el_derived={}, el_base={}";
+    return fstr::format(fmt_string, prop1, prop2, prop3, prop4, prop5, el_derived, this->el_base);
   }
 };
 namespace Alpha {
@@ -87,10 +89,11 @@ class AlphaClass {
     Z_E = '9',
     Z_F = 9,
   } Zebra;
-  // Generated to_string() for PUBLIC CLASS_DECL Alpha::AlphaClass 
+  // Generated to_string() for PUBLIC CLASS_DECL Alpha::AlphaClass
   public:
   auto to_string() const {
-    return fstr::format("Alpha::AlphaClass: int alphaString={}\n", alphaString);
+    const std::string fmt_string = "Alpha::AlphaClass: int alphaString={}";
+    return fstr::format(fmt_string, alphaString);
   }
 // Generated formatter for PROTECTED enum Alpha::AlphaClass::Zebra of type UINT 
  friend constexpr auto format_as(const Alpha::AlphaClass::Zebra obj) {
@@ -126,10 +129,11 @@ class OmegaClass {
     /// item four
     RI_FOUR,
   } Rino;
-  // Generated to_string() for PUBLIC CLASS_DECL Alpha::Omega::OmegaClass 
+  // Generated to_string() for PUBLIC CLASS_DECL Alpha::Omega::OmegaClass
   public:
   auto to_string() const {
-    return fstr::format("Alpha::Omega::OmegaClass: int omegaString={}\n", omegaString);
+    const std::string fmt_string = "Alpha::Omega::OmegaClass: int omegaString={}";
+    return fstr::format(fmt_string, omegaString);
   }
 // Generated formatter for PROTECTED enum Alpha::Omega::OmegaClass::Rino of type UINT 
  friend constexpr auto format_as(const Alpha::Omega::OmegaClass::Rino obj) {
@@ -153,16 +157,18 @@ class Bug_3488053 {
   class Bug_3488053_Nested {
    public:
     int x;
-    // Generated to_string() for PUBLIC CLASS_DECL Bug_3488053::Bug_3488053_Nested 
+    // Generated to_string() for PUBLIC CLASS_DECL Bug_3488053::Bug_3488053_Nested
   public:
   auto to_string() const {
-    return fstr::format("Bug_3488053::Bug_3488053_Nested: int x={}\n", x);
+    const std::string fmt_string = "Bug_3488053::Bug_3488053_Nested: int x={}";
+    return fstr::format(fmt_string, x);
   }
 } nest;
-  // Generated to_string() for PUBLIC CLASS_DECL Bug_3488053 
+  // Generated to_string() for PUBLIC CLASS_DECL Bug_3488053
   public:
   auto to_string() const {
-    return fstr::format("Bug_3488053: class Bug_3488053_Nested nest={}\n", nest);
+    const std::string fmt_string = "Bug_3488053: class Bug_3488053_Nested nest={}";
+    return fstr::format(fmt_string, nest);
   }
 };
 
@@ -173,25 +179,28 @@ class BloodOrange {
   int bo = 1;
 
   friend class ExcellentCake;
-  // Generated to_string() for PUBLIC CLASS_DECL Citrus::BloodOrange 
+  // Generated to_string() for PUBLIC CLASS_DECL Citrus::BloodOrange
   public:
   auto to_string() const {
-    return fstr::format("Citrus::BloodOrange: int bo={}\n", bo);
+    const std::string fmt_string = "Citrus::BloodOrange: int bo={}";
+    return fstr::format(fmt_string, bo);
   }
 };
 }  // namespace Citrus
 
-class Bananna : public Citrus::BloodOrange {  // Generated to_string() for PUBLIC CLASS_DECL Bananna 
+class Bananna : public Citrus::BloodOrange {  // Generated to_string() for PUBLIC CLASS_DECL Bananna
   public:
   auto to_string() const {
-    return fstr::format("Bananna: int bo={}\n", this->bo);
+    const std::string fmt_string = "Bananna: int bo={}";
+    return fstr::format(fmt_string, this->bo);
   }
 };
 
-class ExcellentCake : private Citrus::BloodOrange {  // Generated to_string() for PUBLIC CLASS_DECL ExcellentCake 
+class ExcellentCake : private Citrus::BloodOrange {  // Generated to_string() for PUBLIC CLASS_DECL ExcellentCake
   public:
   auto to_string() const {
-    return fstr::format("ExcellentCake: int bo={}\n", this->bo);
+    const std::string fmt_string = "ExcellentCake: int bo={}";
+    return fstr::format(fmt_string, this->bo);
   }
 };
 
@@ -207,10 +216,11 @@ struct SampleStruct {
 
  private:
   int prop;
-  // Generated to_string() for PUBLIC STRUCT_DECL SampleStruct 
+  // Generated to_string() for PUBLIC STRUCT_DECL SampleStruct
   public:
   auto to_string() const {
-    return fstr::format("SampleStruct: int prop={}\n", prop);
+    const std::string fmt_string = "SampleStruct: int prop={}";
+    return fstr::format(fmt_string, prop);
   }
 };
 
@@ -221,10 +231,11 @@ class Bird {
   int items[MAX_ITEM];
   int otherItems[7];
   int oneItem;
-  // Generated to_string() for PUBLIC CLASS_DECL Bird 
+  // Generated to_string() for PUBLIC CLASS_DECL Bird
   public:
   auto to_string() const {
-    return fstr::format("Bird: int[7] items={}, otherItems={}, int oneItem={}\n", items, otherItems, oneItem);
+    const std::string fmt_string = "Bird: int[7] items={}, otherItems={}, int oneItem={}";
+    return fstr::format(fmt_string, items, otherItems, oneItem);
   }
 };
 
@@ -272,10 +283,11 @@ class GrapeClass {
   struct GrapeStruct {};
   int x;
   void f();
-  // Generated to_string() for PUBLIC CLASS_DECL GrapeClass 
+  // Generated to_string() for PUBLIC CLASS_DECL GrapeClass
   public:
   auto to_string() const {
-    return fstr::format("GrapeClass: int x={}\n", x);
+    const std::string fmt_string = "GrapeClass: int x={}";
+    return fstr::format(fmt_string, x);
   }
 };
 
@@ -283,16 +295,18 @@ class GrapeClass {
 struct AnonHolderClass {
   struct {
     int x;
-    // Generated to_string() for PUBLIC STRUCT_DECL AnonHolderClass::(unnamed struct) 
+    // Generated to_string() for PUBLIC STRUCT_DECL AnonHolderClass::(unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format("AnonHolderClass::(unnamed struct): int x={}\n", x);
+    const std::string fmt_string = "AnonHolderClass::(unnamed struct): int x={}";
+    return fstr::format(fmt_string, x);
   }
 } a;
-  // Generated to_string() for PUBLIC STRUCT_DECL AnonHolderClass 
+  // Generated to_string() for PUBLIC STRUCT_DECL AnonHolderClass
   public:
   auto to_string() const {
-    return fstr::format("AnonHolderClass: struct (unnamed struct) a={}\n", a);
+    const std::string fmt_string = "AnonHolderClass: struct (unnamed struct) a={}";
+    return fstr::format(fmt_string, a);
   }
 };
 
@@ -308,10 +322,11 @@ class MangoClass : virtual public BaseMangoClass {};
 const long MAX_LEN = 7;
 struct EagleClass {
   int a[(int)MAX_LEN];
-  // Generated to_string() for PUBLIC STRUCT_DECL EagleClass 
+  // Generated to_string() for PUBLIC STRUCT_DECL EagleClass
   public:
   auto to_string() const {
-    return fstr::format("EagleClass: int[7] a={}\n", a);
+    const std::string fmt_string = "EagleClass: int[7] a={}";
+    return fstr::format(fmt_string, a);
   }
 };
 
@@ -319,34 +334,38 @@ struct EagleClass {
 struct FrogClass {
   struct {
     int a;
-    // Generated to_string() for PUBLIC STRUCT_DECL FrogClass::(unnamed struct) 
+    // Generated to_string() for PUBLIC STRUCT_DECL FrogClass::(unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format("FrogClass::(unnamed struct): int a={}\n", a);
+    const std::string fmt_string = "FrogClass::(unnamed struct): int a={}";
+    return fstr::format(fmt_string, a);
   }
 } x;
 
   struct {
     int b;
-    // Generated to_string() for PUBLIC STRUCT_DECL FrogClass::(unnamed struct) 
+    // Generated to_string() for PUBLIC STRUCT_DECL FrogClass::(unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format("FrogClass::(unnamed struct): int b={}\n", b);
+    const std::string fmt_string = "FrogClass::(unnamed struct): int b={}";
+    return fstr::format(fmt_string, b);
   }
 } y;
 
   struct {
     int c;
-    // Generated to_string() for PUBLIC STRUCT_DECL FrogClass::(unnamed struct) 
+    // Generated to_string() for PUBLIC STRUCT_DECL FrogClass::(unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format("FrogClass::(unnamed struct): int c={}\n", c);
+    const std::string fmt_string = "FrogClass::(unnamed struct): int c={}";
+    return fstr::format(fmt_string, c);
   }
 } z;
-  // Generated to_string() for PUBLIC STRUCT_DECL FrogClass 
+  // Generated to_string() for PUBLIC STRUCT_DECL FrogClass
   public:
   auto to_string() const {
-    return fstr::format("FrogClass: struct (unnamed struct) x={}, y={}, z={}\n", x, y, z);
+    const std::string fmt_string = "FrogClass: struct (unnamed struct) x={}, y={}, z={}";
+    return fstr::format(fmt_string, x, y, z);
   }
 };
 
@@ -366,10 +385,11 @@ int FishB(const char* strB);
 class PandaClass {
   static const int CONST_A = (1 << 7) - 1;
   static const int CONST_B = sizeof(int);
-  // Generated to_string() for PUBLIC CLASS_DECL PandaClass 
+  // Generated to_string() for PUBLIC CLASS_DECL PandaClass
   public:
   auto to_string() const {
-    return fstr::format("PandaClass: const int CONST_A={}, CONST_B={}\n", CONST_A, CONST_B);
+    const std::string fmt_string = "PandaClass: const int CONST_A={}, CONST_B={}";
+    return fstr::format(fmt_string, CONST_A, CONST_B);
   }
 };
 
@@ -379,16 +399,18 @@ class PotatoClass {
   FwdStruct* ptr;
   struct FwdStruct {
     int a;
-    // Generated to_string() for PRIVATE STRUCT_DECL PotatoClass::FwdStruct 
+    // Generated to_string() for PRIVATE STRUCT_DECL PotatoClass::FwdStruct
   public:
   auto to_string() const {
-    return fstr::format("PotatoClass::FwdStruct: int a={}\n", a);
+    const std::string fmt_string = "PotatoClass::FwdStruct: int a={}";
+    return fstr::format(fmt_string, a);
   }
 };
-  // Generated to_string() for PUBLIC CLASS_DECL PotatoClass 
+  // Generated to_string() for PUBLIC CLASS_DECL PotatoClass
   public:
   auto to_string() const {
-    return fstr::format("PotatoClass: FwdStruct * ptr={}\n", fmt::ptr(ptr));
+    const std::string fmt_string = "PotatoClass: FwdStruct * ptr={}";
+    return fstr::format(fmt_string, fmt::ptr(ptr));
   }
 };
 
@@ -397,16 +419,18 @@ class HogClass {
   union HogUnion {
     int a;
     float b;
-    // Generated to_string() for PRIVATE UNION_DECL HogClass::HogUnion 
+    // Generated to_string() for PRIVATE UNION_DECL HogClass::HogUnion
   public:
   auto to_string() const {
-    return fstr::format("HogClass::HogUnion: int a={}, float b={}\n", a, b);
+    const std::string fmt_string = "HogClass::HogUnion: int a={}, float b={}";
+    return fstr::format(fmt_string, a, b);
   }
 } u;
-  // Generated to_string() for PUBLIC CLASS_DECL HogClass 
+  // Generated to_string() for PUBLIC CLASS_DECL HogClass
   public:
   auto to_string() const {
-    return fstr::format("HogClass: union HogUnion u={}\n", u);
+    const std::string fmt_string = "HogClass: union HogUnion u={}";
+    return fstr::format(fmt_string, u);
   }
 };
 
@@ -418,16 +442,18 @@ class CherryClass {
   struct NestStruct {
     void FuncA();
     int val;
-    // Generated to_string() for PUBLIC STRUCT_DECL CherryClass<ID>::NestStruct 
+    // Generated to_string() for PUBLIC STRUCT_DECL CherryClass<ID>::NestStruct
   public:
   auto to_string() const {
-    return fstr::format("CherryClass<ID>::NestStruct: int val={}\n", val);
+    const std::string fmt_string = "CherryClass<ID>::NestStruct: int val={}";
+    return fstr::format(fmt_string, val);
   }
 };
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE CherryClass<ID> 
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE CherryClass<ID>
   public:
   auto to_string() const {
-    return fstr::format("CherryClass<ID:={}>: \n", ID);
+    const std::string fmt_string = "CherryClass<ID:={}>: ";
+    return fstr::format(fmt_string, ID);
   }
 };
 
@@ -438,10 +464,11 @@ class GarlicClass {
   GarlicClass();
   int fun1(T);
   int fun2(T);
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE GarlicClass<T> 
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE GarlicClass<T>
   public:
   auto to_string() const {
-    return fstr::format("GarlicClass<T:={}>: \n", fstr::get_type_name<T>());
+    const std::string fmt_string = "GarlicClass<T:={}>: ";
+    return fstr::format(fmt_string, fstr::get_type_name<T>());
   }
 };
 
@@ -450,10 +477,11 @@ class CarrotClass {
   int var1;
 #define FIRSTLINE SECONDLINE
   void fun1();
-  // Generated to_string() for PUBLIC CLASS_DECL CarrotClass 
+  // Generated to_string() for PUBLIC CLASS_DECL CarrotClass
   public:
   auto to_string() const {
-    return fstr::format("CarrotClass: int var1={}\n", var1);
+    const std::string fmt_string = "CarrotClass: int var1={}";
+    return fstr::format(fmt_string, var1);
   }
 };
 
@@ -466,10 +494,11 @@ struct OliveStruct {
   void* b;
   bool c;
   int d;
-  // Generated to_string() for PUBLIC STRUCT_DECL OliveStruct 
+  // Generated to_string() for PUBLIC STRUCT_DECL OliveStruct
   public:
   auto to_string() const {
-    return fstr::format("OliveStruct: struct other * a={}, void * b={}, bool c={}, int d={}\n", fmt::ptr(a), fmt::ptr(b), c, d);
+    const std::string fmt_string = "OliveStruct: struct other * a={}, void * b={}, bool c={}, int d={}";
+    return fstr::format(fmt_string, fmt::ptr(a), fmt::ptr(b), c, d);
   }
 };
 
@@ -485,10 +514,11 @@ class RoosterOuterClass {
 
    private:
     int privateMember1;
-    // Generated to_string() for PUBLIC CLASS_DECL RoosterNamespace::RoosterOuterClass::RoosterSubClass1 
+    // Generated to_string() for PUBLIC CLASS_DECL RoosterNamespace::RoosterOuterClass::RoosterSubClass1
   public:
   auto to_string() const {
-    return fstr::format("RoosterNamespace::RoosterOuterClass::RoosterSubClass1: int publicMember1={}, privateMember1={}\n", publicMember1, privateMember1);
+    const std::string fmt_string = "RoosterNamespace::RoosterOuterClass::RoosterSubClass1: int publicMember1={}, privateMember1={}";
+    return fstr::format(fmt_string, publicMember1, privateMember1);
   }
 };
 
@@ -500,16 +530,18 @@ class RoosterOuterClass {
 
    private:
     int privateMember2;
-    // Generated to_string() for PRIVATE CLASS_DECL RoosterNamespace::RoosterOuterClass::RoosterSubClass2 
+    // Generated to_string() for PRIVATE CLASS_DECL RoosterNamespace::RoosterOuterClass::RoosterSubClass2
   public:
   auto to_string() const {
-    return fstr::format("RoosterNamespace::RoosterOuterClass::RoosterSubClass2: int publicMember2={}, privateMember2={}\n", publicMember2, privateMember2);
+    const std::string fmt_string = "RoosterNamespace::RoosterOuterClass::RoosterSubClass2: int publicMember2={}, privateMember2={}";
+    return fstr::format(fmt_string, publicMember2, privateMember2);
   }
 };
-  // Generated to_string() for PUBLIC CLASS_DECL RoosterNamespace::RoosterOuterClass 
+  // Generated to_string() for PUBLIC CLASS_DECL RoosterNamespace::RoosterOuterClass
   public:
   auto to_string() const {
-    return fstr::format("RoosterNamespace::RoosterOuterClass: int member1={}, member2={}\n", member1, member2);
+    const std::string fmt_string = "RoosterNamespace::RoosterOuterClass: int member1={}, member2={}";
+    return fstr::format(fmt_string, member1, member2);
   }
 };
 }  // namespace RoosterNamespace
@@ -532,10 +564,11 @@ class CrowClass {
 struct DriverFuncs {
   void* (*init)();
   void (*write)(void* buf, int buflen);
-  // Generated to_string() for PUBLIC STRUCT_DECL DriverFuncs 
+  // Generated to_string() for PUBLIC STRUCT_DECL DriverFuncs
   public:
   auto to_string() const {
-    return fstr::format("DriverFuncs: void *(*)() init={}, void (*)(void *, int) write={}\n", fmt::ptr(init), fmt::ptr(write));
+    const std::string fmt_string = "DriverFuncs: void *(*)() init={}, void (*)(void *, int) write={}";
+    return fstr::format(fmt_string, fmt::ptr(init), fmt::ptr(write));
   }
 };
 

@@ -63,10 +63,11 @@ enum class Shape {
 struct Point {
   int x;
   int y;
-  // Generated to_string() for PUBLIC STRUCT_DECL Point 
+  // Generated to_string() for PUBLIC STRUCT_DECL Point
   public:
   auto to_string() const {
-    return fstr::format("Point: int x={}, y={}\n", x, y);
+    const std::string fmt_string = "Point: int x={}, y={}";
+    return fstr::format(fmt_string, x, y);
   }
 };
 std::map<Shape, std::vector<Point>> shapes = {

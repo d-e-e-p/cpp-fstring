@@ -31,7 +31,8 @@ class A {
   // Generated to_string() for PUBLIC CLASS_DECL A
   public:
   auto to_string() const {
-    return fstr::format("A: int a={}\n", a);
+    const std::string fmt_string = "A: int a={}";
+    return fstr::format(fmt_string, a);
   }
 };
 
@@ -44,7 +45,8 @@ class B : public A {
   // Generated to_string() for PUBLIC CLASS_DECL B
   public:
   auto to_string() const {
-    return fstr::format("B: int b={}, a={}\n", b, this->a);
+    const std::string fmt_string = "B: int b={}, a={}";
+    return fstr::format(fmt_string, b, this->a);
   }
 };
 
@@ -55,7 +57,8 @@ class C : public B {
   // Generated to_string() for PUBLIC CLASS_DECL C
   public:
   auto to_string() const {
-    return fstr::format("C: int c={}, b={}, a={}\n", c, this->b, this->a);
+    const std::string fmt_string = "C: int c={}, b={}, a={}";
+    return fstr::format(fmt_string, c, this->b, this->a);
   }
 };
 
@@ -64,7 +67,8 @@ class D : public C {
   // Generated to_string() for PUBLIC CLASS_DECL D
   public:
   auto to_string() const {
-    return fstr::format("D: int d={}, c={}, b={}, a={}\n", d, this->c, this->b, this->a);
+    const std::string fmt_string = "D: int d={}, c={}, b={}, a={}";
+    return fstr::format(fmt_string, d, this->c, this->b, this->a);
   }
 };
 
@@ -76,7 +80,8 @@ class X {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE X<T>
   public:
   auto to_string() const {
-    return fstr::format("X<T:={}>: T x={}\n", fstr::get_type_name<T>(), x);
+    const std::string fmt_string = "X<T:={}>: T x={}";
+    return fstr::format(fmt_string, fstr::get_type_name<T>(), x);
   }
 };
 
@@ -85,7 +90,8 @@ class Y : public X<bool> {
   // Generated to_string() for PUBLIC CLASS_DECL Y
   public:
   auto to_string() const {
-    return fstr::format("Y: int y={}\n", y);
+    const std::string fmt_string = "Y: int y={}";
+    return fstr::format(fmt_string, y);
   }
 };
 
@@ -96,7 +102,8 @@ struct Obj {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE Obj<T>
   public:
   auto to_string() const {
-    return fstr::format("Obj<T:={}>: T value={}\n", fstr::get_type_name<T>(), value);
+    const std::string fmt_string = "Obj<T:={}>: T value={}";
+    return fstr::format(fmt_string, fstr::get_type_name<T>(), value);
   }
 };
 
@@ -110,7 +117,8 @@ struct Map {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE Map<K, T>
   public:
   auto to_string() const {
-    return fstr::format("Map<K:={}, T:={}>: int map1={}, map2={}\n", fstr::get_type_name<K>(), fstr::get_type_name<T>(), map1, map2);
+    const std::string fmt_string = "Map<K:={}, T:={}>: int map1={}, map2={}";
+    return fstr::format(fmt_string, fstr::get_type_name<K>(), fstr::get_type_name<T>(), map1, map2);
   }
 };
 
@@ -123,7 +131,8 @@ struct Helper {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE Helper<T>
   public:
   auto to_string() const {
-    return fstr::format("Helper<T:={}>: int value={}\n", fstr::get_type_name<T>(), value);
+    const std::string fmt_string = "Helper<T:={}>: int value={}";
+    return fstr::format(fmt_string, fstr::get_type_name<T>(), value);
   }
 };
 
@@ -133,7 +142,8 @@ struct Helper<int> {
   // Generated to_string() for PUBLIC STRUCT_DECL Helper<int>
   public:
   auto to_string() const {
-    return fstr::format("Helper<int>: int value={}\n", value);
+    const std::string fmt_string = "Helper<int>: int value={}";
+    return fstr::format(fmt_string, value);
   }
 };
 
@@ -151,7 +161,8 @@ class Container {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE Container<T, C>
   public:
   auto to_string() const {
-    return fstr::format("Container<T:={}>: C<T> container={}\n", fstr::get_type_name<T>(), container);
+    const std::string fmt_string = "Container<T:={}>: C<T> container={}";
+    return fstr::format(fmt_string, fstr::get_type_name<T>(), container);
   }
 };
 

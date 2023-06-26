@@ -21,38 +21,43 @@ struct {
       int k = 1;
       struct {
         int l = 0;
-        // Generated to_string() for PUBLIC STRUCT_DECL (unnamed struct) 
+        // Generated to_string() for PUBLIC STRUCT_DECL (unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format("(unnamed struct): int l={}\n", l);
+    const std::string fmt_string = "(unnamed struct): int l={}";
+    return fstr::format(fmt_string, l);
   }
 } obj0 ;
-      // Generated to_string() for PUBLIC STRUCT_DECL (unnamed struct) 
+      // Generated to_string() for PUBLIC STRUCT_DECL (unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format("(unnamed struct): int k={}, struct (unnamed struct) obj0={}\n", k, obj0);
+    const std::string fmt_string = "(unnamed struct): int k={}, struct (unnamed struct) obj0={}";
+    return fstr::format(fmt_string, k, obj0);
   }
 } obj1 ;
-    // Generated to_string() for PUBLIC STRUCT_DECL (unnamed struct) 
+    // Generated to_string() for PUBLIC STRUCT_DECL (unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format("(unnamed struct): int j={}, struct (unnamed struct) obj1={}\n", j, obj1);
+    const std::string fmt_string = "(unnamed struct): int j={}, struct (unnamed struct) obj1={}";
+    return fstr::format(fmt_string, j, obj1);
   }
 } obj2 ;
-  // Generated to_string() for PUBLIC STRUCT_DECL (unnamed struct) 
+  // Generated to_string() for PUBLIC STRUCT_DECL (unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format("(unnamed struct): int i={}, struct (unnamed struct) obj2={}\n", i, obj2);
+    const std::string fmt_string = "(unnamed struct): int i={}, struct (unnamed struct) obj2={}";
+    return fstr::format(fmt_string, i, obj2);
   }
 } obj3;
 
 // test of namespace and inheritance
 struct Base {
   int i;
-  // Generated to_string() for PUBLIC STRUCT_DECL Base 
+  // Generated to_string() for PUBLIC STRUCT_DECL Base
   public:
   auto to_string() const {
-    return fstr::format("Base: int i={}\n", i);
+    const std::string fmt_string = "Base: int i={}";
+    return fstr::format(fmt_string, i);
   }
 };
 
@@ -63,22 +68,25 @@ struct enclose {
       static const int x;
       int y;
       Base b;
-      // Generated to_string() for PUBLIC STRUCT_DECL a::b::c::enclose::outer::inner 
+      // Generated to_string() for PUBLIC STRUCT_DECL a::b::c::enclose::outer::inner
   public:
   auto to_string() const {
-    return fstr::format("a::b::c::enclose::outer::inner: const int x={}, int y={}, Base b={}\n", x, y, b);
+    const std::string fmt_string = "a::b::c::enclose::outer::inner: const int x={}, int y={}, Base b={}";
+    return fstr::format(fmt_string, x, y, b);
   }
 } foo;
-    // Generated to_string() for PUBLIC STRUCT_DECL a::b::c::enclose::outer 
+    // Generated to_string() for PUBLIC STRUCT_DECL a::b::c::enclose::outer
   public:
   auto to_string() const {
-    return fstr::format("a::b::c::enclose::outer: struct inner foo={}\n", foo);
+    const std::string fmt_string = "a::b::c::enclose::outer: struct inner foo={}";
+    return fstr::format(fmt_string, foo);
   }
 } bar;
-  // Generated to_string() for PUBLIC STRUCT_DECL a::b::c::enclose 
+  // Generated to_string() for PUBLIC STRUCT_DECL a::b::c::enclose
   public:
   auto to_string() const {
-    return fstr::format("a::b::c::enclose: struct outer bar={}\n", bar);
+    const std::string fmt_string = "a::b::c::enclose: struct outer bar={}";
+    return fstr::format(fmt_string, bar);
   }
 } obj1;
 

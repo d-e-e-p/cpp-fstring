@@ -18,29 +18,32 @@
 struct Base {
   std::string bname = "base";
   int a = 4;
-  // Generated to_string() for PUBLIC STRUCT_DECL Base 
+  // Generated to_string() for PUBLIC STRUCT_DECL Base
   public:
   auto to_string() const {
-    return fstr::format("Base: int bname={}, a={}\n", bname, a);
+    const std::string fmt_string = "Base: int bname={}, a={}";
+    return fstr::format(fmt_string, bname, a);
   }
 };
 
 struct Foo {
   char name[50] = "foo";
   Base b;
-  // Generated to_string() for PUBLIC STRUCT_DECL Foo 
+  // Generated to_string() for PUBLIC STRUCT_DECL Foo
   public:
   auto to_string() const {
-    return fstr::format("Foo: char[50] name={}, Base b={}\n", name, b);
+    const std::string fmt_string = "Foo: char[50] name={}, Base b={}";
+    return fstr::format(fmt_string, name, b);
   }
 };
 
 struct Bar : Base {
   char name[50] = "bar";
-  // Generated to_string() for PUBLIC STRUCT_DECL Bar 
+  // Generated to_string() for PUBLIC STRUCT_DECL Bar
   public:
   auto to_string() const {
-    return fstr::format("Bar: char[50] name={}, int bname={}, a={}\n", name, this->bname, this->a);
+    const std::string fmt_string = "Bar: char[50] name={}, int bname={}, a={}";
+    return fstr::format(fmt_string, name, this->bname, this->a);
   }
 };
 

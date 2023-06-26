@@ -226,11 +226,6 @@ class Processor:
 
         decl_str, decl_expand, tvars = self.expand_template_decl(rec)
 
-        out = f"""  // Generated to_string() for {rec.access_specifier} {rec.class_kind} {decl_str}
-  public:
-  auto to_string() const {{
-    return fstr::format("{decl_expand}: """
-
         # produce the list of vars
         #   var.out : stores either 'foo =' or 'int foo = '
         last_vartype = None
@@ -244,10 +239,13 @@ class Processor:
             last_vartype = var.vartype
 
         vars_outlist = [var.out for var in vars]
-        out += ", ".join(vars_outlist)
-        out += '\\n"'
-        # bpdb.set_trace()
 
+        # assemble the format string
+        fmt_string = f"{decl_expand}: "
+        fmt_string += ", ".join(vars_outlist)
+        # import bpdb; bpdb.set_trace()
+
+        # assemble the param string
         # deal with pointers using fmt::ptr
         # deal with special cases of derived variables in class templates using this->
         # TODO: only use this-> for class templates
@@ -263,11 +261,16 @@ class Processor:
             else:
                 paramlist.append(name)
 
+        param_string = ""
         if paramlist:
-            out += ", " + ", ".join(paramlist)
+            param_string = ", " + ", ".join(paramlist)
 
-        out += """);
-  }
+        out = f"""  // Generated to_string() for {rec.access_specifier} {rec.class_kind} {decl_str}
+  public:
+  auto to_string() const {{
+    const std::string fmt_string = "{fmt_string}";
+    return fstr::format(fmt_string{param_string});
+  }}
 """
         return out
 

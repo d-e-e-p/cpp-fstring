@@ -23,20 +23,22 @@ class LimitedInt {
   explicit LimitedInt(const T value) { setValue(value); }
   void setValue(const T value) { mValue = value; }
   T getValue() const { return mValue; }
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE LimitedInt<T, Min, Max> 
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE LimitedInt<T, Min, Max>
   public:
   auto to_string() const {
-    return fstr::format("LimitedInt<T:={}, Min:={}, Max:={}>: T mValue={}\n", fstr::get_type_name<T>(), Min, Max, mValue);
+    const std::string fmt_string = "LimitedInt<T:={}, Min:={}, Max:={}>: T mValue={}";
+    return fstr::format(fmt_string, fstr::get_type_name<T>(), Min, Max, mValue);
   }
 };
 
 template <auto n>
 struct Auto {
   int v = 1;
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE Auto<n> 
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE Auto<n>
   public:
   auto to_string() const {
-    return fstr::format("Auto<n:={}>: int v={}\n", n, v);
+    const std::string fmt_string = "Auto<n:={}>: int v={}";
+    return fstr::format(fmt_string, n, v);
   }
 };
 
@@ -50,16 +52,18 @@ struct A {
 
   struct {
     long a, b;
-    // Generated to_string() for PUBLIC STRUCT_DECL A<T>::(unnamed struct) 
+    // Generated to_string() for PUBLIC STRUCT_DECL A<T>::(unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format("A<T>::(unnamed struct): long a={}, b={}\n", a, b);
+    const std::string fmt_string = "A<T>::(unnamed struct): long a={}, b={}";
+    return fstr::format(fmt_string, a, b);
   }
 } u;
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE A<T> 
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE A<T>
   public:
   auto to_string() const {
-    return fstr::format("A<T:={}>: T t={}, struct (unnamed struct) u={}\n", fstr::get_type_name<T>(), t, u);
+    const std::string fmt_string = "A<T:={}>: T t={}, struct (unnamed struct) u={}";
+    return fstr::format(fmt_string, fstr::get_type_name<T>(), t, u);
   }
 };
 
@@ -67,10 +71,11 @@ template <class T>
 struct B {
   T t;
   A<T> a;
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE B<T> 
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE B<T>
   public:
   auto to_string() const {
-    return fstr::format("B<T:={}>: T t={}, A<T> a={}\n", fstr::get_type_name<T>(), t, a);
+    const std::string fmt_string = "B<T:={}>: T t={}, A<T> a={}";
+    return fstr::format(fmt_string, fstr::get_type_name<T>(), t, a);
   }
 };
 
@@ -78,10 +83,11 @@ struct B {
 template <auto... Values>
 struct ValueList {
     static constexpr auto values = std::array{Values...};
-  // Generated to_string() for PUBLIC CLASS_TEMPLATE ValueList<Values> 
+  // Generated to_string() for PUBLIC CLASS_TEMPLATE ValueList<Values>
   public:
   auto to_string() const {
-    return fstr::format("ValueList<Values...>: const auto values={}\n", values);
+    const std::string fmt_string = "ValueList<Values...>: const auto values={}";
+    return fstr::format(fmt_string, values);
   }
 };
 

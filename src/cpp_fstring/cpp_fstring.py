@@ -98,7 +98,7 @@ def main(args):
     setup_logging(args.loglevel)
     log.debug(f"args = {args}")
 
-    with open(args.filename, encoding='UTF8') as f:
+    with open(args.filename, encoding='utf8', errors='ignore') as f:
         code = f.read()
 
     # record all interesting snippets in source
