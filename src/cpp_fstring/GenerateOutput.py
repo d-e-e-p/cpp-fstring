@@ -1,8 +1,27 @@
+"""
+    @file  GenerateOutput.py
+    @author  Sandeep <deep@tensorfield.ag>
+    @version 1.0
+
+    @section LICENSE
+
+    MIT License <http://opensource.org/licenses/MIT>
+
+    @section DESCRIPTION
+
+    https://github.com/d-e-e-p/cpp-fstring
+    Copyright (c) 2023 Sandeep <deep@tensorfield.ag>
+
+    Generates output based on change list produced by Processor
+
+"""
 import logging
+import sys
 
 # import bpdb  # noqa: F401
-
 log = logging.getLogger(__name__)
+sys.stdout.reconfigure(encoding='utf-8')
+
 
 """
 should really be using
