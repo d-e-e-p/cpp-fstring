@@ -2,7 +2,7 @@ import logging
 import re
 from collections import defaultdict
 
-import bpdb  # noqa: F401
+# import bpdb  # noqa: F401
 
 log = logging.getLogger(__name__)
 
