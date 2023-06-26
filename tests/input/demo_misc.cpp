@@ -78,7 +78,7 @@ Overview of f-strings in C++
 
 )";
 
-  struct tm time = {.tm_year = 2023 - 1900, .tm_mday = 1};
+  struct tm time = {.tm_mday = 1, .tm_year = 2023 - 1900};
   // int large = 10'000'000;
 
   cout << R"(

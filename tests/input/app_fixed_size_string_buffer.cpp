@@ -1,6 +1,6 @@
 /**
  * @file app_fixed_size_string_buffer.cpp
- * misc demo of cpp-fstring
+ * cpp-fstring on fixed_size_string_buffer
  *
  * @ingroup examples
  *
