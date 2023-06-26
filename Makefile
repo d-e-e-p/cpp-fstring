@@ -23,7 +23,9 @@ all help:
 #linkcheck:  Check for broken links in the documentation
 #publish:    Publish the package you have been developing to a package index server. By default, it uses testpypi. If you really w
 
-lint build clean docs doctests linkcheck publish:
+lint build clean docs doctests linkcheck:
 	tox -e $@
 
+publish: build
+	tox -e $@
 
