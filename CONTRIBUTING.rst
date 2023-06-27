@@ -65,22 +65,15 @@ that any documentation update is done in the same way was a code contribution.
 When working on documentation changes in your local machine, you can
 compile them using |tox|_::
 
-    tox -e docs
-
-and use Python's built-in web server for a preview in your web browser
-(``http://localhost:8000``)::
-
-    python3 -m http.server --directory 'docs/_build/html'
+    make docs
+    open docs/_build/html/index.html
 
 
 Code Contributions
 ==================
 
-.. todo:: Please include a reference or explanation about the internals of the project.
 
-   An architecture description, design principles or at least a summary of the
-   main concepts will make it easy for potential contributors to get started
-   quickly.
+    
 
 Submit an issue
 ---------------
