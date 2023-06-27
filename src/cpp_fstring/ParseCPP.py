@@ -29,12 +29,12 @@ import os
 import re
 from typing import Callable
 
-# import bpdb  # noqa: F401
-from cpp_fstring.DataClass import BaseClassRecord, ClassRecord, ClassVar, EnumRecord, EnumConstantDecl
-from cpp_fstring.DataClass import dump
 from clang.cindex import AccessSpecifier, Config, Cursor
 from clang.cindex import CursorKind as CK
 from clang.cindex import Index, Token, TokenKind, TranslationUnit, TypeKind
+
+# import bpdb  # noqa: F401
+from cpp_fstring.DataClass import BaseClassRecord, ClassRecord, ClassVar, EnumConstantDecl, EnumRecord, dump
 
 # from cpp_fstring.clang.cindex import AccessSpecifier, Config, Cursor
 # from cpp_fstring.clang.cindex import CursorKind as CK
@@ -79,7 +79,7 @@ class ParseCPP:
         """
         pick out classes, structs, unions, enums, strings
 
-        parse the c++ file using libclang and visit every node, extracting interesting objects 
+        parse the c++ file using libclang and visit every node, extracting interesting objects
         """
         self.set_filename_for_parsing()
         args = [self.filename]
@@ -148,6 +148,7 @@ class ParseCPP:
         copied from clang cindex
         """
         import platform
+
         name = platform.system()
 
         if name == "Darwin":

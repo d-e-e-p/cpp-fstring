@@ -14,9 +14,9 @@
 
 """
 
+import types
 from dataclasses import dataclass, field
 from typing import Callable
-import types
 
 from clang.cindex import Token
 

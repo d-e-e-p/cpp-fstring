@@ -20,7 +20,7 @@ import sys
 
 # import bpdb  # noqa: F401
 log = logging.getLogger(__name__)
-sys.stdout.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding="utf-8")
 
 
 """
