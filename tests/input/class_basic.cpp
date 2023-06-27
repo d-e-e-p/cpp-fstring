@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "fstr.h"
+#include "utils.h"
 
 struct Foo {
   int a = 32;
@@ -42,14 +43,16 @@ class Outer {
   } anon;
 } out;
 
+
 int main()
 {
   using std::cout;
-  cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
+  print_info(__FILE__, __TIMESTAMP__);
+
   // can't print loc
   struct Local {
     int x = 0;
   } loc;
 
-  cout << "{Outer()=}";
+  cout << "{Outer()=}\n";
 }

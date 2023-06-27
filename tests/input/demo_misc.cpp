@@ -15,6 +15,9 @@
  *   @license MIT License
  */
 
+#define _USE_MATH_DEFINES
+#undef __STRICT_ANSI__
+
 #include <chrono>
 #include <cmath>
 #include <ctime>     // for tm
@@ -30,15 +33,16 @@
 
 #include "fmt/chrono.h"
 #include "fstr.h"
+#include "utils.h"
 
 using namespace std::string_literals;
 
-enum vtypes {INT, FLOAT, STRING, CHAR};
+enum class vtypes {INT, FLOAT, STRING, CHAR};
 
 int main()
 {
   using std::cout;
-  cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
+  print_info(__FILE__, __TIMESTAMP__);
 
   std::string str;
   int num = 97;

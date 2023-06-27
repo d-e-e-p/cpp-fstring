@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "fstr.h"
+#include "utils.h"
 
 // unnamed unscoped enum can't be printed at present
 // would require generating with std::enable_if_t<std::is_same_v<T, decltype(x)>>
@@ -87,7 +88,7 @@ std::map<Key, std::map<SubKey, Value>> data = {
 int main()
 {
   using std::cout;
-  cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
+  print_info(__FILE__, __TIMESTAMP__);
 
   cout << "x = " << x << "\n";
   // TODO(deep): make {x} work

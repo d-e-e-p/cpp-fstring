@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "fstr.h"
+#include "utils.h"
 
 struct Base {
   int a;
@@ -51,7 +52,7 @@ union Onion {
 int main()
 {
   using std::cout;
-  cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
+  print_info(__FILE__, __TIMESTAMP__);
 
   cout << fmt::format(" b={} \n", b);
   u.i = 10;

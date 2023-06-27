@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "fstr.h"
+#include "utils.h"
 
 // from
 // https://stackoverflow.com/questions/65781641/im-trying-to-format-a-template-using-fmt
@@ -103,30 +104,30 @@ class Complex {
 int main()
 {
   using std::cout;
-  cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
+  print_info(__FILE__, __TIMESTAMP__);
 
-  cout << "{ValueList<12, 24, 42>()=}";
-  cout << "{ValueList<'a', 'b', 'c'>()=}";
-  cout << "{Const<1,1,1,1>()=}";
-  cout << "{LimitedInt<uint16_t, 0, 4094>(10)=}";
-  cout << "{Auto<'a'>()=}";
+  cout << "{ValueList<12, 24, 42>()=}\n";
+  cout << "{ValueList<'a', 'b', 'c'>()=}\n";
+  cout << "{Const<1,1,1,1>()=}\n";
+  cout << "{LimitedInt<uint16_t, 0, 4094>(10)=}\n";
+  cout << "{Auto<'a'>()=}\n";
 
   S<bool, 10> s;
   s.a[9] = true;
-  cout << "{s=}";
+  cout << "{s=}\n";
 
   S<Cowboys, 10> cb;
   cb.a[0] = Cowboys::bad;
-  cout << "{cb=}";
+  cout << "{cb=}\n";
 
   Pair<double> pd{7.8, 9.0};
-  cout << "{pd=}";
+  cout << "{pd=}\n";
 
   Pair<Cowboys> pc{Cowboys::bad, Cowboys::good};
-  cout << "{pc=}";
+  cout << "{pc=}\n";
 
   Complex<double> xa(1.2, 2.25);
   Complex<int> xb(2, -1);
-  cout << "Complex<double> {xa=}";
-  cout << "Complex<int> {xb=}";
+  cout << "Complex<double> {xa=}\n";
+  cout << "Complex<int> {xb=}\n";
 }

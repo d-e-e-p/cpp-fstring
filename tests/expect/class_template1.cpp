@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "fstr.h"
+#include "utils.h"
 
 // from
 // https://stackoverflow.com/questions/65781641/im-trying-to-format-a-template-using-fmt
@@ -175,32 +176,32 @@ class Complex {
 int main()
 {
   using std::cout;
-  cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
+  print_info(__FILE__, __TIMESTAMP__);
 
-  cout << fmt::format("ValueList<12, 24, 42>()={}", ValueList<12, 24, 42>());
-  cout << fmt::format("ValueList<'a', 'b', 'c'>()={}", ValueList<'a', 'b', 'c'>());
-  cout << fmt::format("Const<1,1,1,1>()={}", Const<1,1,1,1>());
-  cout << fmt::format("LimitedInt<uint16_t, 0, 4094>(10)={}", LimitedInt<uint16_t, 0, 4094>(10));
-  cout << fmt::format("Auto<'a'>()={}", Auto<'a'>());
+  cout << fmt::format("ValueList<12, 24, 42>()={}\n", ValueList<12, 24, 42>());
+  cout << fmt::format("ValueList<'a', 'b', 'c'>()={}\n", ValueList<'a', 'b', 'c'>());
+  cout << fmt::format("Const<1,1,1,1>()={}\n", Const<1,1,1,1>());
+  cout << fmt::format("LimitedInt<uint16_t, 0, 4094>(10)={}\n", LimitedInt<uint16_t, 0, 4094>(10));
+  cout << fmt::format("Auto<'a'>()={}\n", Auto<'a'>());
 
   S<bool, 10> s;
   s.a[9] = true;
-  cout << fmt::format("s={}", s);
+  cout << fmt::format("s={}\n", s);
 
   S<Cowboys, 10> cb;
   cb.a[0] = Cowboys::bad;
-  cout << fmt::format("cb={}", cb);
+  cout << fmt::format("cb={}\n", cb);
 
   Pair<double> pd{7.8, 9.0};
-  cout << fmt::format("pd={}", pd);
+  cout << fmt::format("pd={}\n", pd);
 
   Pair<Cowboys> pc{Cowboys::bad, Cowboys::good};
-  cout << fmt::format("pc={}", pc);
+  cout << fmt::format("pc={}\n", pc);
 
   Complex<double> xa(1.2, 2.25);
   Complex<int> xb(2, -1);
-  cout << fmt::format("Complex<double> xa={}", xa);
-  cout << fmt::format("Complex<int> xb={}", xb);
+  cout << fmt::format("Complex<double> xa={}\n", xa);
+  cout << fmt::format("Complex<int> xb={}\n", xb);
 }
 
 // Generated formatter for PUBLIC enum Cowboys of type INT scoped

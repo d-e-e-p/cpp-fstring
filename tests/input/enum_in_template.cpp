@@ -34,6 +34,7 @@
 #include <vector>
 //
 #include "fstr.h"
+#include "utils.h"
 
 namespace fssb {
 
@@ -89,9 +90,9 @@ void FixedSizeStringBuffer<SPACE>::print_box_line()
 int main()
 {
   using std::cout;
-  cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
+  print_info(__FILE__, __TIMESTAMP__);
 
   constexpr size_t max_size = 10;
   auto rb = fssb::FixedSizeStringBuffer<max_size>();
-  cout << " {rb=} ";
+  cout << " {rb=}\n";
 }

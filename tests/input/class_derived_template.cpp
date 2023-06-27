@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "fstr.h"
+#include "utils.h"
 
 // set1
 class A {
@@ -91,18 +92,18 @@ class Container {
 int main()
 {
   using std::cout;
-  cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
+  print_info(__FILE__, __TIMESTAMP__);
 
   // should print a, b, c, d
-  cout << " {D()=} \n";
+  cout << " {D()=}\n";
 
-  cout << " {X<int>()=} ";
-  cout << " {X<bool>()=} ";
-  cout << " {X<std::string>()=} ";
-  cout << " {Y()=} ";
+  cout << " {X<int>()=} \n";
+  cout << " {X<bool>()=} \n";
+  cout << " {X<std::string>()=} \n";
+  cout << " {Y()=} \n";
   auto y = Y();
   // TODO(deep): fix derived template class missing vars
-  cout << " Y() should print both y and x=" << y.x << " \n";
+  cout << "\n Y() should print both y and x=" << y.x << "\n";
 
   Map<std::string, int> m;
   m.map1["key1"] = 100;
@@ -116,31 +117,31 @@ int main()
 
   // TODO(deep): fix derived template class missing map3
   // TODO(deep): map2 print is very ugly
-  cout << "Map {m=}";
+  cout << "Map {m=}\n";
 
-  cout << "{Helper<int>()=}";
-  cout << "{Helper<char>()=}";
+  cout << "{Helper<int>()=}\n";
+  cout << "{Helper<char>()=}\n";
 
   Container<int, std::vector> dp1;
   dp1.addData(10);
   dp1.addData(20);
   dp1.addData(30);
-  cout << "Container<int, std::vector> {dp1=}";
+  cout << "Container<int, std::vector> {dp1=}\n";
 
   Container<std::string, std::list> dp2;
   dp2.addData("Hello");
   dp2.addData("World");
-  cout << "Container<std::string, std::list> {dp2=}";
+  cout << "Container<std::string, std::list> {dp2=}\n";
 
   Container<std::tuple<int, char, double>, std::vector> dp3;
   dp3.addData(std::make_tuple(10, 'a', 1.0));
   dp3.addData(std::make_tuple(20, 'b', 2.0));
-  cout << "Container<std::tuple<int, char, double>, std::vector> {dp3}";
+  cout << "Container<std::tuple<int, char, double>, std::vector> {dp3}\n";
 
   Container<D, std::vector> db4;
   db4.addData(D());
   db4.addData(D());
-  cout << "Container<D, std::vector> {db4}";
+  cout << "Container<D, std::vector> {db4}\n";
 
 
   return 0;

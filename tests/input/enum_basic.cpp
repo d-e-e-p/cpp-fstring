@@ -19,6 +19,7 @@
 
 
 #include "fstr.h"
+#include "utils.h"
 
 using namespace std::string_literals;
 
@@ -90,7 +91,7 @@ enum class rangers { humans, maloqs, pelengs, faeyans, gaalians };
 int main()
 {
   using std::cout;
-  cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
+  print_info(__FILE__, __TIMESTAMP__);
 
   // TODO(deep): get {a} working...
   cout << R"(

@@ -21,15 +21,16 @@
 #include <vector>
 
 #include "fstr.h"
+#include "utils.h"
 
 int main()
 {
   using std::cout;
-  cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
-  cout << "1. {SampleClass()}";
-  cout << "2. {Bug_3488053()}";
-  cout << "3. {Bananna()}";
-  cout << "4. {Bird()}";
-  cout << "5. {EagleClass()}";
-  cout << "6. {FrogClass()}";
+  print_info(__FILE__, __TIMESTAMP__);
+  cout << "1. {SampleClass()}\n";
+  cout << "2. {Bug_3488053()}\n";
+  cout << "3. {Bananna()}\n";
+  cout << "4. {Bird()}\n";
+  cout << "5. {EagleClass()}\n";
+  cout << "6. {FrogClass()}\n";
 }

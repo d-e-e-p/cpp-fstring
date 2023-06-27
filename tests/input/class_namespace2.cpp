@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "fstr.h"
+#include "utils.h"
 
 //
 // test classes in different hier and namespaces...
@@ -117,7 +118,7 @@ int main()
 {
   using namespace Test;
   using std::cout;
-  cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
+  print_info(__FILE__, __TIMESTAMP__);
 
   cout << " old Func()={old_ns::Func()=} s = {old_ns::s=} \n";
   cout << " new Func()={Func()=} s = {s} \n";

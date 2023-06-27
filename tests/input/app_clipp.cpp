@@ -13,12 +13,13 @@
 
 #include "clipp.h"
 #include "fstr.h"
+#include "utils.h"
 
 int main()
 {
   using namespace clipp;
   using std::cout;
-  cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
+  print_info(__FILE__, __TIMESTAMP__);
 
   bool a = false, b = false, c = true;  // target variables
 
@@ -30,6 +31,6 @@ int main()
 
   auto usage = usage_lines(cli, "prefix>");
 
-  cout << " {cli=} \n";
-  cout << " {usage=} \n";
+  cout << "{cli=}\n";
+  cout << "{usage=}\n";
 }

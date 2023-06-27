@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "fstr.h"
+#include "utils.h"
 
 struct Base {
   std::string bname = "base";
@@ -32,6 +33,6 @@ struct Bar : Base {
 int main()
 {
   using std::cout;
-  cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
-  cout << " {Foo()=} {Bar()=} \n";
+  print_info(__FILE__, __TIMESTAMP__);
+  cout << " {Foo()=}\n {Bar()=}\n";
 }

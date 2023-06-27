@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "fstr.h"
+#include "utils.h"
 
 struct Base {
   std::string bname = "base";
@@ -21,7 +22,8 @@ struct Base {
   // Generated to_string() for PUBLIC STRUCT_DECL Base
   public:
   auto to_string() const {
-    return fstr::format("Base: int bname={}, a={}\n", bname, a);
+    const std::string fmt_string = "Base: int bname={}, a={}";
+    return fstr::format(fmt_string, bname, a);
   }
 };
 
@@ -31,7 +33,8 @@ struct Foo {
   // Generated to_string() for PUBLIC STRUCT_DECL Foo
   public:
   auto to_string() const {
-    return fstr::format("Foo: char[50] name={}, Base b={}\n", name, b);
+    const std::string fmt_string = "Foo: char[50] name={}, Base b={}";
+    return fstr::format(fmt_string, name, b);
   }
 };
 
@@ -40,15 +43,16 @@ struct Bar : Base {
   // Generated to_string() for PUBLIC STRUCT_DECL Bar
   public:
   auto to_string() const {
-    return fstr::format("Bar: char[50] name={}, int bname={}, a={}\n", name, this->bname, this->a);
+    const std::string fmt_string = "Bar: char[50] name={}, int bname={}, a={}";
+    return fstr::format(fmt_string, name, this->bname, this->a);
   }
 };
 
 int main()
 {
   using std::cout;
-  cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
-  cout << fmt::format(" Foo()={} Bar()={} \n", Foo(), Bar());
+  print_info(__FILE__, __TIMESTAMP__);
+  cout << fmt::format(" Foo()={}\n Bar()={}\n", Foo(), Bar());
 }
 
 

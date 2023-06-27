@@ -15,6 +15,9 @@
  *   @license MIT License
  */
 
+#define _USE_MATH_DEFINES
+#undef __STRICT_ANSI__
+
 #include <chrono>
 #include <cmath>
 #include <ctime>     // for tm
@@ -30,15 +33,16 @@
 
 #include "fmt/chrono.h"
 #include "fstr.h"
+#include "utils.h"
 
 using namespace std::string_literals;
 
-enum vtypes {INT, FLOAT, STRING, CHAR};
+enum class vtypes {INT, FLOAT, STRING, CHAR};
 
 int main()
 {
   using std::cout;
-  cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
+  print_info(__FILE__, __TIMESTAMP__);
 
   std::string str;
   int num = 97;
@@ -175,14 +179,14 @@ It was a sunny {:%A} in {:%B} around {:%OI}{:%p}
    )", a, b, b, a, ab, ba, abba, abba, abba.min(), abba, abba.sum(), abba, abba.max());
 }
 
-// Generated formatter for PUBLIC enum vtypes of type UINT 
+// Generated formatter for PUBLIC enum vtypes of type INT scoped
 constexpr auto format_as(const vtypes obj) {
   fmt::string_view name = "<missing>";
   switch (obj) {
-    case INT   : name = "INT"   ; break;  // index=0
-    case FLOAT : name = "FLOAT" ; break;  // index=1
-    case STRING: name = "STRING"; break;  // index=2
-    case CHAR  : name = "CHAR"  ; break;  // index=3
+    case vtypes::INT   : name = "INT"   ; break;  // index=0
+    case vtypes::FLOAT : name = "FLOAT" ; break;  // index=1
+    case vtypes::STRING: name = "STRING"; break;  // index=2
+    case vtypes::CHAR  : name = "CHAR"  ; break;  // index=3
   }
   return name;
 }

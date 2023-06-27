@@ -6,19 +6,21 @@
 #include <string>
 
 #include "fstr.h"
+#include "utils.h"
 
 struct Base {
   int n{};
   // Generated to_string() for PUBLIC STRUCT_DECL Base
   public:
   auto to_string() const {
-    return fstr::format("Base: int n={}\n", n);
+    const std::string fmt_string = "Base: int n={}";
+    return fstr::format(fmt_string, n);
   }
 };
 
 struct Class : public Base {
-  unsigned char x;
-  unsigned char y;
+  unsigned char x {};
+  unsigned char y {};
   std::mutex m;
   std::lock_guard<std::mutex> lg;
   std::fstream f;
@@ -59,17 +61,18 @@ struct Class : public Base {
   // Generated to_string() for PUBLIC STRUCT_DECL Class
   public:
   auto to_string() const {
-    return fstr::format("Class: unsigned char x={}, y={}, int m={}, lg={}, f={}, s={}, n={}\n", x, y, m, lg, f, s, this->n);
+    const std::string fmt_string = "Class: unsigned char x={}, y={}, int m={}, lg={}, f={}, s={}, n={}";
+    return fstr::format(fmt_string, x, y, m, lg, f, s, this->n);
   }
 };
 
 int main()
 {
   using std::cout;
-  cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
-  cout << fmt::format(" Class()={} ", Class());
-  cout << fmt::format(" Class(1)={} ", Class(1));
-  cout << fmt::format(" Class(0.1)={} ", Class(0.1));
+  print_info(__FILE__, __TIMESTAMP__);
+  cout << fmt::format(" Class()={}\n", Class());
+  cout << fmt::format(" Class(1)={}\n", Class(1));
+  cout << fmt::format(" Class(0.1)={}\n", Class(0.1));
 }
 
 

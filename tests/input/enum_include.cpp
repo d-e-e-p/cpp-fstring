@@ -15,11 +15,12 @@
 #include <map>
 
 #include "fstr.h"
+#include "utils.h"
 
 int main()
 {
   using std::cout;
-  cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
+  print_info(__FILE__, __TIMESTAMP__);
 
   // TODO(deep):  make {x} work?
   cout << "x = " << x << "\n";

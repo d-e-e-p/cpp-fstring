@@ -6,14 +6,15 @@
 #include <string>
 
 #include "fstr.h"
+#include "utils.h"
 
 struct Base {
   int n{};
 };
 
 struct Class : public Base {
-  unsigned char x;
-  unsigned char y;
+  unsigned char x {};
+  unsigned char y {};
   std::mutex m;
   std::lock_guard<std::mutex> lg;
   std::fstream f;
@@ -56,8 +57,8 @@ struct Class : public Base {
 int main()
 {
   using std::cout;
-  cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
-  cout << " {Class()=} ";
-  cout << " {Class(1)=} ";
-  cout << " {Class(0.1)=} ";
+  print_info(__FILE__, __TIMESTAMP__);
+  cout << " {Class()=}\n";
+  cout << " {Class(1)=}\n";
+  cout << " {Class(0.1)=}\n";
 }

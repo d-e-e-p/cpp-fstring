@@ -12,6 +12,7 @@
 #include <string>
 
 #include "fstr.h"
+#include "utils.h"
 
 //
 // from:
@@ -113,22 +114,22 @@ class Y2 : public CBase {
 int main()
 {
   using std::cout;
-  cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
+  print_info(__FILE__, __TIMESTAMP__);
 
   auto x1 = A::X1();
   auto x2 = A::X2();
 
-  cout << fmt::format(" A::CBase()={} ", A::CBase());
-  cout << fmt::format(" A::TBase<A::CBase>()={} ", A::TBase<A::CBase>());
-  cout << fmt::format(" base x1={} ", x1);
-  cout << fmt::format(" derived x2={} ", x2);
+  cout << fmt::format(" A::CBase()={}\n", A::CBase());
+  cout << fmt::format(" A::TBase<A::CBase>()={}\n", A::TBase<A::CBase>());
+  cout << fmt::format(" base x1={}\n", x1);
+  cout << fmt::format(" derived x2={}\n", x2);
 
   auto y1 = B::Y1();
   auto y2 = B::Y2();
 
   // see https://cplusplus.com/doc/tutorial/inheritance/
-  cout << fmt::format(" base y1={} ", y1);
-  cout << fmt::format(" derived y2={} ", y2);
+  cout << fmt::format(" base y1={}\n", y1);
+  cout << fmt::format(" derived y2={}\n", y2);
 
   return 0;
 }

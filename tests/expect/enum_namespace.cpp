@@ -13,6 +13,7 @@
 #include <map>
 
 #include "fstr.h"
+#include "utils.h"
 
 using namespace std::string_literals;
 
@@ -98,7 +99,7 @@ namespace roman {
 int main()
 {
   using std::cout;
-  cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
+  print_info(__FILE__, __TIMESTAMP__);
 
   cout << fmt::format(R"(
 

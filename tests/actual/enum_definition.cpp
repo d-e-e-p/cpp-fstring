@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "fstr.h"
+#include "utils.h"
 
 // unnamed unscoped enum can't be printed at present
 // would require generating with std::enable_if_t<std::is_same_v<T, decltype(x)>>
@@ -66,7 +67,8 @@ struct Point {
   // Generated to_string() for PUBLIC STRUCT_DECL Point
   public:
   auto to_string() const {
-    return fstr::format("Point: int x={}, y={}\n", x, y);
+    const std::string fmt_string = "Point: int x={}, y={}";
+    return fstr::format(fmt_string, x, y);
   }
 };
 std::map<Shape, std::vector<Point>> shapes = {
@@ -86,7 +88,7 @@ std::map<Key, std::map<SubKey, Value>> data = {
 int main()
 {
   using std::cout;
-  cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
+  print_info(__FILE__, __TIMESTAMP__);
 
   cout << "x = " << x << "\n";
   // TODO(deep): make {x} work

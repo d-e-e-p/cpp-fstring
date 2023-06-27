@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "fstr.h"
+#include "utils.h"
 
 // from
 // https://stackoverflow.com/questions/65781641/im-trying-to-format-a-template-using-fmt
@@ -26,7 +27,8 @@ class LimitedInt {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE LimitedInt<T, Min, Max>
   public:
   auto to_string() const {
-    return fstr::format("LimitedInt<T:={}, Min:={}, Max:={}>: T mValue={}\n", fstr::get_type_name<T>(), Min, Max, mValue);
+    const std::string fmt_string = "LimitedInt<T:={}, Min:={}, Max:={}>: T mValue={}";
+    return fstr::format(fmt_string, fstr::get_type_name<T>(), Min, Max, mValue);
   }
 };
 
@@ -36,7 +38,8 @@ struct Auto {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE Auto<n>
   public:
   auto to_string() const {
-    return fstr::format("Auto<n:={}>: int v={}\n", n, v);
+    const std::string fmt_string = "Auto<n:={}>: int v={}";
+    return fstr::format(fmt_string, n, v);
   }
 };
 
@@ -53,13 +56,15 @@ struct A {
     // Generated to_string() for PUBLIC STRUCT_DECL A<T>::(unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format("A<T>::(unnamed struct): long a={}, b={}\n", a, b);
+    const std::string fmt_string = "A<T>::(unnamed struct): long a={}, b={}";
+    return fstr::format(fmt_string, a, b);
   }
 } u;
   // Generated to_string() for PUBLIC CLASS_TEMPLATE A<T>
   public:
   auto to_string() const {
-    return fstr::format("A<T:={}>: T t={}, struct (unnamed struct) u={}\n", fstr::get_type_name<T>(), t, u);
+    const std::string fmt_string = "A<T:={}>: T t={}, struct (unnamed struct) u={}";
+    return fstr::format(fmt_string, fstr::get_type_name<T>(), t, u);
   }
 };
 
@@ -70,7 +75,8 @@ struct B {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE B<T>
   public:
   auto to_string() const {
-    return fstr::format("B<T:={}>: T t={}, A<T> a={}\n", fstr::get_type_name<T>(), t, a);
+    const std::string fmt_string = "B<T:={}>: T t={}, A<T> a={}";
+    return fstr::format(fmt_string, fstr::get_type_name<T>(), t, a);
   }
 };
 
@@ -81,21 +87,22 @@ struct ValueList {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE ValueList<Values>
   public:
   auto to_string() const {
-    return fstr::format("ValueList<Values...>: const auto values={}\n", values);
+    const std::string fmt_string = "ValueList<Values...>: const auto values={}";
+    return fstr::format(fmt_string, values);
   }
 };
 
 int main()
 {
   using std::cout;
-  cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
+  print_info(__FILE__, __TIMESTAMP__);
 
   A<int> a{1, {2, 3}};
   auto b = B<int>{1, {2, {3, 4}}};
-  cout << fmt::format("a={}b={}", a, b);
-  cout << fmt::format("ValueList<1, 2, 3>()={}", ValueList<1, 2, 3>());
-  cout << fmt::format("ValueList<'a', 'b', 'c'>()={}", ValueList<'a', 'b', 'c'>());
-  cout << fmt::format("ValueList<true, false, false>()={}", ValueList<true, false, false>());
+  cout << fmt::format("a={}\nb={}\n", a, b);
+  cout << fmt::format("ValueList<1, 2, 3>()={}\n", ValueList<1, 2, 3>());
+  cout << fmt::format("ValueList<'a', 'b', 'c'>()={}\n", ValueList<'a', 'b', 'c'>());
+  cout << fmt::format("ValueList<true, false, false>()={}\n", ValueList<true, false, false>());
 }
 
 

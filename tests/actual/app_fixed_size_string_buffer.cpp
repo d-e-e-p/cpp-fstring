@@ -1,6 +1,6 @@
 /**
  * @file app_fixed_size_string_buffer.cpp
- * misc demo of cpp-fstring
+ * cpp-fstring on fixed_size_string_buffer
  *
  * @ingroup examples
  *
@@ -13,22 +13,23 @@
 
 #include "fixed_size_string_buffer.h"
 #include "fstr.h"
+#include "utils.h"
 
 int main()
 {
   using std::cout;
-  cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
+  print_info(__FILE__, __TIMESTAMP__);
 
   cout << "fixed_size_string_buffer demo \n\n";
   constexpr size_t max_size = 10;
   auto rb = fssb::FixedSizeStringBuffer<max_size>();
-  cout << fmt::format(" rb={} ", rb);
+  cout << fmt::format("rb={}\n", rb);
   // add strings
   const std::string str = "The Quick Brown Fox Jumped Over The Lazy Dog";
   std::istringstream ss(str);
   std::string word;
   while (ss >> word) { rb.push(word); }
-  cout << fmt::format(" rb={} ", rb);
+  cout << fmt::format("rb={}\n", rb);
 }
 
 

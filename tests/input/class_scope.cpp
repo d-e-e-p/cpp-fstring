@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "fstr.h"
+#include "utils.h"
 
 // from https://github.com/muellan/clipp/blob/master/include/clipp.h
 
@@ -69,7 +70,7 @@ struct S {
 int main()
 {
   using std::cout;
-  cout << "file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n";
+  print_info(__FILE__, __TIMESTAMP__);
 
   bool target = false;
   auto as = assign_value<bool>{target, true};

@@ -13,8 +13,11 @@
 //
 #include <type_traits>
 #include <utility>
+#include <vector>
+#include <variant>
 
 #include "fstr.h"
+#include "utils.h"
 
 // TODO(deep): Base class template functions don't get detected correctly in
 // libclang
@@ -56,12 +59,35 @@ struct D {
   void echo_dumb(D const &) {}
 };
 
+//  variant example
+struct Circle {
+    double radius;
+};
+
+struct Rectangle {
+    double width;
+    double height;
+};
+
+struct Triangle {
+    double base;
+    double height;
+};
+
+
 int main()
 {
-  fmt::print("file: {__FILE_NAME__}\ntime: {__TIMESTAMP__}\n");
+  print_info(__FILE__, __TIMESTAMP__);
 
-  fmt::print("{Bar<A, B>()=}");
-  fmt::print("{Bar<C, D>()=}");
+  fmt::print("{Bar<A, B>()=}\n");
+  fmt::print("{Bar<C, D>()=}\n");
+
+  using Shape = std::variant<Circle, Rectangle, Triangle>;
+  std::vector<Shape> shapes;
+  shapes.push_back(Circle{2.5});
+  shapes.push_back(Rectangle{3.0, 4.0});
+  shapes.push_back(Triangle{5.0, 6.0});
+  fmt::print("{shapes=}\n");
 
   return 0;
 }

@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "fstr.h"
+#include "utils.h"
 
 // from
 // https://stackoverflow.com/questions/65781641/im-trying-to-format-a-template-using-fmt
@@ -28,7 +29,8 @@ class LimitedInt {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE LimitedInt<T, Min, Max>
   public:
   auto to_string() const {
-    return fstr::format("LimitedInt<T:={}, Min:={}, Max:={}>: T mValue={}\n", fstr::get_type_name<T>(), Min, Max, mValue);
+    const std::string fmt_string = "LimitedInt<T:={}, Min:={}, Max:={}>: T mValue={}";
+    return fstr::format(fmt_string, fstr::get_type_name<T>(), Min, Max, mValue);
   }
 };
 
@@ -38,7 +40,8 @@ struct Auto {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE Auto<n>
   public:
   auto to_string() const {
-    return fstr::format("Auto<n:={}>: int v={}\n", n, v);
+    const std::string fmt_string = "Auto<n:={}>: int v={}";
+    return fstr::format(fmt_string, n, v);
   }
 };
 
@@ -49,7 +52,8 @@ struct ValueList {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE ValueList<Values>
   public:
   auto to_string() const {
-    return fstr::format("ValueList<Values...>: const auto values={}\n", values);
+    const std::string fmt_string = "ValueList<Values...>: const auto values={}";
+    return fstr::format(fmt_string, values);
   }
 };
 
@@ -61,7 +65,8 @@ struct Const {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE Const<N0, N1, N2, N3>
   public:
   auto to_string() const {
-    return fstr::format("Const<N0:={}, N1:={}, N2:={}, N3:={}>: int v={}\n", N0, N1, N2, N3, v);
+    const std::string fmt_string = "Const<N0:={}, N1:={}, N2:={}, N3:={}>: int v={}";
+    return fstr::format(fmt_string, N0, N1, N2, N3, v);
   }
 };
 
@@ -69,7 +74,8 @@ template <typename T>
 class my_array {  // Generated to_string() for PUBLIC CLASS_TEMPLATE my_array<T>
   public:
   auto to_string() const {
-    return fstr::format("my_array<T:={}>: \n", fstr::get_type_name<T>());
+    const std::string fmt_string = "my_array<T:={}>: ";
+    return fstr::format(fmt_string, fstr::get_type_name<T>());
   }
 };
 
@@ -81,7 +87,8 @@ class Map {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE Map<K, V, C>
   public:
   auto to_string() const {
-    return fstr::format("Map<K:={}, V:={}>: C<K> key={}, C<V> value={}\n", fstr::get_type_name<K>(), fstr::get_type_name<V>(), key, value);
+    const std::string fmt_string = "Map<K:={}, V:={}>: C<K> key={}, C<V> value={}";
+    return fstr::format(fmt_string, fstr::get_type_name<K>(), fstr::get_type_name<V>(), key, value);
   }
 };
 
@@ -91,7 +98,8 @@ struct A {
     // Generated to_string() for PUBLIC STRUCT_DECL A::B
   public:
   auto to_string() const {
-    return fstr::format("A::B: int X={}\n", X);
+    const std::string fmt_string = "A::B: int X={}";
+    return fstr::format(fmt_string, X);
   }
 };
   int C;
@@ -99,7 +107,8 @@ struct A {
   // Generated to_string() for PUBLIC STRUCT_DECL A
   public:
   auto to_string() const {
-    return fstr::format("A: int C={}, Y={}\n", C, Y);
+    const std::string fmt_string = "A: int C={}, Y={}";
+    return fstr::format(fmt_string, C, Y);
   }
 };
 
@@ -109,7 +118,8 @@ struct X : A {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE X<B>
   public:
   auto to_string() const {
-    return fstr::format("X<B:={}>: B b={}, int C={}, Y={}\n", fstr::get_type_name<B>(), b, this->C, this->Y);
+    const std::string fmt_string = "X<B:={}>: B b={}, int C={}, Y={}";
+    return fstr::format(fmt_string, fstr::get_type_name<B>(), b, this->C, this->Y);
   }
 };
 
@@ -120,7 +130,8 @@ struct Pair {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE Pair<T>
   public:
   auto to_string() const {
-    return fstr::format("Pair<T:={}>: T first={}, second={}\n", fstr::get_type_name<T>(), first, second);
+    const std::string fmt_string = "Pair<T:={}>: T first={}, second={}";
+    return fstr::format(fmt_string, fstr::get_type_name<T>(), first, second);
   }
 };
 
@@ -131,7 +142,8 @@ struct S {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE S<T, N>
   public:
   auto to_string() const {
-    return fstr::format("S<T:={}, N:={}>: T[N] a={}\n", fstr::get_type_name<T>(), N, a);
+    const std::string fmt_string = "S<T:={}, N:={}>: T[N] a={}";
+    return fstr::format(fmt_string, fstr::get_type_name<T>(), N, a);
   }
 };
 
@@ -156,39 +168,40 @@ class Complex {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE Complex<Ty>
   public:
   auto to_string() const {
-    return fstr::format("Complex<Ty:={}>: Ty r={}, i={}\n", fstr::get_type_name<Ty>(), r, i);
+    const std::string fmt_string = "Complex<Ty:={}>: Ty r={}, i={}";
+    return fstr::format(fmt_string, fstr::get_type_name<Ty>(), r, i);
   }
 };
 
 int main()
 {
   using std::cout;
-  cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
+  print_info(__FILE__, __TIMESTAMP__);
 
-  cout << fmt::format("ValueList<12, 24, 42>()={}", ValueList<12, 24, 42>());
-  cout << fmt::format("ValueList<'a', 'b', 'c'>()={}", ValueList<'a', 'b', 'c'>());
-  cout << fmt::format("Const<1,1,1,1>()={}", Const<1,1,1,1>());
-  cout << fmt::format("LimitedInt<uint16_t, 0, 4094>(10)={}", LimitedInt<uint16_t, 0, 4094>(10));
-  cout << fmt::format("Auto<'a'>()={}", Auto<'a'>());
+  cout << fmt::format("ValueList<12, 24, 42>()={}\n", ValueList<12, 24, 42>());
+  cout << fmt::format("ValueList<'a', 'b', 'c'>()={}\n", ValueList<'a', 'b', 'c'>());
+  cout << fmt::format("Const<1,1,1,1>()={}\n", Const<1,1,1,1>());
+  cout << fmt::format("LimitedInt<uint16_t, 0, 4094>(10)={}\n", LimitedInt<uint16_t, 0, 4094>(10));
+  cout << fmt::format("Auto<'a'>()={}\n", Auto<'a'>());
 
   S<bool, 10> s;
   s.a[9] = true;
-  cout << fmt::format("s={}", s);
+  cout << fmt::format("s={}\n", s);
 
   S<Cowboys, 10> cb;
   cb.a[0] = Cowboys::bad;
-  cout << fmt::format("cb={}", cb);
+  cout << fmt::format("cb={}\n", cb);
 
   Pair<double> pd{7.8, 9.0};
-  cout << fmt::format("pd={}", pd);
+  cout << fmt::format("pd={}\n", pd);
 
   Pair<Cowboys> pc{Cowboys::bad, Cowboys::good};
-  cout << fmt::format("pc={}", pc);
+  cout << fmt::format("pc={}\n", pc);
 
   Complex<double> xa(1.2, 2.25);
   Complex<int> xb(2, -1);
-  cout << fmt::format("Complex<double> xa={}", xa);
-  cout << fmt::format("Complex<int> xb={}", xb);
+  cout << fmt::format("Complex<double> xa={}\n", xa);
+  cout << fmt::format("Complex<int> xb={}\n", xb);
 }
 
 // Generated formatter for PUBLIC enum Cowboys of type INT scoped

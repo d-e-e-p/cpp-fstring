@@ -34,6 +34,7 @@
 #include <vector>
 //
 #include "fstr.h"
+#include "utils.h"
 
 namespace fssb {
 
@@ -66,7 +67,8 @@ class FixedSizeStringBuffer {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE fssb::FixedSizeStringBuffer<SPACE>
   public:
   auto to_string() const {
-    return fstr::format("fssb::FixedSizeStringBuffer<SPACE:={}>: int chars_={}, max_chars_={}, const int box_top={}, box_bot={}\n", SPACE, chars_, max_chars_, box_top, box_bot);
+    const std::string fmt_string = "fssb::FixedSizeStringBuffer<SPACE:={}>: int chars_={}, max_chars_={}, const int box_top={}, box_bot={}";
+    return fstr::format(fmt_string, SPACE, chars_, max_chars_, box_top, box_bot);
   }
 // Generated formatter for PUBLIC enum fssb::FixedSizeStringBuffer<SPACE>::CT of type INT scoped
  friend constexpr auto format_as(const fssb::FixedSizeStringBuffer<SPACE>::CT obj) {
@@ -107,11 +109,11 @@ void FixedSizeStringBuffer<SPACE>::print_box_line()
 int main()
 {
   using std::cout;
-  cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
+  print_info(__FILE__, __TIMESTAMP__);
 
   constexpr size_t max_size = 10;
   auto rb = fssb::FixedSizeStringBuffer<max_size>();
-  cout << fmt::format(" rb={} ", rb);
+  cout << fmt::format(" rb={}\n", rb);
 }
 
 

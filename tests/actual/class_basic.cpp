@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "fstr.h"
+#include "utils.h"
 
 struct Foo {
   int a = 32;
@@ -19,7 +20,8 @@ struct Foo {
   // Generated to_string() for PUBLIC STRUCT_DECL Foo
   public:
   auto to_string() const {
-    return fstr::format("Foo: int a={}, int[10] b={}\n", a, b);
+    const std::string fmt_string = "Foo: int a={}, int[10] b={}";
+    return fstr::format(fmt_string, a, b);
   }
 };
 
@@ -31,7 +33,8 @@ struct Bar {
   // Generated to_string() for PUBLIC STRUCT_DECL Bar
   public:
   auto to_string() const {
-    return fstr::format("Bar: char[50] name={}, int i={}, double f={}, Foo foo={}\n", name, i, f, foo);
+    const std::string fmt_string = "Bar: char[50] name={}, int i={}, double f={}, Foo foo={}";
+    return fstr::format(fmt_string, name, i, f, foo);
   }
 };
 
@@ -45,7 +48,8 @@ class Rectangle {
   // Generated to_string() for PUBLIC CLASS_DECL Rectangle
   public:
   auto to_string() const {
-    return fstr::format("Rectangle: int width={}, height={}, Bar bar={}\n", width, height, bar);
+    const std::string fmt_string = "Rectangle: int width={}, height={}, Bar bar={}";
+    return fstr::format(fmt_string, width, height, bar);
   }
 } rect;
 
@@ -57,26 +61,30 @@ class Outer {
     // Generated to_string() for PRIVATE STRUCT_DECL Outer::(unnamed struct)
   public:
   auto to_string() const {
-    return fstr::format("Outer::(unnamed struct): int a={}, b={}, Rectangle r={}\n", a, b, r);
+    const std::string fmt_string = "Outer::(unnamed struct): int a={}, b={}, Rectangle r={}";
+    return fstr::format(fmt_string, a, b, r);
   }
 } anon;
   // Generated to_string() for PUBLIC CLASS_DECL Outer
   public:
   auto to_string() const {
-    return fstr::format("Outer: struct (unnamed struct) anon={}\n", anon);
+    const std::string fmt_string = "Outer: struct (unnamed struct) anon={}";
+    return fstr::format(fmt_string, anon);
   }
 } out;
+
 
 int main()
 {
   using std::cout;
-  cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
+  print_info(__FILE__, __TIMESTAMP__);
+
   // can't print loc
   struct Local {
     int x = 0;
   } loc;
 
-  cout << fmt::format("Outer()={}", Outer());
+  cout << fmt::format("Outer()={}\n", Outer());
 }
 
 

@@ -13,8 +13,11 @@
 //
 #include <type_traits>
 #include <utility>
+#include <vector>
+#include <variant>
 
 #include "fstr.h"
+#include "utils.h"
 
 // TODO(deep): Base class template functions don't get detected correctly in
 // libclang
@@ -80,12 +83,53 @@ struct D {
   }
 };
 
+//  variant example
+struct Circle {
+    double radius;
+  // Generated to_string() for PUBLIC STRUCT_DECL Circle
+  public:
+  auto to_string() const {
+    const std::string fmt_string = "Circle: double radius={}";
+    return fstr::format(fmt_string, radius);
+  }
+};
+
+struct Rectangle {
+    double width;
+    double height;
+  // Generated to_string() for PUBLIC STRUCT_DECL Rectangle
+  public:
+  auto to_string() const {
+    const std::string fmt_string = "Rectangle: double width={}, height={}";
+    return fstr::format(fmt_string, width, height);
+  }
+};
+
+struct Triangle {
+    double base;
+    double height;
+  // Generated to_string() for PUBLIC STRUCT_DECL Triangle
+  public:
+  auto to_string() const {
+    const std::string fmt_string = "Triangle: double base={}, height={}";
+    return fstr::format(fmt_string, base, height);
+  }
+};
+
+
 int main()
 {
-  fmt::print(fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__));
+  print_info(__FILE__, __TIMESTAMP__);
 
-  fmt::print(fmt::format("Bar<A, B>()={}", Bar<A, B>()));
-  fmt::print(fmt::format("Bar<C, D>()={}", Bar<C, D>()));
+  fmt::print(fmt::format("Bar<A, B>()={}\n", Bar<A, B>()));
+  fmt::print(fmt::format("Bar<C, D>()={}\n", Bar<C, D>()));
+
+  using Shape = std::variant<Circle, Rectangle, Triangle>;
+  std::vector<Shape> shapes;
+  shapes.push_back(Circle{2.5});
+  shapes.push_back(Rectangle{3.0, 4.0});
+  shapes.push_back(Triangle{5.0, 6.0});
+  fmt::print(fmt::format("shapes={}\n", shapes));
 
   return 0;
 }

@@ -12,6 +12,7 @@
 #include <string>
 
 #include "fstr.h"
+#include "utils.h"
 
 //
 // from:
@@ -29,7 +30,8 @@ class TBase {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE A::TBase<T>
   public:
   auto to_string() const {
-    return fstr::format("A::TBase<T:={}>: int tbase={}\n", fstr::get_type_name<T>(), tbase);
+    const std::string fmt_string = "A::TBase<T:={}>: int tbase={}";
+    return fstr::format(fmt_string, fstr::get_type_name<T>(), tbase);
   }
 };
 class X1 : public TBase<X1> {
@@ -38,7 +40,8 @@ class X1 : public TBase<X1> {
   // Generated to_string() for PUBLIC CLASS_DECL A::X1
   public:
   auto to_string() const {
-    return fstr::format("A::X1: int x1={}\n", x1);
+    const std::string fmt_string = "A::X1: int x1={}";
+    return fstr::format(fmt_string, x1);
   }
 };
 class CBase {
@@ -47,7 +50,8 @@ class CBase {
   // Generated to_string() for PUBLIC CLASS_DECL A::CBase
   public:
   auto to_string() const {
-    return fstr::format("A::CBase: int cbase={}\n", cbase);
+    const std::string fmt_string = "A::CBase: int cbase={}";
+    return fstr::format(fmt_string, cbase);
   }
 };
 class X2 : public CBase {
@@ -56,7 +60,8 @@ class X2 : public CBase {
   // Generated to_string() for PUBLIC CLASS_DECL A::X2
   public:
   auto to_string() const {
-    return fstr::format("A::X2: int x2={}, cbase={}\n", x2, this->cbase);
+    const std::string fmt_string = "A::X2: int x2={}, cbase={}";
+    return fstr::format(fmt_string, x2, this->cbase);
   }
 };
 
@@ -70,7 +75,8 @@ class TBase {
   // Generated to_string() for PUBLIC CLASS_TEMPLATE B::TBase<T>
   public:
   auto to_string() const {
-    return fstr::format("B::TBase<T:={}>: int tbase={}\n", fstr::get_type_name<T>(), tbase);
+    const std::string fmt_string = "B::TBase<T:={}>: int tbase={}";
+    return fstr::format(fmt_string, fstr::get_type_name<T>(), tbase);
   }
 };
 class Y1 : public TBase<Y1> {
@@ -78,7 +84,8 @@ class Y1 : public TBase<Y1> {
   // Generated to_string() for PUBLIC CLASS_DECL B::Y1
   public:
   auto to_string() const {
-    return fstr::format("B::Y1: int y1={}\n", y1);
+    const std::string fmt_string = "B::Y1: int y1={}";
+    return fstr::format(fmt_string, y1);
   }
 };
 class CBase {
@@ -88,7 +95,8 @@ class CBase {
   // Generated to_string() for PUBLIC CLASS_DECL B::CBase
   public:
   auto to_string() const {
-    return fstr::format("B::CBase: int cbase={}\n", cbase);
+    const std::string fmt_string = "B::CBase: int cbase={}";
+    return fstr::format(fmt_string, cbase);
   }
 };
 class Y2 : public CBase {
@@ -96,7 +104,8 @@ class Y2 : public CBase {
   // Generated to_string() for PUBLIC CLASS_DECL B::Y2
   public:
   auto to_string() const {
-    return fstr::format("B::Y2: int y2={}, cbase={}\n", y2, this->cbase);
+    const std::string fmt_string = "B::Y2: int y2={}, cbase={}";
+    return fstr::format(fmt_string, y2, this->cbase);
   }
 };
 
@@ -105,22 +114,22 @@ class Y2 : public CBase {
 int main()
 {
   using std::cout;
-  cout << fmt::format("file: {}\ntime: {}\n", __FILE_NAME__, __TIMESTAMP__);
+  print_info(__FILE__, __TIMESTAMP__);
 
   auto x1 = A::X1();
   auto x2 = A::X2();
 
-  cout << fmt::format(" A::CBase()={} ", A::CBase());
-  cout << fmt::format(" A::TBase<A::CBase>()={} ", A::TBase<A::CBase>());
-  cout << fmt::format(" base x1={} ", x1);
-  cout << fmt::format(" derived x2={} ", x2);
+  cout << fmt::format(" A::CBase()={}\n", A::CBase());
+  cout << fmt::format(" A::TBase<A::CBase>()={}\n", A::TBase<A::CBase>());
+  cout << fmt::format(" base x1={}\n", x1);
+  cout << fmt::format(" derived x2={}\n", x2);
 
   auto y1 = B::Y1();
   auto y2 = B::Y2();
 
   // see https://cplusplus.com/doc/tutorial/inheritance/
-  cout << fmt::format(" base y1={} ", y1);
-  cout << fmt::format(" derived y2={} ", y2);
+  cout << fmt::format(" base y1={}\n", y1);
+  cout << fmt::format(" derived y2={}\n", y2);
 
   return 0;
 }
