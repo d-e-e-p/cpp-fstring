@@ -2,7 +2,7 @@
 # Makefile to document tox
 # https://github.com/d-e-e-p/cpp-fstring
 # Copyright (c) 2023 Sandeep <deep@tensorfield.ag>
-# 
+#
 
 .PHONY: *
 .DEFAULT_GOAL := help
@@ -12,7 +12,7 @@ MAKEFLAGS += -j4
 
 
 
-all help: 
+all help:
 	tox -av
 
 #lint:       Perform static analysis and style checks
@@ -28,4 +28,3 @@ lint build clean docs doctests linkcheck:
 
 publish: build
 	tox -e $@
-

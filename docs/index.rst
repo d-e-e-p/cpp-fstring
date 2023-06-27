@@ -2,7 +2,7 @@
 cpp-fstring
 ===========
 
-**cpp-fstring** is a pre-processor that brings some features of python style f-strings to C++.
+**cpp-fstring** is a pre-processor that brings python style f-strings to C++.
 
 .. note::
 

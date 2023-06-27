@@ -22,7 +22,7 @@
 cpp-fstring: python style f-string in C++
 =========================================
 
-cpp-fstring is a C++ code processor that expands any {var} type statements inside strings
+cpp-fstring is a C++ code processor that expands {var} type statements inside strings
 to equivalent fmt::format commands. So you can do things like:
 
 .. code-block:: CPP
@@ -33,6 +33,7 @@ to equivalent fmt::format commands. So you can do things like:
       {Color::red,    {Fruit::apple}},
       {Color::yellow, {Fruit::apple, Fruit::banana}},
     };
+    ...
     std::cout << "fruit by colors: {mc=} \n";
 
 
@@ -42,14 +43,13 @@ result:
 
     fruit by colors: mc = {red: [apple], yellow: [apple, banana]}
 
-cpp-fstring generates the boilerplate code to display a variety of containers including
-enums, structs and classes.
+cpp-fstring generates the boilerplate code to display enums and containers like structs and classes.
 
 Credits
 =======
 
 -  This project has been set up using `PyScaffold <https://pyscaffold.org/>`__
--  Post explaining `C++ templates <https://victor-istomin.github.io/c-with-crosses/posts/templates-are-easy/>`__
+-  Useful post explaining `C++ templates <https://victor-istomin.github.io/c-with-crosses/posts/templates-are-easy/>`__
 -  Discussions on stackoverflow like `enum to string in modern C++ <https://stackoverflow.com/questions/28828957/enum-to-string-in-modern-c11-c14-c17-and-future-c20>`__
 -  C++ formatting library `{fmt} <https://fmt.dev/latest/index.html>`__
 -  Python interface to the `Clang indexing library <https://libclang.readthedocs.io/en/latest/>`__
@@ -160,21 +160,25 @@ You also need to add this include to foo.cc:
 
     #include "fstr.h"
 
-`fstr.h <https://github.com/d-e-e-p/cpp-fstring/blob/main/src/cpp_fstring/include/fstr.h>`__ contains helper routines 
-needed to stringify enums and classes.  An example of using cpp-fstring in cmake environment 
+`fstr.h <https://github.com/d-e-e-p/cpp-fstring/blob/main/src/cpp_fstring/include/fstr.h>`__ contains helper routines
+needed to stringify enums and classes.  An example of using cpp-fstring in cmake environment
 is at `cpp-fstring-examples <https://github.com/d-e-e-p/cpp-fstring-examples>`__
 
-There are 2 main dependencies: python libclang library to run cpp-format and C++ fmt library to display objects. 
-to install `fmt <https://fmt.dev/latest/index.html>`__ use ONE of these commands:
+At present only clang is supported--gcc and MinGW are in-progress.
+
+There are 2 main dependencies: python libclang library to run cpp-format and C++ fmt library to display objects.
+In cmake environment the best way to pickup latest version of `fmt <https://fmt.dev/latest/index.html>`__ library is:
 
 .. code-block:: sh
 
-    sudo apt install libfmt-dev  # or
-    brew install fmt
-    vcpkg install fmt
-    conda install -c conda-forge fmt
+    CPMAddPackage(NAME fmt SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/fmt" GIT_REPOSITORY "https://github.com/fmtlib/fmt.git" GIT_TAG "master")
 
-to install `libclang <https://pypi.org/project/libclang/>`__ :
+or:
+
+    CPMAddPackage("gh:fmtlib/fmt#10.0.0")
+
+Generated code needs at least `10.0.0 <https://github.com/fmtlib/fmt/releases/tag/10.0.0>`__ version of fmt.
+cpp-fstring also needs `libclang <https://pypi.org/project/libclang/>`__ :
 
 .. code-block:: sh
 
